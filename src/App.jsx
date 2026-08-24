@@ -4218,6 +4218,12 @@ export default function App() {
     alt="GitHub icon" 
     width="40" 
     height="40" 
+    style={{
+      backgroundColor: '#ffffff',
+      borderRadius: '50%',
+      border: '2px solid #000000',
+      padding: '2px'
+    }}
   />
 </a>
 
