@@ -4228,22 +4228,19 @@ export default function App() {
 </a>
 
 
-              <a
-                className=
-                  "footer-social"
-                href=
-                  "https://linkedin.com/in/yourusername"
-                target="_blank"
-                rel=
-                  "noopener noreferrer"
-              >
-                <img 
-  src="https://www.svgrepo.com/show/25824/linked-in-logo-of-two-letters.svg" 
-  alt="LinkedIn logo" 
-  width="40" 
-  height="40" 
-/>
-              </a>
+<a
+  className="footer-social"
+  href="https://linkedin.com/in/MohammedSadiq555"
+  target="_blank"
+  rel="noopener noreferrer"
+>
+  <img 
+    src="https://www.svgrepo.com/show/25824/linked-in-logo-of-two-letters.svg" 
+    alt="LinkedIn logo" 
+    width="40" 
+    height="40" 
+  />
+</a>
 
 
               <a
