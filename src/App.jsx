@@ -4214,10 +4214,10 @@ export default function App() {
   rel="noopener noreferrer"
 >
   <img 
-    src="https://www.svgrepo.com/show/512317/github-142.svg" 
+    src="https://www.svgrepo.com/show/516640/github.svg" 
     alt="GitHub icon" 
-    width="50" 
-    height="50" 
+    width="40" 
+    height="40" 
   />
 </a>
 
