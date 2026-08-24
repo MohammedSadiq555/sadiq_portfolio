@@ -4207,17 +4207,19 @@ export default function App() {
                 "footer-socials"
             >
 
-              <a
-                className=
-                  "footer-social"
-                href=
-                  "https://github.com/yourusername"
-                target="_blank"
-                rel=
-                  "noopener noreferrer"
-              >
-                GH
-              </a>
+<a
+  className="footer-social"
+  href="https://github.com/MohammedSadiq555"
+  target="_blank"
+  rel="noopener noreferrer"
+>
+  <img 
+    src="https://www.svgrepo.com/show/512317/github-142.svg" 
+    alt="GitHub icon" 
+    width="50" 
+    height="50" 
+  />
+</a>
 
 
               <a
