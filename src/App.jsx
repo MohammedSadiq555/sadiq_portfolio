@@ -4230,7 +4230,7 @@ export default function App() {
 
 <a
       className="footer-social"
-      href={`https://linkedin.com/in/${username}`}
+      href="https://github.com/MohammedSadiq555"
       target="_blank"
       rel="noopener noreferrer"
       aria-label="LinkedIn Profile"
