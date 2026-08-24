@@ -2909,7 +2909,7 @@ export default function App() {
       >
 
         <div className="logo">
-          A. Rivera
+          Mohammed Sadiq K
         </div>
 
 
