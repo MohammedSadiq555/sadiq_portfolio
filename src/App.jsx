@@ -4220,9 +4220,9 @@ export default function App() {
     height="40" 
     style={{
       backgroundColor: '#ffffff',
-      borderRadius: '50%',
+      borderRadius: '25%',
       border: '2px solid #000000',
-      padding: '2px'
+      padding: '4px'
     }}
   />
 </a>
@@ -4238,8 +4238,8 @@ export default function App() {
       <img 
         src="https://www.svgrepo.com/show/25824/linked-in-logo-of-two-letters.svg" 
         alt="LinkedIn logo" 
-        width="30" 
-        height="30" 
+        width="40" 
+        height="40" 
         style={{
       backgroundColor: '#ffffff',
       borderRadius: '25%',
