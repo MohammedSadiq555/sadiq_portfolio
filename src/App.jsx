@@ -4238,8 +4238,8 @@ export default function App() {
       <img 
         src="https://www.svgrepo.com/show/25824/linked-in-logo-of-two-letters.svg" 
         alt="LinkedIn logo" 
-        width="30" 
-        height="30" 
+        width="40" 
+        height="40" 
         style={{
       backgroundColor: '#ffffff',
       borderRadius: '25%',
@@ -4262,8 +4262,8 @@ export default function App() {
                 <img 
         src="https://www.svgrepo.com/show/521711/instagram.svg" 
         alt="LinkedIn logo" 
-        width="30" 
-        height="30" 
+        width="40" 
+        height="40" 
         style={{
       backgroundColor: '#ffffff',
       borderRadius: '25%',
