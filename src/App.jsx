@@ -4274,18 +4274,6 @@ export default function App() {
               </a>
 
 
-              <a
-                className=
-                  "footer-social"
-                href=
-                  "https://x.com/yourusername"
-                target="_blank"
-                rel=
-                  "noopener noreferrer"
-              >
-                X
-              </a>
-
             </div>
 
           </div>
