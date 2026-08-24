@@ -4238,8 +4238,14 @@ export default function App() {
       <img 
         src="https://www.svgrepo.com/show/25824/linked-in-logo-of-two-letters.svg" 
         alt="LinkedIn logo" 
-        width="40" 
-        height="40" 
+        width="30" 
+        height="30" 
+        style={{
+      backgroundColor: '#ffffff',
+      borderRadius: '25%',
+      border: '2px solid #000000',
+      padding: '2px'
+    }}
       />
     </a>
 
