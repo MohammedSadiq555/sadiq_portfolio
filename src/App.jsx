@@ -4244,7 +4244,7 @@ export default function App() {
       backgroundColor: '#ffffff',
       borderRadius: '25%',
       border: '2px solid #000000',
-      padding: '2px'
+      padding: '4px'
     }}
       />
     </a>
@@ -4268,7 +4268,7 @@ export default function App() {
       backgroundColor: '#ffffff',
       borderRadius: '25%',
       border: '2px solid #000000',
-      padding: '2px'
+      padding: '4px'
     }}
       />
               </a>
