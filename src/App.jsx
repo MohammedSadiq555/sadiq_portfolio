@@ -4271,7 +4271,7 @@ const [skillsLoading, setSkillsLoading] = useState(true);
 
 <a
       className="footer-social"
-      href="https://github.com/MohammedSadiq555"
+      href="https://www.linkedin.com/in/mohammed-sadiq-81382b221?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app"
       target="_blank"
       rel="noopener noreferrer"
       aria-label="LinkedIn Profile"
@@ -4295,7 +4295,7 @@ const [skillsLoading, setSkillsLoading] = useState(true);
                 className=
                   "footer-social"
                 href=
-                  "https://instagram.com/yourusername"
+                  "https://www.instagram.com/sad.iq_555?igsi=MTNjcWZ2ZmQxMmJwZA=="
                 target="_blank"
                 rel=
                   "noopener noreferrer"
