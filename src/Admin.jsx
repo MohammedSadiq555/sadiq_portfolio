@@ -267,7 +267,7 @@ export default function Admin() {
 
       {/* NAV */}
       <nav className="admin-nav">
-        <div className="admin-logo">Admin Panel</div>
+        <div className="admin-logo">Mohammed Sadiq Admin Panel</div>
 
         <div className="admin-nav-right">
           <button
