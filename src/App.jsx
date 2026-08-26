@@ -60,63 +60,44 @@ const PROJECTS = [
 const EDUCATION = [
   {
     id: 1,
-    institution: "Lincoln High School",
-    degree: "High School Diploma",
-    start: "2012",
-    end: "2014",
+    institution: "Daniel Matriculation Higher Secondary School",
+    degree: "SSLC",
+    start: "2008",
+    end: "2020",
     description:
-      "Focused on mathematics and computer science electives.",
+      "",
     achievements: [
-      "Won regional coding competition",
-      "Built first website in senior year",
     ],
     x: 8,
     y: 70,
   },
   {
     id: 2,
-    institution: "University of Michigan",
-    degree: "B.S. Computer Science",
-    start: "2014",
-    end: "2018",
+    institution: "Daniel Matriculation Higher Secondary School",
+    degree: "Maths With Computer",
+    start: "2020",
+    end: "2022",
     description:
-      "Core coursework in algorithms, systems, and human-computer interaction.",
+      "",
     achievements: [
-      "Dean's List, six consecutive semesters",
-      "TA for Intro to Data Structures",
     ],
     x: 37,
     y: 25,
   },
   {
     id: 3,
-    institution: "Carnegie Mellon University",
-    degree: "M.S. Human-Computer Interaction",
-    start: "2018",
-    end: "2020",
+    institution: "Bachelor Of Technology",
+    degree: "Artificial Intelligence & Data Science",
+    start: "2022",
+    end: "2026",
     description:
-      "Thesis on spatial navigation patterns in complex software interfaces.",
+      "Dhaanish Ahmed College Of Engineering, Anna University",
     achievements: [
-      "Graduated with distinction",
-      "Published thesis at CHI workshop",
     ],
     x: 65,
     y: 62,
   },
-  {
-    id: 4,
-    institution: "Self-Directed Study",
-    degree: "Systems & Infrastructure",
-    start: "2020",
-    end: "Present",
-    description:
-      "Ongoing deep dives into distributed systems, databases, and developer tooling.",
-    achievements: [
-      "Contributed to 3 open-source infra projects",
-    ],
-    x: 90,
-    y: 22,
-  },
+ 
 ];
 
 /* =========================================================
