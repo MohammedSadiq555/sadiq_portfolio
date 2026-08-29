@@ -892,17 +892,6 @@ export default function Admin() {
       }
 
 
-      if (!projectURL.trim()) {
-
-        setProjectError(
-          "Please enter the Project URL."
-        );
-
-        return;
-
-      }
-
-
       if (!projectYear.trim()) {
 
         setProjectError(
