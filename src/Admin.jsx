@@ -447,6 +447,10 @@ export default function Admin() {
       setProjectsLoading(false);
 
     }
+     console.log(
+  "Projects Response:",
+  data
+);
 
   };
 
