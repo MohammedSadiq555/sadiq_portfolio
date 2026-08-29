@@ -2,611 +2,946 @@
 import React, { useEffect, useState } from "react";
 
 /* =========================================================
-   NAVIGATION
+   OUTSYSTEMS API URLS
    ========================================================= */
 
-const NAV_ITEMS = [
-  { id: "dashboard", label: "Dashboard" },
-  { id: "skills", label: "Skills" },
-];
-
-/* =========================================================
-   OUTSYSTEMS APIs
-   ========================================================= */
+/* -------------------------
+   SKILLS
+   ------------------------- */
 
 const SKILLS_GET_API =
   "https://personal-zld4pieb.outsystemscloud.com/SadiqPortfolio/rest/Skillsget/Skillsget";
 
-const SKILLS_POST_API =
-  "https://personal-zld4pieb.outsystemscloud.com/SadiqPortfolio/rest/Skillsget/SkillPost";
+const SKILLS_CREATE_API =
+  "https://personal-zld4pieb.outsystemscloud.com/SadiqPortfolio/rest/Skillsget/SkillsCreate";
 
-const SKILLS_PUT_API =
+const SKILLS_UPDATE_API =
   "https://personal-zld4pieb.outsystemscloud.com/SadiqPortfolio/rest/Skillsget/SkillsUpdate";
 
 const SKILLS_DELETE_API =
   "https://personal-zld4pieb.outsystemscloud.com/SadiqPortfolio/rest/Skillsget/SkillDelete";
 
-/* =========================================================
-   IMAGE URL VALIDATION
-   ========================================================= */
+/* -------------------------
+   PROJECTS
+   ------------------------- */
 
-const isValidImageUrl = (url) => {
-  if (!url || !url.trim()) {
-    return false;
-  }
+const PROJECT_CREATE_API =
+  "https://personal-zld4pieb.outsystemscloud.com/SadiqPortfolio/rest/ProjectsAPI/CreateProject";
 
-  try {
-    const parsedUrl = new URL(url.trim());
-
-    const pathname = parsedUrl.pathname.toLowerCase();
-
-    return (
-      pathname.endsWith(".png") ||
-      pathname.endsWith(".jpg") ||
-      pathname.endsWith(".jpeg") ||
-      pathname.endsWith(".gif") ||
-      pathname.endsWith(".webp") ||
-      pathname.endsWith(".svg")
-    );
-  } catch {
-    return false;
-  }
-};
 
 /* =========================================================
-   ADMIN COMPONENT
+   MAIN ADMIN COMPONENT
    ========================================================= */
 
 export default function Admin() {
+
   /* =======================================================
      GENERAL
      ======================================================= */
 
-  const [theme, setTheme] = useState("dark");
   const [activeTab, setActiveTab] =
     useState("dashboard");
 
-  const isDark = theme === "dark";
+  const [darkMode, setDarkMode] =
+    useState(true);
+
 
   /* =======================================================
      SKILLS
      ======================================================= */
 
-  const [skills, setSkills] = useState([]);
+  const [skills, setSkills] =
+    useState([]);
 
   const [skillsLoading, setSkillsLoading] =
     useState(false);
 
-  const [skillError, setSkillError] =
+  const [skillsError, setSkillsError] =
     useState("");
 
-  /* =======================================================
-     CREATE SKILL
-     ======================================================= */
+  /* -------------------------
+     ADD SKILL
+     ------------------------- */
 
   const [showAddSkill, setShowAddSkill] =
     useState(false);
 
-  const [skillName, setSkillName] =
+  const [newSkillName, setNewSkillName] =
     useState("");
 
-  const [imageLink, setImageLink] =
+  const [newSkillImage, setNewSkillImage] =
     useState("");
 
   const [addingSkill, setAddingSkill] =
     useState(false);
 
-  /* =======================================================
-     SKILL DETAILS POPUP
-     ======================================================= */
+
+  /* -------------------------
+     EDIT SKILL
+     ------------------------- */
 
   const [selectedSkill, setSelectedSkill] =
     useState(null);
 
-  /* =======================================================
-     EDIT MODE
-     ======================================================= */
+  const [editSkillName, setEditSkillName] =
+    useState("");
 
-  const [isEditMode, setIsEditMode] =
-    useState(false);
-
-  const [editingSkill, setEditingSkill] =
-    useState(null);
+  const [editSkillImage, setEditSkillImage] =
+    useState("");
 
   const [updatingSkill, setUpdatingSkill] =
     useState(false);
 
-  /* =======================================================
-     DELETE
-     ======================================================= */
+
+  /* -------------------------
+     DELETE SKILL
+     ------------------------- */
 
   const [deletingSkill, setDeletingSkill] =
     useState(false);
+
+
+  /* =======================================================
+     PROJECTS
+     ======================================================= */
+
+  const [projects, setProjects] =
+    useState([]);
+
+  const [showAddProject, setShowAddProject] =
+    useState(false);
+
+  const [creatingProject, setCreatingProject] =
+    useState(false);
+
+  const [projectError, setProjectError] =
+    useState("");
+
+
+  /* -------------------------
+     PROJECT FORM
+     ------------------------- */
+
+  const [projectName, setProjectName] =
+    useState("");
+
+  const [projectDescription, setProjectDescription] =
+    useState("");
+
+  const [projectImage, setProjectImage] =
+    useState("");
+
+  const [projectGithubURL, setProjectGithubURL] =
+    useState("");
+
+  const [projectURL, setProjectURL] =
+    useState("");
+
+  const [projectYear, setProjectYear] =
+    useState("");
+
+
+  /* -------------------------
+     PROJECT SKILLS
+     ------------------------- */
+
+  const [selectedSkillIds, setSelectedSkillIds] =
+    useState([]);
+
 
   /* =======================================================
      GET SKILLS
      ======================================================= */
 
   const fetchSkills = async () => {
-    try {
-      setSkillsLoading(true);
-      setSkillError("");
 
-      const response = await fetch(
-        SKILLS_GET_API,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+    try {
+
+      setSkillsLoading(true);
+      setSkillsError("");
+
+      const response =
+        await fetch(
+          SKILLS_GET_API,
+          {
+            method: "GET",
+          }
+        );
 
       if (!response.ok) {
         throw new Error(
-          `HTTP error! Status: ${response.status}`
+          `HTTP ${response.status}`
         );
       }
 
-      const data = await response.json();
+      const data =
+        await response.json();
 
       console.log(
-        "Skills received:",
+        "Skills API response:",
         data
       );
 
-      const formattedSkills =
-        data.map((item) => ({
+      /*
+       IMPORTANT:
+
+       Your previous API response was handled
+       as:
+
+       data.map(item => ({
           id: item.Skills.Id,
           name: item.Skills.skillname,
-          icon: item.Skills.imagelink,
-        }));
+          icon: item.Skills.imagelink
+       }))
 
-      setSkills(formattedSkills);
+       Keeping that structure here.
+      */
+
+      const formattedSkills =
+        Array.isArray(data)
+          ? data.map((item) => {
+
+              const skill =
+                item.Skills ||
+                item;
+
+              return {
+                id:
+                  skill.Id,
+
+                name:
+                  skill.skillname ||
+                  skill.Name ||
+                  "",
+
+                icon:
+                  skill.imagelink ||
+                  skill.ImageURL ||
+                  "",
+              };
+
+            })
+          : [];
+
+      setSkills(
+        formattedSkills
+      );
 
     } catch (error) {
+
       console.error(
-        "Failed to fetch skills:",
+        "Get Skills Error:",
         error
       );
 
-      setSkillError(
-        "Failed to load skills from OutSystems."
+      setSkillsError(
+        "Unable to load skills."
       );
 
     } finally {
+
       setSkillsLoading(false);
+
     }
+
   };
+
 
   /* =======================================================
      LOAD SKILLS
      ======================================================= */
 
   useEffect(() => {
-    if (activeTab === "skills") {
-      fetchSkills();
-    }
-  }, [activeTab]);
+
+    fetchSkills();
+
+  }, []);
+
 
   /* =======================================================
-     CREATE SKILL
-     ======================================================= */
-
-  const handleAddSkill = async (e) => {
-    e.preventDefault();
-
-    setSkillError("");
-
-    /* Validate name */
-
-    if (!skillName.trim()) {
-      setSkillError(
-        "Please enter a skill name."
-      );
-
-      return;
-    }
-
-    /* Validate image */
-
-    if (!isValidImageUrl(imageLink)) {
-      setSkillError(
-        "Please enter a valid image URL ending with .png, .jpg, .jpeg, .gif, .webp or .svg."
-      );
-
-      return;
-    }
-
-    try {
-      setAddingSkill(true);
-
-      const url =
-        `${SKILLS_POST_API}` +
-        `?ImageLink=${encodeURIComponent(
-          imageLink.trim()
-        )}` +
-        `&SkillName=${encodeURIComponent(
-          skillName.trim()
-        )}`;
-
-      console.log(
-        "Creating skill:",
-        url
-      );
-
-      const response = await fetch(
-        url,
-        {
-          method: "POST",
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(
-          `HTTP error! Status: ${response.status}`
-        );
-      }
-
-      console.log(
-        "Skill created successfully."
-      );
-
-      /* Clear form */
-
-      setSkillName("");
-      setImageLink("");
-
-      /* Close modal */
-
-      setShowAddSkill(false);
-
-      /* Refresh skills */
-
-      await fetchSkills();
-
-    } catch (error) {
-      console.error(
-        "Failed to add skill:",
-        error
-      );
-
-      setSkillError(
-        "Failed to add skill. Please try again."
-      );
-
-    } finally {
-      setAddingSkill(false);
-    }
-  };
-
-  /* =======================================================
-     OPEN CREATE MODAL
+     OPEN ADD SKILL
      ======================================================= */
 
   const openAddSkill = () => {
-    setSkillName("");
-    setImageLink("");
-    setSkillError("");
+
+    setNewSkillName("");
+    setNewSkillImage("");
 
     setShowAddSkill(true);
+
   };
 
+
   /* =======================================================
-     CLOSE CREATE MODAL
+     CLOSE ADD SKILL
      ======================================================= */
 
   const closeAddSkill = () => {
+
     if (addingSkill) {
       return;
     }
 
     setShowAddSkill(false);
 
-    setSkillName("");
-    setImageLink("");
+    setNewSkillName("");
+    setNewSkillImage("");
 
-    setSkillError("");
   };
 
-  /* =======================================================
-     OPEN SKILL POPUP
-     
-     CLICKING THE LOGO/CARD OPENS THIS
-     ======================================================= */
-
-  const openSkillDetails = (skill) => {
-    setSelectedSkill(skill);
-
-    /* Start in view mode */
-
-    setIsEditMode(false);
-
-    setEditingSkill(null);
-
-    setSkillError("");
-  };
 
   /* =======================================================
-     CLOSE SKILL POPUP
+     CREATE SKILL
      ======================================================= */
 
-  const closeSkillDetails = () => {
-    if (updatingSkill || deletingSkill) {
+  const handleCreateSkill =
+    async (e) => {
+
+      e.preventDefault();
+
+      if (!newSkillName.trim()) {
+
+        alert(
+          "Please enter a skill name."
+        );
+
+        return;
+
+      }
+
+      if (!newSkillImage.trim()) {
+
+        alert(
+          "Please enter an image URL."
+        );
+
+        return;
+
+      }
+
+      try {
+
+        setAddingSkill(true);
+
+        const url =
+          `${SKILLS_CREATE_API}` +
+          `?Name=${encodeURIComponent(
+            newSkillName.trim()
+          )}` +
+          `&InputURL=${encodeURIComponent(
+            newSkillImage.trim()
+          )}`;
+
+        const response =
+          await fetch(
+            url,
+            {
+              method: "POST",
+            }
+          );
+
+        if (!response.ok) {
+
+          throw new Error(
+            `HTTP ${response.status}`
+          );
+
+        }
+
+        alert(
+          "Skill created successfully!"
+        );
+
+        closeAddSkill();
+
+        await fetchSkills();
+
+      } catch (error) {
+
+        console.error(
+          "Create Skill Error:",
+          error
+        );
+
+        alert(
+          "Failed to create skill."
+        );
+
+      } finally {
+
+        setAddingSkill(false);
+
+      }
+
+    };
+
+
+  /* =======================================================
+     OPEN EDIT SKILL
+     ======================================================= */
+
+  const openEditSkill =
+    (skill) => {
+
+      setSelectedSkill(
+        skill
+      );
+
+      setEditSkillName(
+        skill.name
+      );
+
+      setEditSkillImage(
+        skill.icon
+      );
+
+    };
+
+
+  /* =======================================================
+     CLOSE EDIT SKILL
+     ======================================================= */
+
+  const closeEditSkill = () => {
+
+    if (updatingSkill) {
       return;
     }
 
     setSelectedSkill(null);
 
-    setIsEditMode(false);
+    setEditSkillName("");
+    setEditSkillImage("");
 
-    setEditingSkill(null);
-
-    setSkillError("");
   };
 
-  /* =======================================================
-     START EDITING
-     ======================================================= */
-
-  const startEditingSkill = () => {
-    if (!selectedSkill) {
-      return;
-    }
-
-    setEditingSkill({
-      id: selectedSkill.id,
-      name: selectedSkill.name,
-      icon: selectedSkill.icon,
-    });
-
-    setIsEditMode(true);
-
-    setSkillError("");
-  };
-
-  /* =======================================================
-     CANCEL EDITING
-     ======================================================= */
-
-  const cancelEditingSkill = () => {
-    if (updatingSkill) {
-      return;
-    }
-
-    setIsEditMode(false);
-
-    setEditingSkill(null);
-
-    setSkillError("");
-  };
 
   /* =======================================================
      UPDATE SKILL
-     
-     PUT:
-     SkillId
-     Name
-     InputURL
      ======================================================= */
 
-  const handleEditSkill = async (e) => {
-    e.preventDefault();
+  const handleUpdateSkill =
+    async (e) => {
 
-    setSkillError("");
+      e.preventDefault();
 
-    if (!editingSkill) {
-      return;
-    }
-
-    /* Validate name */
-
-    if (!editingSkill.name.trim()) {
-      setSkillError(
-        "Please enter a skill name."
-      );
-
-      return;
-    }
-
-    /* Validate image */
-
-    if (!isValidImageUrl(editingSkill.icon)) {
-      setSkillError(
-        "Please enter a valid image URL ending with .png, .jpg, .jpeg, .gif, .webp or .svg."
-      );
-
-      return;
-    }
-
-    try {
-      setUpdatingSkill(true);
-
-      /*
-       * YOUR OUTSYSTEMS PUT API
-       *
-       * SkillsUpdate
-       *
-       * SkillId
-       * Name
-       * InputURL
-       */
-
-      const url =
-        `${SKILLS_PUT_API}` +
-        `?SkillId=${encodeURIComponent(
-          editingSkill.id
-        )}` +
-        `&Name=${encodeURIComponent(
-          editingSkill.name.trim()
-        )}` +
-        `&InputURL=${encodeURIComponent(
-          editingSkill.icon.trim()
-        )}`;
-
-      console.log(
-        "Updating skill:",
-        url
-      );
-
-      const response = await fetch(
-        url,
-        {
-          method: "PUT",
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(
-          `HTTP error! Status: ${response.status}`
-        );
+      if (!selectedSkill) {
+        return;
       }
 
-      console.log(
-        "Skill updated successfully."
-      );
+      if (!editSkillName.trim()) {
 
-      /*
-       * Update the selected skill
-       * immediately in the popup
-       */
+        alert(
+          "Please enter a skill name."
+        );
 
-      const updatedSkill = {
-        id: editingSkill.id,
-        name: editingSkill.name.trim(),
-        icon: editingSkill.icon.trim(),
-      };
+        return;
 
-      setSelectedSkill(updatedSkill);
+      }
 
-      setEditingSkill(null);
+      if (!editSkillImage.trim()) {
 
-      setIsEditMode(false);
+        alert(
+          "Please enter an image URL."
+        );
 
-      /* Refresh from OutSystems */
+        return;
 
-      await fetchSkills();
+      }
 
-    } catch (error) {
-      console.error(
-        "Failed to update skill:",
-        error
-      );
+      try {
 
-      setSkillError(
-        "Failed to update skill. Please try again."
-      );
+        setUpdatingSkill(true);
 
-    } finally {
-      setUpdatingSkill(false);
-    }
-  };
+        const url =
+          `${SKILLS_UPDATE_API}` +
+          `?SkillId=${encodeURIComponent(
+            selectedSkill.id
+          )}` +
+          `&Name=${encodeURIComponent(
+            editSkillName.trim()
+          )}` +
+          `&InputURL=${encodeURIComponent(
+            editSkillImage.trim()
+          )}`;
+
+        const response =
+          await fetch(
+            url,
+            {
+              method: "PUT",
+            }
+          );
+
+        if (!response.ok) {
+
+          throw new Error(
+            `HTTP ${response.status}`
+          );
+
+        }
+
+        alert(
+          "Skill updated successfully!"
+        );
+
+        closeEditSkill();
+
+        await fetchSkills();
+
+      } catch (error) {
+
+        console.error(
+          "Update Skill Error:",
+          error
+        );
+
+        alert(
+          "Failed to update skill."
+        );
+
+      } finally {
+
+        setUpdatingSkill(false);
+
+      }
+
+    };
+
 
   /* =======================================================
      DELETE SKILL
-     
-     DELETE:
-     SkillId
      ======================================================= */
 
-  const handleDeleteSkill = async () => {
-    if (!selectedSkill) {
+  const handleDeleteSkill =
+    async () => {
+
+      if (!selectedSkill) {
+        return;
+      }
+
+      const confirmed =
+        window.confirm(
+          `Delete "${selectedSkill.name}"?`
+        );
+
+      if (!confirmed) {
+        return;
+      }
+
+      try {
+
+        setDeletingSkill(true);
+
+        const url =
+          `${SKILLS_DELETE_API}` +
+          `?SkillId=${encodeURIComponent(
+            selectedSkill.id
+          )}`;
+
+        const response =
+          await fetch(
+            url,
+            {
+              method: "DELETE",
+            }
+          );
+
+        if (!response.ok) {
+
+          throw new Error(
+            `HTTP ${response.status}`
+          );
+
+        }
+
+        alert(
+          "Skill deleted successfully!"
+        );
+
+        closeEditSkill();
+
+        await fetchSkills();
+
+      } catch (error) {
+
+        console.error(
+          "Delete Skill Error:",
+          error
+        );
+
+        alert(
+          "Failed to delete skill."
+        );
+
+      } finally {
+
+        setDeletingSkill(false);
+
+      }
+
+    };
+
+
+  /* =======================================================
+     OPEN ADD PROJECT
+     ======================================================= */
+
+  const openAddProject = () => {
+
+    setProjectName("");
+    setProjectDescription("");
+    setProjectImage("");
+    setProjectGithubURL("");
+    setProjectURL("");
+    setProjectYear("");
+
+    setSelectedSkillIds([]);
+
+    setProjectError("");
+
+    setShowAddProject(true);
+
+  };
+
+
+  /* =======================================================
+     CLOSE ADD PROJECT
+     ======================================================= */
+
+  const closeAddProject = () => {
+
+    if (creatingProject) {
       return;
     }
 
-    const confirmed =
-      window.confirm(
-        `Are you sure you want to delete "${selectedSkill.name}"?`
-      );
+    setShowAddProject(false);
 
-    if (!confirmed) {
-      return;
-    }
+    setProjectName("");
+    setProjectDescription("");
+    setProjectImage("");
+    setProjectGithubURL("");
+    setProjectURL("");
+    setProjectYear("");
 
-    try {
-      setDeletingSkill(true);
+    setSelectedSkillIds([]);
 
-      setSkillError("");
+    setProjectError("");
 
-      /*
-       * YOUR OUTSYSTEMS DELETE API
-       *
-       * SkillDelete
-       *
-       * SkillId
-       */
+  };
 
-      const url =
-        `${SKILLS_DELETE_API}` +
-        `?SkillId=${encodeURIComponent(
-          selectedSkill.id
-        )}`;
 
-      console.log(
-        "Deleting skill:",
-        url
-      );
+  /* =======================================================
+     SELECT / UNSELECT PROJECT SKILL
+     ======================================================= */
 
-      const response = await fetch(
-        url,
-        {
-          method: "DELETE",
+  const toggleProjectSkill =
+    (skillId) => {
+
+      setSelectedSkillIds(
+        (previous) => {
+
+          if (
+            previous.includes(
+              skillId
+            )
+          ) {
+
+            return previous.filter(
+              (id) =>
+                id !== skillId
+            );
+
+          }
+
+          return [
+            ...previous,
+            skillId,
+          ];
+
         }
       );
 
-      if (!response.ok) {
-        throw new Error(
-          `HTTP error! Status: ${response.status}`
-        );
-      }
+    };
 
-      console.log(
-        "Skill deleted successfully."
-      );
-
-      /* Close popup */
-
-      setSelectedSkill(null);
-
-      setIsEditMode(false);
-
-      setEditingSkill(null);
-
-      /* Refresh skills */
-
-      await fetchSkills();
-
-    } catch (error) {
-      console.error(
-        "Failed to delete skill:",
-        error
-      );
-
-      setSkillError(
-        "Failed to delete skill. Please try again."
-      );
-
-    } finally {
-      setDeletingSkill(false);
-    }
-  };
 
   /* =======================================================
-     RETURN
+     IMAGE URL VALIDATION
+     ======================================================= */
+
+  const isValidImage =
+    (url) => {
+
+      if (!url.trim()) {
+        return false;
+      }
+
+      try {
+
+        const parsed =
+          new URL(
+            url.trim()
+          );
+
+        const path =
+          parsed.pathname
+            .toLowerCase();
+
+        return (
+          path.endsWith(".png") ||
+          path.endsWith(".jpg") ||
+          path.endsWith(".jpeg") ||
+          path.endsWith(".gif") ||
+          path.endsWith(".webp") ||
+          path.endsWith(".svg")
+        );
+
+      } catch {
+
+        return false;
+
+      }
+
+    };
+
+
+  /* =======================================================
+     CREATE PROJECT
+     ======================================================= */
+
+  const handleCreateProject =
+    async (e) => {
+
+      e.preventDefault();
+
+      setProjectError("");
+
+      /* -------------------------
+         VALIDATION
+         ------------------------- */
+
+      if (!projectName.trim()) {
+
+        setProjectError(
+          "Please enter the project name."
+        );
+
+        return;
+
+      }
+
+      if (!projectDescription.trim()) {
+
+        setProjectError(
+          "Please enter the description."
+        );
+
+        return;
+
+      }
+
+      if (!projectImage.trim()) {
+
+        setProjectError(
+          "Please enter the project image URL."
+        );
+
+        return;
+
+      }
+
+      if (
+        !isValidImage(
+          projectImage
+        )
+      ) {
+
+        setProjectError(
+          "Image must be a valid PNG, JPG, JPEG, GIF, WEBP or SVG URL."
+        );
+
+        return;
+
+      }
+
+      if (!projectYear.trim()) {
+
+        setProjectError(
+          "Please enter the month/year."
+        );
+
+        return;
+
+      }
+
+
+      /* -------------------------
+         CREATE
+         ------------------------- */
+
+      try {
+
+        setCreatingProject(
+          true
+        );
+
+        const url =
+          `${PROJECT_CREATE_API}` +
+          `?Name=${encodeURIComponent(
+            projectName.trim()
+          )}` +
+          `&Description=${encodeURIComponent(
+            projectDescription.trim()
+          )}` +
+          `&GithubURL=${encodeURIComponent(
+            projectGithubURL.trim()
+          )}` +
+          `&ProjectURL=${encodeURIComponent(
+            projectURL.trim()
+          )}` +
+          `&Year=${encodeURIComponent(
+            projectYear.trim()
+          )}`;
+
+        console.log(
+          "Create Project:",
+          url
+        );
+
+        const response =
+          await fetch(
+            url,
+            {
+              method: "POST",
+            }
+          );
+
+        if (!response.ok) {
+
+          throw new Error(
+            `HTTP ${response.status}`
+          );
+
+        }
+
+
+        /* -------------------------
+           LOCAL PROJECT
+
+           This lets the UI display
+           the project immediately.
+
+           ProjectSkill API will be
+           connected separately.
+           ------------------------- */
+
+        const newProject = {
+
+          id:
+            Date.now(),
+
+          name:
+            projectName.trim(),
+
+          description:
+            projectDescription.trim(),
+
+          image:
+            projectImage.trim(),
+
+          githubURL:
+            projectGithubURL.trim(),
+
+          projectURL:
+            projectURL.trim(),
+
+          year:
+            projectYear.trim(),
+
+          skillIds:
+            [...selectedSkillIds],
+
+        };
+
+        setProjects(
+          (previous) => [
+            ...previous,
+            newProject,
+          ]
+        );
+
+
+        alert(
+          "Project created successfully!"
+        );
+
+        closeAddProject();
+
+      } catch (error) {
+
+        console.error(
+          "Create Project Error:",
+          error
+        );
+
+        setProjectError(
+          "Failed to create project."
+        );
+
+      } finally {
+
+        setCreatingProject(
+          false
+        );
+
+      }
+
+    };
+
+
+  /* =======================================================
+     GET SELECTED SKILLS FOR A PROJECT
+     ======================================================= */
+
+  const getProjectSkills =
+    (project) => {
+
+      if (
+        !project.skillIds ||
+        project.skillIds.length === 0
+      ) {
+
+        return [];
+
+      }
+
+      return skills.filter(
+        (skill) =>
+          project.skillIds.includes(
+            skill.id
+          )
+      );
+
+    };
+
+
+  /* =======================================================
+     RENDER
      ======================================================= */
 
   return (
+
     <div
       className={
-        isDark
-          ? "theme-dark"
-          : "theme-light"
+        darkMode
+          ? "admin dark"
+          : "admin light"
       }
     >
 
-      {/* =====================================================
-          CSS
-          ===================================================== */}
+      {/* ===================================================
+          GLOBAL CSS
+          =================================================== */}
 
       <style>{`
 
@@ -616,28 +951,35 @@ export default function Admin() {
 
         body {
           margin: 0;
-          padding: 0;
+          font-family:
+            Inter,
+            Arial,
+            sans-serif;
         }
 
-        button,
-        input {
-          font-family: inherit;
-        }
-
-        /* =================================================
-           THEMES
-           ================================================= */
-
-        .theme-dark {
-          --bg: #0C0F15;
-          --surface: #171C27;
-          --surface-2: #1D2330;
-          --border: #262C3A;
-          --text: #E8EAF0;
-          --text-muted: #8D93A3;
-          --accent: #3B5FE0;
-
+        .admin {
           min-height: 100vh;
+
+          --bg:
+            #0d1117;
+
+          --surface:
+            #161b22;
+
+          --surface2:
+            #1c222b;
+
+          --border:
+            #30363d;
+
+          --text:
+            #f0f3f6;
+
+          --muted:
+            #8b949e;
+
+          --accent:
+            #5865f2;
 
           background:
             var(--bg);
@@ -646,125 +988,108 @@ export default function Admin() {
             var(--text);
         }
 
-        .theme-light {
-          --bg: #F1F2F5;
-          --surface: #FFFFFF;
-          --surface-2: #FAFAFC;
-          --border: #DFE2E8;
-          --text: #14171F;
-          --text-muted: #62687A;
-          --accent: #3B5FE0;
+        .admin.light {
+          --bg:
+            #f5f6f8;
 
-          min-height: 100vh;
+          --surface:
+            #ffffff;
 
-          background:
-            var(--bg);
+          --surface2:
+            #f0f1f4;
 
-          color:
-            var(--text);
+          --border:
+            #d8dbe2;
+
+          --text:
+            #17191d;
+
+          --muted:
+            #686e79;
+
+          --accent:
+            #4f46e5;
         }
+
 
         /* =================================================
            NAVBAR
            ================================================= */
 
-        .admin-nav {
-          position: sticky;
-
-          top: 0;
-
-          z-index: 50;
-
+        .navbar {
           height: 64px;
 
+          display:
+            flex;
+
+          align-items:
+            center;
+
+          justify-content:
+            space-between;
+
           padding:
-            0 24px;
-
-          display: flex;
-
-          align-items: center;
-
-          justify-content: space-between;
+            0 25px;
 
           border-bottom:
             1px solid var(--border);
 
           background:
             var(--bg);
+
+          position:
+            sticky;
+
+          top: 0;
+
+          z-index: 20;
         }
 
-        .admin-logo {
-          font-size: 19px;
+        .brand {
+          font-size:
+            18px;
 
-          font-weight: 700;
+          font-weight:
+            700;
         }
 
-        .admin-nav-right {
-          display: flex;
+        .nav-actions {
+          display:
+            flex;
 
-          align-items: center;
+          align-items:
+            center;
 
-          gap: 14px;
+          gap:
+            10px;
         }
 
-        /* =================================================
-           THEME TOGGLE
-           ================================================= */
+        .theme-button {
+          width:
+            40px;
 
-        .theme-toggle {
-          width: 44px;
-
-          height: 24px;
-
-          padding: 2px;
+          height:
+            40px;
 
           border:
             1px solid var(--border);
 
           border-radius:
-            999px;
+            50%;
 
           background:
             var(--surface);
 
-          cursor: pointer;
+          cursor:
+            pointer;
+
+          font-size:
+            16px;
         }
 
-        .theme-toggle-knob {
-          display: flex;
-
-          align-items: center;
-
-          justify-content: center;
-
-          width: 18px;
-
-          height: 18px;
-
-          border-radius: 50%;
-
-          background:
-            var(--accent);
-
-          font-size: 10px;
-
-          transition:
-            transform .25s ease;
-        }
-
-        .theme-light
-        .theme-toggle-knob {
-          transform:
-            translateX(18px);
-        }
-
-        /* =================================================
-           LOGOUT
-           ================================================= */
-
-        .logout-btn {
+        .logout {
           padding:
-            8px 15px;
+            9px 14px;
 
           border:
             1px solid var(--border);
@@ -776,62 +1101,63 @@ export default function Admin() {
             var(--surface);
 
           color:
-            var(--text-muted);
+            var(--muted);
 
-          cursor: pointer;
-
-          font-size:
-            13px;
+          cursor:
+            pointer;
         }
 
-        .logout-btn:hover {
-          border-color:
-            var(--accent);
-
-          color:
-            var(--text);
-        }
 
         /* =================================================
            LAYOUT
            ================================================= */
 
-        .admin-layout {
-          display: flex;
+        .layout {
+          display:
+            flex;
 
           min-height:
             calc(100vh - 64px);
         }
 
-        .admin-sidebar {
-          width: 220px;
+        .sidebar {
+          width:
+            220px;
 
-          flex-shrink: 0;
+          flex-shrink:
+            0;
 
           padding:
-            24px 12px;
+            20px 12px;
 
           border-right:
             1px solid var(--border);
+
+          background:
+            var(--bg);
         }
 
-        .sidebar-item {
-          width: 100%;
+        .nav-item {
+          width:
+            100%;
 
           padding:
-            11px 14px;
+            12px 14px;
 
-          margin-bottom: 4px;
+          margin-bottom:
+            5px;
 
-          border: none;
+          border:
+            none;
 
-          border-radius: 8px;
+          border-radius:
+            8px;
 
           background:
             transparent;
 
           color:
-            var(--text-muted);
+            var(--muted);
 
           text-align:
             left;
@@ -841,12 +1167,9 @@ export default function Admin() {
 
           font-size:
             14px;
-
-          transition:
-            all .2s ease;
         }
 
-        .sidebar-item:hover {
+        .nav-item:hover {
           background:
             var(--surface);
 
@@ -854,7 +1177,7 @@ export default function Admin() {
             var(--text);
         }
 
-        .sidebar-item.active {
+        .nav-item.active {
           background:
             var(--surface);
 
@@ -862,47 +1185,26 @@ export default function Admin() {
             var(--text);
 
           border-left:
-            2px solid var(--accent);
+            3px solid var(--accent);
         }
 
-        .admin-content {
-          flex: 1;
+        .content {
+          flex:
+            1;
 
           padding:
             32px;
+
+          min-width:
+            0;
         }
+
 
         /* =================================================
-           TITLES
+           PAGE HEADER
            ================================================= */
 
-        .content-title {
-          margin:
-            0 0 8px;
-
-          font-size:
-            25px;
-
-          font-weight:
-            700;
-        }
-
-        .content-sub {
-          margin:
-            0 0 28px;
-
-          color:
-            var(--text-muted);
-
-          font-size:
-            14px;
-        }
-
-        /* =================================================
-           SKILLS HEADER
-           ================================================= */
-
-        .skills-header {
+        .page-header {
           display:
             flex;
 
@@ -912,40 +1214,46 @@ export default function Admin() {
           justify-content:
             space-between;
 
-          gap:
-            20px;
-
           margin-bottom:
             25px;
+
+          gap:
+            20px;
         }
 
-        .skills-header-text p {
+        .title {
+          margin:
+            0 0 6px;
+
+          font-size:
+            27px;
+        }
+
+        .subtitle {
           margin:
             0;
 
           color:
-            var(--text-muted);
+            var(--muted);
 
           font-size:
-            14px;
+            13px;
         }
 
+
         /* =================================================
-           ADD BUTTON
+           BUTTONS
            ================================================= */
 
-        .add-skill-btn {
-          flex-shrink:
-            0;
-
+        .primary {
           padding:
-            11px 18px;
+            11px 17px;
 
           border:
-            1px solid var(--accent);
+            none;
 
           border-radius:
-            9px;
+            8px;
 
           background:
             var(--accent);
@@ -953,70 +1261,108 @@ export default function Admin() {
           color:
             white;
 
-          font-size:
-            13px;
-
-          font-weight:
-            600;
-
           cursor:
             pointer;
 
-          transition:
-            transform .2s ease,
-            opacity .2s ease;
+          font-weight:
+            600;
         }
 
-        .add-skill-btn:hover {
-          transform:
-            translateY(-2px);
-
+        .primary:hover {
           opacity:
-            .92;
+            .9;
         }
+
+        .secondary {
+          width:
+            100%;
+
+          padding:
+            11px;
+
+          margin-top:
+            9px;
+
+          border:
+            1px solid var(--border);
+
+          border-radius:
+            8px;
+
+          background:
+            transparent;
+
+          color:
+            var(--muted);
+
+          cursor:
+            pointer;
+        }
+
 
         /* =================================================
-           SKILLS GRID
+           EMPTY
            ================================================= */
 
-        .admin-skills-grid {
+        .empty {
+          padding:
+            60px 20px;
+
+          border:
+            1px dashed var(--border);
+
+          border-radius:
+            12px;
+
+          background:
+            var(--surface);
+
+          text-align:
+            center;
+
+          color:
+            var(--muted);
+        }
+
+        .empty h3 {
+          margin:
+            0 0 7px;
+
+          color:
+            var(--text);
+        }
+
+
+        /* =================================================
+           SKILL GRID
+           ================================================= */
+
+        .skill-grid {
           display:
             grid;
 
           grid-template-columns:
             repeat(
               auto-fill,
-              minmax(260px, 1fr)
+              minmax(
+                150px,
+                1fr
+              )
             );
 
           gap:
             16px;
         }
 
-        /* =================================================
-           SKILL CARD
-           
-           WHOLE CARD IS CLICKABLE
-           ================================================= */
-
-        .admin-skill-card {
-          display:
-            flex;
-
-          align-items:
-            center;
-
-          gap:
-            14px;
-
+        .skill-card {
           padding:
-            16px;
+            20px;
 
           border:
             1px solid var(--border);
 
           border-radius:
-            14px;
+            12px;
 
           background:
             var(--surface);
@@ -1024,64 +1370,37 @@ export default function Admin() {
           cursor:
             pointer;
 
+          text-align:
+            center;
+
           transition:
-            transform .2s ease,
-            border-color .2s ease,
-            box-shadow .2s ease;
+            transform .2s,
+            border-color .2s;
         }
 
-        .admin-skill-card:hover {
+        .skill-card:hover {
           transform:
             translateY(-3px);
 
           border-color:
             var(--accent);
-
-          box-shadow:
-            0 8px 25px
-            rgba(
-              0,
-              0,
-              0,
-              .15
-            );
         }
 
-        .admin-skill-image {
+        .skill-logo {
           width:
-            52px;
+            65px;
 
           height:
-            52px;
-
-          flex-shrink:
-            0;
+            65px;
 
           object-fit:
             contain;
 
-          padding:
-            7px;
-
-          border:
-            1px solid var(--border);
-
-          border-radius:
-            10px;
-
-          background:
-            var(--surface-2);
+          margin-bottom:
+            12px;
         }
 
-        .admin-skill-info {
-          flex:
-            1;
-
-          min-width:
-            0;
-        }
-
-        .admin-skill-name {
+        .skill-name {
           font-size:
             14px;
 
@@ -1092,126 +1411,179 @@ export default function Admin() {
             break-word;
         }
 
-        .admin-skill-id {
+        .skill-id {
           margin-top:
-            4px;
+            5px;
 
           color:
-            var(--text-muted);
+            var(--muted);
 
           font-size:
             11px;
         }
 
-        .click-hint {
-          color:
-            var(--text-muted);
-
-          font-size:
-            10px;
-
-          opacity:
-            .7;
-        }
 
         /* =================================================
-           LOADING
+           PROJECT GRID
            ================================================= */
 
-        .skills-loading {
-          padding:
-            60px 20px;
+        .project-grid {
+          display:
+            grid;
 
-          border:
-            1px dashed var(--border);
-
-          border-radius:
-            12px;
-
-          text-align:
-            center;
-
-          color:
-            var(--text-muted);
-
-          background:
-            var(--surface);
-        }
-
-        /* =================================================
-           EMPTY
-           ================================================= */
-
-        .empty-state {
-          padding:
-            60px 20px;
-
-          border:
-            1px dashed var(--border);
-
-          border-radius:
-            12px;
-
-          text-align:
-            center;
-
-          background:
-            var(--surface);
-
-          color:
-            var(--text-muted);
-        }
-
-        .empty-state h3 {
-          margin:
-            0 0 8px;
-
-          color:
-            var(--text);
-        }
-
-        .empty-state p {
-          margin:
-            0;
-        }
-
-        /* =================================================
-           ERROR
-           ================================================= */
-
-        .skill-error {
-          margin-bottom:
-            18px;
-
-          padding:
-            12px 14px;
-
-          border:
-            1px solid #ef4444;
-
-          border-radius:
-            9px;
-
-          background:
-            rgba(
-              239,
-              68,
-              68,
-              .08
+          grid-template-columns:
+            repeat(
+              auto-fill,
+              minmax(
+                280px,
+                1fr
+              )
             );
 
+          gap:
+            18px;
+        }
+
+        .project-card {
+          overflow:
+            hidden;
+
+          border:
+            1px solid var(--border);
+
+          border-radius:
+            13px;
+
+          background:
+            var(--surface);
+
+          transition:
+            transform .2s,
+            border-color .2s;
+        }
+
+        .project-card:hover {
+          transform:
+            translateY(-3px);
+
+          border-color:
+            var(--accent);
+        }
+
+        .project-image {
+          width:
+            100%;
+
+          height:
+            165px;
+
+          object-fit:
+            cover;
+
+          display:
+            block;
+
+          background:
+            var(--surface2);
+        }
+
+        .project-body {
+          padding:
+            17px;
+        }
+
+        .project-name {
+          margin:
+            0 0 7px;
+
+          font-size:
+            17px;
+        }
+
+        .project-description {
+          margin:
+            0 0 12px;
+
           color:
-            #ef4444;
+            var(--muted);
 
           font-size:
             13px;
+
+          line-height:
+            1.5;
         }
 
+        .project-year {
+          color:
+            var(--muted);
+
+          font-size:
+            12px;
+        }
+
+
         /* =================================================
-           MODAL BACKDROP
+           TECHNOLOGIES
            ================================================= */
 
-        .skill-modal-backdrop {
+        .technology-list {
+          display:
+            flex;
+
+          flex-wrap:
+            wrap;
+
+          gap:
+            7px;
+
+          margin-top:
+            14px;
+        }
+
+        .technology {
+          display:
+            flex;
+
+          align-items:
+            center;
+
+          gap:
+            5px;
+
+          padding:
+            5px 8px;
+
+          border:
+            1px solid var(--border);
+
+          border-radius:
+            999px;
+
+          background:
+            var(--surface2);
+
+          font-size:
+            11px;
+        }
+
+        .technology img {
+          width:
+            18px;
+
+          height:
+            18px;
+
+          object-fit:
+            contain;
+        }
+
+
+        /* =================================================
+           MODAL
+           ================================================= */
+
+        .overlay {
           position:
             fixed;
 
@@ -1238,82 +1610,40 @@ export default function Admin() {
               0,
               0,
               0,
-              .68
+              .72
             );
 
           backdrop-filter:
-            blur(8px);
+            blur(7px);
         }
 
-        /* =================================================
-           MODAL
-           ================================================= */
-
-        .skill-modal {
+        .modal {
           width:
             100%;
 
           max-width:
-            460px;
+            600px;
 
           max-height:
-            90vh;
+            92vh;
 
           overflow-y:
             auto;
 
           padding:
-            28px;
+            27px;
 
           border:
             1px solid var(--border);
 
           border-radius:
-            18px;
+            15px;
 
           background:
             var(--surface);
-
-          box-shadow:
-            0 30px 80px
-            rgba(
-              0,
-              0,
-              0,
-              .45
-            );
-
-          animation:
-            modalIn .2s ease;
         }
 
-        @keyframes modalIn {
-
-          from {
-            opacity:
-              0;
-
-            transform:
-              translateY(15px)
-              scale(.97);
-          }
-
-          to {
-            opacity:
-              1;
-
-            transform:
-              translateY(0)
-              scale(1);
-          }
-
-        }
-
-        /* =================================================
-           MODAL HEADER
-           ================================================= */
-
-        .skill-modal-header {
+        .modal-header {
           display:
             flex;
 
@@ -1324,10 +1654,10 @@ export default function Admin() {
             space-between;
 
           margin-bottom:
-            24px;
+            22px;
         }
 
-        .skill-modal-header h2 {
+        .modal-header h2 {
           margin:
             0;
 
@@ -1335,21 +1665,12 @@ export default function Admin() {
             21px;
         }
 
-        .skill-modal-close {
+        .close {
           width:
             34px;
 
           height:
             34px;
-
-          display:
-            flex;
-
-          align-items:
-            center;
-
-          justify-content:
-            center;
 
           border:
             1px solid var(--border);
@@ -1358,210 +1679,35 @@ export default function Admin() {
             50%;
 
           background:
-            var(--surface-2);
+            var(--surface2);
 
           color:
             var(--text);
 
-          font-size:
-            21px;
-
-          cursor:
-            pointer;
-        }
-
-        .skill-modal-close:hover {
-          border-color:
-            var(--accent);
-
-          color:
-            var(--accent);
-        }
-
-        /* =================================================
-           DETAIL VIEW
-           ================================================= */
-
-        .skill-detail-container {
-          text-align:
-            center;
-        }
-
-        .skill-detail-image {
-          width:
-            110px;
-
-          height:
-            110px;
-
-          object-fit:
-            contain;
-
-          padding:
-            15px;
-
-          margin:
-            0 auto 18px;
-
-          display:
-            block;
-
-          border:
-            1px solid var(--border);
-
-          border-radius:
-            18px;
-
-          background:
-            var(--surface-2);
-        }
-
-        .skill-detail-name {
-          margin:
-            0 0 7px;
-
-          font-size:
-            23px;
-
-          font-weight:
-            700;
-        }
-
-        .skill-detail-id {
-          margin:
-            0 0 20px;
-
-          color:
-            var(--text-muted);
-
-          font-size:
-            12px;
-        }
-
-        .skill-detail-url {
-          padding:
-            12px;
-
-          margin-bottom:
-            22px;
-
-          border:
-            1px solid var(--border);
-
-          border-radius:
-            9px;
-
-          background:
-            var(--surface-2);
-
-          color:
-            var(--text-muted);
-
-          font-size:
-            11px;
-
-          word-break:
-            break-all;
-
-          text-align:
-            left;
-        }
-
-        /* =================================================
-           ACTION BUTTONS
-           ================================================= */
-
-        .skill-actions {
-          display:
-            flex;
-
-          gap:
-            10px;
-        }
-
-        .skill-action-btn {
-          flex:
-            1;
-
-          padding:
-            12px;
-
-          border:
-            1px solid var(--border);
-
-          border-radius:
-            9px;
-
-          background:
-            var(--surface-2);
-
-          color:
-            var(--text);
-
-          font-size:
-            13px;
-
-          font-weight:
-            700;
-
           cursor:
             pointer;
 
-          transition:
-            all .2s ease;
+          font-size:
+            19px;
         }
 
-        .skill-action-btn:hover {
-          border-color:
-            var(--accent);
-
-          color:
-            var(--accent);
-        }
-
-        .skill-delete-btn {
-          border-color:
-            #ef4444;
-
-          color:
-            #ef4444;
-        }
-
-        .skill-delete-btn:hover {
-          background:
-            rgba(
-              239,
-              68,
-              68,
-              .08
-            );
-
-          border-color:
-            #ef4444;
-
-          color:
-            #ef4444;
-        }
 
         /* =================================================
            FORM
            ================================================= */
 
-        .skill-form-group {
-          display:
-            flex;
-
-          flex-direction:
-            column;
-
-          gap:
-            7px;
-
+        .field {
           margin-bottom:
-            18px;
+            17px;
         }
 
-        .skill-form-group label {
+        .field label {
+          display:
+            block;
+
+          margin-bottom:
+            7px;
+
           font-size:
             13px;
 
@@ -1569,24 +1715,25 @@ export default function Admin() {
             600;
         }
 
-        .skill-form-group input {
+        .field input,
+        .field textarea {
           width:
             100%;
 
           padding:
-            12px 14px;
+            11px 13px;
 
           border:
             1px solid var(--border);
 
           border-radius:
-            9px;
+            8px;
 
           outline:
             none;
 
           background:
-            var(--surface-2);
+            var(--surface2);
 
           color:
             var(--text);
@@ -1595,44 +1742,45 @@ export default function Admin() {
             13px;
         }
 
-        .skill-form-group input:focus {
-          border-color:
-            var(--accent);
+        .field textarea {
+          min-height:
+            105px;
 
-          box-shadow:
-            0 0 0 3px
-            rgba(
-              59,
-              95,
-              224,
-              .15
-            );
+          resize:
+            vertical;
         }
 
-        .input-help {
+        .field input:focus,
+        .field textarea:focus {
+          border-color:
+            var(--accent);
+        }
+
+        .help {
+          margin-top:
+            6px;
+
           color:
-            var(--text-muted);
+            var(--muted);
 
           font-size:
             11px;
-
-          line-height:
-            1.5;
         }
+
 
         /* =================================================
            IMAGE PREVIEW
            ================================================= */
 
-        .image-preview {
+        .preview {
           margin-top:
-            12px;
-
-          padding:
-            18px;
+            10px;
 
           min-height:
-            110px;
+            100px;
+
+          padding:
+            10px;
 
           display:
             flex;
@@ -1647,85 +1795,52 @@ export default function Admin() {
             1px solid var(--border);
 
           border-radius:
-            10px;
+            8px;
 
           background:
-            var(--surface-2);
+            var(--surface2);
         }
 
-        .image-preview img {
-          width:
-            80px;
+        .preview img {
+          max-width:
+            100%;
 
-          height:
-            80px;
+          max-height:
+            120px;
 
           object-fit:
             contain;
         }
 
+
         /* =================================================
-           SUBMIT BUTTON
+           SKILL SELECTOR
            ================================================= */
 
-        .skill-submit-btn {
-          width:
-            100%;
+        .selector {
+          display:
+            grid;
+
+          grid-template-columns:
+            repeat(
+              auto-fill,
+              minmax(
+                150px,
+                1fr
+              )
+            );
+
+          gap:
+            8px;
+
+          max-height:
+            220px;
+
+          overflow-y:
+            auto;
 
           padding:
-            12px;
-
-          margin-top:
-            5px;
-
-          border:
-            1px solid var(--accent);
-
-          border-radius:
             9px;
-
-          background:
-            var(--accent);
-
-          color:
-            white;
-
-          font-size:
-            13px;
-
-          font-weight:
-            700;
-
-          cursor:
-            pointer;
-        }
-
-        .skill-submit-btn:hover {
-          opacity:
-            .9;
-        }
-
-        .skill-submit-btn:disabled {
-          opacity:
-            .55;
-
-          cursor:
-            not-allowed;
-        }
-
-        /* =================================================
-           CANCEL BUTTON
-           ================================================= */
-
-        .skill-cancel-btn {
-          width:
-            100%;
-
-          padding:
-            12px;
-
-          margin-top:
-            10px;
 
           border:
             1px solid var(--border);
@@ -1734,46 +1849,214 @@ export default function Admin() {
             9px;
 
           background:
-            transparent;
+            var(--surface2);
+        }
 
-          color:
-            var(--text-muted);
+        .selector-item {
+          display:
+            flex;
 
-          font-size:
-            13px;
+          align-items:
+            center;
 
-          font-weight:
-            600;
+          gap:
+            7px;
+
+          padding:
+            8px;
+
+          border:
+            1px solid var(--border);
+
+          border-radius:
+            8px;
+
+          background:
+            var(--surface);
 
           cursor:
             pointer;
         }
 
-        .skill-cancel-btn:hover {
+        .selector-item.selected {
           border-color:
-            var(--text-muted);
+            var(--accent);
 
-          color:
-            var(--text);
+          background:
+            rgba(
+              88,
+              101,
+              242,
+              .12
+            );
         }
 
+        .selector-item input {
+          width:
+            15px;
+
+          height:
+            15px;
+
+          accent-color:
+            var(--accent);
+        }
+
+        .selector-item img {
+          width:
+            25px;
+
+          height:
+            25px;
+
+          object-fit:
+            contain;
+        }
+
+        .selector-name {
+          font-size:
+            12px;
+
+          white-space:
+            nowrap;
+
+          overflow:
+            hidden;
+
+          text-overflow:
+            ellipsis;
+        }
+
+
         /* =================================================
-           MOBILE
+           ERROR
            ================================================= */
 
-        @media (max-width: 720px) {
+        .error {
+          margin-bottom:
+            15px;
 
-          .admin-sidebar {
+          padding:
+            11px;
+
+          border:
+            1px solid #ef4444;
+
+          border-radius:
+            8px;
+
+          color:
+            #ef4444;
+
+          background:
+            rgba(
+              239,
+              68,
+              68,
+              .08
+            );
+
+          font-size:
+            12px;
+        }
+
+
+        /* =================================================
+           EDIT / DELETE
+           ================================================= */
+
+        .edit-buttons {
+          display:
+            flex;
+
+          gap:
+            9px;
+
+          margin-top:
+            20px;
+        }
+
+        .update-button {
+          flex:
+            1;
+
+          padding:
+            11px;
+
+          border:
+            none;
+
+          border-radius:
+            8px;
+
+          background:
+            var(--accent);
+
+          color:
+            white;
+
+          cursor:
+            pointer;
+
+          font-weight:
+            600;
+        }
+
+        .delete-button {
+          flex:
+            1;
+
+          padding:
+            11px;
+
+          border:
+            1px solid #ef4444;
+
+          border-radius:
+            8px;
+
+          background:
+            transparent;
+
+          color:
+            #ef4444;
+
+          cursor:
+            pointer;
+
+          font-weight:
+            600;
+        }
+
+        .update-button:disabled,
+        .delete-button:disabled {
+          opacity:
+            .5;
+
+          cursor:
+            not-allowed;
+        }
+
+
+        /* =================================================
+           RESPONSIVE
+           ================================================= */
+
+        @media (
+          max-width: 700px
+        ) {
+
+          .sidebar {
             width:
               70px;
           }
 
-          .admin-content {
+          .content {
             padding:
-              24px 18px;
+              20px 15px;
           }
 
-          .skills-header {
+          .page-header {
             align-items:
               flex-start;
 
@@ -1781,57 +2064,42 @@ export default function Admin() {
               column;
           }
 
-          .add-skill-btn {
+          .primary {
             width:
               100%;
-          }
-
-          .admin-skills-grid {
-            grid-template-columns:
-              1fr;
-          }
-
-          .skill-actions {
-            flex-direction:
-              column;
           }
 
         }
 
       `}</style>
 
-      {/* =====================================================
+
+      {/* ===================================================
           NAVBAR
-          ===================================================== */}
+          =================================================== */}
 
-      <nav className="admin-nav">
+      <nav className="navbar">
 
-        <div className="admin-logo">
-          Mohammed Sadiq Admin Panel
+        <div className="brand">
+          Sadiq Portfolio Admin
         </div>
 
-        <div className="admin-nav-right">
+        <div className="nav-actions">
 
           <button
-            className="theme-toggle"
+            className="theme-button"
             onClick={() =>
-              setTheme(
-                isDark
-                  ? "light"
-                  : "dark"
+              setDarkMode(
+                !darkMode
               )
             }
           >
-
-            <span className="theme-toggle-knob">
-              {isDark
-                ? "🌙"
-                : "☀️"}
-            </span>
-
+            {darkMode
+              ? "🌙"
+              : "☀️"}
           </button>
 
-          <button className="logout-btn">
+          <button className="logout">
             Logout
           </button>
 
@@ -1839,74 +2107,113 @@ export default function Admin() {
 
       </nav>
 
-      {/* =====================================================
-          MAIN LAYOUT
-          ===================================================== */}
 
-      <div className="admin-layout">
+      {/* ===================================================
+          LAYOUT
+          =================================================== */}
 
-        {/* ===================================================
+      <div className="layout">
+
+
+        {/* =================================================
             SIDEBAR
-            =================================================== */}
+            ================================================= */}
 
-        <aside className="admin-sidebar">
+        <aside className="sidebar">
 
-          {NAV_ITEMS.map((item) => (
+          <button
+            className={
+              `nav-item ${
+                activeTab ===
+                "dashboard"
+                  ? "active"
+                  : ""
+              }`
+            }
+            onClick={() =>
+              setActiveTab(
+                "dashboard"
+              )
+            }
+          >
+            Dashboard
+          </button>
 
-            <button
-              key={item.id}
-              className={
-                "sidebar-item" +
-                (
-                  activeTab === item.id
-                    ? " active"
-                    : ""
-                )
-              }
-              onClick={() =>
-                setActiveTab(item.id)
-              }
-            >
 
-              {item.label}
+          <button
+            className={
+              `nav-item ${
+                activeTab ===
+                "skills"
+                  ? "active"
+                  : ""
+              }`
+            }
+            onClick={() =>
+              setActiveTab(
+                "skills"
+              )
+            }
+          >
+            Skills
+          </button>
 
-            </button>
 
-          ))}
+          <button
+            className={
+              `nav-item ${
+                activeTab ===
+                "projects"
+                  ? "active"
+                  : ""
+              }`
+            }
+            onClick={() =>
+              setActiveTab(
+                "projects"
+              )
+            }
+          >
+            Projects
+          </button>
 
         </aside>
 
-        {/* ===================================================
-            CONTENT
-            =================================================== */}
 
-        <main className="admin-content">
+        {/* =================================================
+            CONTENT
+            ================================================= */}
+
+        <main className="content">
+
 
           {/* =================================================
               DASHBOARD
               ================================================= */}
 
-          {activeTab === "dashboard" && (
+          {activeTab ===
+            "dashboard" && (
 
             <>
 
-              <h1 className="content-title">
+              <h1 className="title">
                 Dashboard
               </h1>
 
-              <p className="content-sub">
-                Overview of your portfolio content.
+              <p className="subtitle">
+                Manage your portfolio.
               </p>
 
-              <div className="empty-state">
+              <div className="empty">
 
                 <h3>
-                  Nothing here yet
+                  Welcome back 👋
                 </h3>
 
                 <p>
-                  Dashboard widgets will
-                  go here later.
+                  Use the sidebar to
+                  manage Skills and
+                  Projects.
                 </p>
 
               </div>
@@ -1915,132 +2222,286 @@ export default function Admin() {
 
           )}
 
+
           {/* =================================================
               SKILLS
               ================================================= */}
 
-          {activeTab === "skills" && (
+          {activeTab ===
+            "skills" && (
 
             <>
 
-              <div className="skills-header">
+              <div className="page-header">
 
-                <div className="skills-header-text">
+                <div>
 
-                  <h1 className="content-title">
+                  <h1 className="title">
                     Skills
                   </h1>
 
-                  <p>
-                    Click a skill to view,
-                    edit or delete it.
+                  <p className="subtitle">
+                    Click a skill to edit
+                    or delete it.
                   </p>
 
                 </div>
 
+
                 <button
-                  className="add-skill-btn"
-                  onClick={openAddSkill}
+                  className="primary"
+                  onClick={
+                    openAddSkill
+                  }
                 >
                   + Add Skill
                 </button>
 
               </div>
 
-              {/* ERROR */}
 
-              {skillError &&
-                !selectedSkill &&
-                !showAddSkill && (
+              {skillsError && (
 
-                  <div className="skill-error">
-                    {skillError}
-                  </div>
-
-                )}
-
-              {/* LOADING */}
-
-              {skillsLoading && (
-
-                <div className="skills-loading">
-                  Loading skills...
+                <div className="error">
+                  {skillsError}
                 </div>
 
               )}
 
-              {/* SKILLS */}
 
-              {!skillsLoading &&
-                skills.length > 0 && (
+              {skillsLoading ? (
 
-                  <div className="admin-skills-grid">
+                <div className="empty">
+                  Loading skills...
+                </div>
 
-                    {skills.map((skill) => (
+              ) : skills.length === 0 ? (
+
+                <div className="empty">
+
+                  <h3>
+                    No skills found
+                  </h3>
+
+                  <p>
+                    Add your first skill.
+                  </p>
+
+                </div>
+
+              ) : (
+
+                <div className="skill-grid">
+
+                  {skills.map(
+                    (skill) => (
 
                       <div
-                        className="admin-skill-card"
-                        key={skill.id}
+                        className="skill-card"
+                        key={
+                          skill.id
+                        }
                         onClick={() =>
-                          openSkillDetails(
+                          openEditSkill(
                             skill
                           )
                         }
                       >
 
                         <img
-                          className="admin-skill-image"
-                          src={skill.icon}
-                          alt={skill.name}
-                          onError={(e) => {
-                            e.currentTarget.style.display =
-                              "none";
-                          }}
+                          className="skill-logo"
+                          src={
+                            skill.icon
+                          }
+                          alt={
+                            skill.name
+                          }
                         />
 
-                        <div className="admin-skill-info">
-
-                          <div className="admin-skill-name">
-                            {skill.name}
-                          </div>
-
-                          <div className="admin-skill-id">
-                            ID: {skill.id}
-                          </div>
-
+                        <div className="skill-name">
+                          {
+                            skill.name
+                          }
                         </div>
 
-                        <div className="click-hint">
-                          ›
+                        <div className="skill-id">
+                          ID:{" "}
+                          {
+                            skill.id
+                          }
                         </div>
 
                       </div>
 
-                    ))}
+                    )
+                  )}
 
-                  </div>
+                </div>
 
-                )}
+              )}
 
-              {/* EMPTY */}
+            </>
 
-              {!skillsLoading &&
-                skills.length === 0 && (
+          )}
 
-                  <div className="empty-state">
 
-                    <h3>
-                      No skills found
-                    </h3>
+          {/* =================================================
+              PROJECTS
+              ================================================= */}
 
-                    <p>
-                      Click "+ Add Skill"
-                      to add your first skill.
-                    </p>
+          {activeTab ===
+            "projects" && (
 
-                  </div>
+            <>
 
-                )}
+              <div className="page-header">
+
+                <div>
+
+                  <h1 className="title">
+                    Projects
+                  </h1>
+
+                  <p className="subtitle">
+                    Manage your portfolio
+                    projects.
+                  </p>
+
+                </div>
+
+
+                <button
+                  className="primary"
+                  onClick={
+                    openAddProject
+                  }
+                >
+                  + Add Project
+                </button>
+
+              </div>
+
+
+              {projects.length ===
+                0 ? (
+
+                <div className="empty">
+
+                  <h3>
+                    No projects yet
+                  </h3>
+
+                  <p>
+                    Click "+ Add Project"
+                    to create one.
+                  </p>
+
+                </div>
+
+              ) : (
+
+                <div className="project-grid">
+
+                  {projects.map(
+                    (project) => {
+
+                      const projectSkills =
+                        getProjectSkills(
+                          project
+                        );
+
+                      return (
+
+                        <div
+                          className="project-card"
+                          key={
+                            project.id
+                          }
+                        >
+
+                          <img
+                            className="project-image"
+                            src={
+                              project.image
+                            }
+                            alt={
+                              project.name
+                            }
+                          />
+
+
+                          <div className="project-body">
+
+                            <h3 className="project-name">
+                              {
+                                project.name
+                              }
+                            </h3>
+
+
+                            <p className="project-description">
+                              {
+                                project.description
+                              }
+                            </p>
+
+
+                            <div className="project-year">
+                              {
+                                project.year
+                              }
+                            </div>
+
+
+                            {projectSkills.length >
+                              0 && (
+
+                              <div className="technology-list">
+
+                                {projectSkills.map(
+                                  (skill) => (
+
+                                    <div
+                                      className="technology"
+                                      key={
+                                        skill.id
+                                      }
+                                    >
+
+                                      <img
+                                        src={
+                                          skill.icon
+                                        }
+                                        alt=""
+                                      />
+
+                                      <span>
+                                        {
+                                          skill.name
+                                        }
+                                      </span>
+
+                                    </div>
+
+                                  )
+                                )}
+
+                              </div>
+
+                            )}
+
+                          </div>
+
+                        </div>
+
+                      );
+
+                    }
+                  )}
+
+                </div>
+
+              )}
 
             </>
 
@@ -2050,48 +2511,52 @@ export default function Admin() {
 
       </div>
 
-      {/* =====================================================
-          CREATE SKILL MODAL
-          ===================================================== */}
+
+      {/* ===================================================
+          ADD SKILL MODAL
+          =================================================== */}
 
       {showAddSkill && (
 
         <div
-          className="skill-modal-backdrop"
-          onClick={closeAddSkill}
+          className="overlay"
+          onClick={
+            closeAddSkill
+          }
         >
 
           <div
-            className="skill-modal"
+            className="modal"
             onClick={(e) =>
               e.stopPropagation()
             }
           >
 
-            <div className="skill-modal-header">
+            <div className="modal-header">
 
               <h2>
                 Add Skill
               </h2>
 
               <button
-                type="button"
-                className="skill-modal-close"
-                onClick={closeAddSkill}
-                disabled={addingSkill}
+                className="close"
+                onClick={
+                  closeAddSkill
+                }
               >
                 ×
               </button>
 
             </div>
 
+
             <form
-              onSubmit={handleAddSkill}
+              onSubmit={
+                handleCreateSkill
+              }
             >
 
-              {/* NAME */}
-
-              <div className="skill-form-group">
+              <div className="field">
 
                 <label>
                   Skill Name
@@ -2100,86 +2565,92 @@ export default function Admin() {
                 <input
                   type="text"
                   placeholder="e.g. React"
-                  value={skillName}
+                  value={
+                    newSkillName
+                  }
                   onChange={(e) =>
-                    setSkillName(
+                    setNewSkillName(
                       e.target.value
                     )
                   }
-                  disabled={addingSkill}
-                  required
                 />
 
               </div>
 
-              {/* IMAGE */}
 
-              <div className="skill-form-group">
+              <div className="field">
 
                 <label>
-                  Image Link
+                  Image URL
                 </label>
 
                 <input
                   type="url"
                   placeholder="https://example.com/react.png"
-                  value={imageLink}
+                  value={
+                    newSkillImage
+                  }
                   onChange={(e) =>
-                    setImageLink(
+                    setNewSkillImage(
                       e.target.value
                     )
                   }
-                  disabled={addingSkill}
-                  required
                 />
 
-                <div className="input-help">
-                  Accepted:
+                <div className="help">
                   PNG, JPG, JPEG, GIF,
-                  WEBP and SVG
+                  WEBP and SVG URLs are
+                  supported.
                 </div>
-
-                {imageLink && (
-
-                  <div className="image-preview">
-
-                    <img
-                      src={imageLink}
-                      alt="Preview"
-                      onError={(e) => {
-                        e.currentTarget.style.display =
-                          "none";
-                      }}
-                    />
-
-                  </div>
-
-                )}
 
               </div>
 
-              {/* ERROR */}
 
-              {skillError && (
+              {newSkillImage && (
 
-                <div className="skill-error">
-                  {skillError}
+                <div className="preview">
+
+                  <img
+                    src={
+                      newSkillImage
+                    }
+                    alt="Preview"
+                  />
+
                 </div>
 
               )}
 
-              {/* CREATE */}
 
               <button
+                className="primary"
                 type="submit"
-                className="skill-submit-btn"
-                disabled={addingSkill}
+                disabled={
+                  addingSkill
+                }
+                style={{
+                  width:
+                    "100%",
+                  marginTop:
+                    "15px",
+                }}
               >
 
                 {addingSkill
-                  ? "Adding Skill..."
-                  : "Add Skill"}
+                  ? "Creating..."
+                  : "Create Skill"}
 
+              </button>
+
+
+              <button
+                type="button"
+                className="secondary"
+                onClick={
+                  closeAddSkill
+                }
+              >
+                Cancel
               </button>
 
             </form>
@@ -2190,43 +2661,37 @@ export default function Admin() {
 
       )}
 
-      {/* =====================================================
-          SKILL DETAILS / EDIT MODAL
-          ===================================================== */}
+
+      {/* ===================================================
+          EDIT SKILL MODAL
+          =================================================== */}
 
       {selectedSkill && (
 
         <div
-          className="skill-modal-backdrop"
-          onClick={closeSkillDetails}
+          className="overlay"
+          onClick={
+            closeEditSkill
+          }
         >
 
           <div
-            className="skill-modal"
+            className="modal"
             onClick={(e) =>
               e.stopPropagation()
             }
           >
 
-            {/* =================================================
-                MODAL HEADER
-                ================================================= */}
-
-            <div className="skill-modal-header">
+            <div className="modal-header">
 
               <h2>
-                {isEditMode
-                  ? "Edit Skill"
-                  : "Skill Details"}
+                Edit Skill
               </h2>
 
               <button
-                type="button"
-                className="skill-modal-close"
-                onClick={closeSkillDetails}
-                disabled={
-                  updatingSkill ||
-                  deletingSkill
+                className="close"
+                onClick={
+                  closeEditSkill
                 }
               >
                 ×
@@ -2234,217 +2699,462 @@ export default function Admin() {
 
             </div>
 
-            {/* =================================================
-                VIEW MODE
-                ================================================= */}
 
-            {!isEditMode && (
+            <form
+              onSubmit={
+                handleUpdateSkill
+              }
+            >
 
-              <div className="skill-detail-container">
+              <div className="field">
 
-                {/* IMAGE */}
+                <label>
+                  Skill Name
+                </label>
 
-                <img
-                  className="skill-detail-image"
-                  src={selectedSkill.icon}
-                  alt={selectedSkill.name}
+                <input
+                  type="text"
+                  value={
+                    editSkillName
+                  }
+                  onChange={(e) =>
+                    setEditSkillName(
+                      e.target.value
+                    )
+                  }
                 />
 
-                {/* NAME */}
+              </div>
 
-                <h3 className="skill-detail-name">
-                  {selectedSkill.name}
-                </h3>
 
-                {/* ID */}
+              <div className="field">
 
-                <p className="skill-detail-id">
-                  Skill ID: {selectedSkill.id}
-                </p>
+                <label>
+                  Image URL
+                </label>
 
-                {/* IMAGE URL */}
+                <input
+                  type="url"
+                  value={
+                    editSkillImage
+                  }
+                  onChange={(e) =>
+                    setEditSkillImage(
+                      e.target.value
+                    )
+                  }
+                />
 
-                <div className="skill-detail-url">
-                  {selectedSkill.icon}
+              </div>
+
+
+              {editSkillImage && (
+
+                <div className="preview">
+
+                  <img
+                    src={
+                      editSkillImage
+                    }
+                    alt="Preview"
+                  />
+
                 </div>
 
-                {/* ACTIONS */}
+              )}
 
-                <div className="skill-actions">
 
-                  <button
-                    type="button"
-                    className="skill-action-btn"
-                    onClick={
-                      startEditingSkill
+              <div className="edit-buttons">
+
+                <button
+                  type="submit"
+                  className="update-button"
+                  disabled={
+                    updatingSkill ||
+                    deletingSkill
+                  }
+                >
+
+                  {updatingSkill
+                    ? "Updating..."
+                    : "Update"}
+
+                </button>
+
+
+                <button
+                  type="button"
+                  className="delete-button"
+                  onClick={
+                    handleDeleteSkill
+                  }
+                  disabled={
+                    updatingSkill ||
+                    deletingSkill
+                  }
+                >
+
+                  {deletingSkill
+                    ? "Deleting..."
+                    : "Delete"}
+
+                </button>
+
+              </div>
+
+            </form>
+
+          </div>
+
+        </div>
+
+      )}
+
+
+      {/* ===================================================
+          ADD PROJECT MODAL
+          =================================================== */}
+
+      {showAddProject && (
+
+        <div
+          className="overlay"
+          onClick={
+            closeAddProject
+          }
+        >
+
+          <div
+            className="modal"
+            onClick={(e) =>
+              e.stopPropagation()
+            }
+          >
+
+            <div className="modal-header">
+
+              <h2>
+                Add Project
+              </h2>
+
+              <button
+                className="close"
+                onClick={
+                  closeAddProject
+                }
+              >
+                ×
+              </button>
+
+            </div>
+
+
+            <form
+              onSubmit={
+                handleCreateProject
+              }
+            >
+
+
+              {/* NAME */}
+
+              <div className="field">
+
+                <label>
+                  Project Name
+                </label>
+
+                <input
+                  type="text"
+                  placeholder="Nombre Akuma"
+                  value={
+                    projectName
+                  }
+                  onChange={(e) =>
+                    setProjectName(
+                      e.target.value
+                    )
+                  }
+                  required
+                />
+
+              </div>
+
+
+              {/* DESCRIPTION */}
+
+              <div className="field">
+
+                <label>
+                  Description
+                </label>
+
+                <textarea
+                  placeholder="Describe the project..."
+                  value={
+                    projectDescription
+                  }
+                  onChange={(e) =>
+                    setProjectDescription(
+                      e.target.value
+                    )
+                  }
+                  required
+                />
+
+              </div>
+
+
+              {/* IMAGE */}
+
+              <div className="field">
+
+                <label>
+                  Project Image
+                </label>
+
+                <input
+                  type="url"
+                  placeholder="https://example.com/project.png"
+                  value={
+                    projectImage
+                  }
+                  onChange={(e) =>
+                    setProjectImage(
+                      e.target.value
+                    )
+                  }
+                  required
+                />
+
+                <div className="help">
+                  PNG, JPG, JPEG, GIF,
+                  WEBP and SVG supported.
+                </div>
+
+              </div>
+
+
+              {projectImage && (
+
+                <div className="preview">
+
+                  <img
+                    src={
+                      projectImage
                     }
-                  >
-                    ✏️ Edit
-                  </button>
+                    alt="Project preview"
+                  />
 
-                  <button
-                    type="button"
-                    className={
-                      "skill-action-btn " +
-                      "skill-delete-btn"
-                    }
-                    onClick={
-                      handleDeleteSkill
-                    }
-                    disabled={
-                      deletingSkill
-                    }
-                  >
+                </div>
 
-                    {deletingSkill
-                      ? "Deleting..."
-                      : "🗑 Delete"}
+              )}
 
-                  </button>
+
+              {/* GITHUB */}
+
+              <div className="field">
+
+                <label>
+                  GitHub URL
+                </label>
+
+                <input
+                  type="url"
+                  placeholder="https://github.com/username/project"
+                  value={
+                    projectGithubURL
+                  }
+                  onChange={(e) =>
+                    setProjectGithubURL(
+                      e.target.value
+                    )
+                  }
+                />
+
+              </div>
+
+
+              {/* PROJECT URL */}
+
+              <div className="field">
+
+                <label>
+                  Project URL
+                </label>
+
+                <input
+                  type="url"
+                  placeholder="https://myproject.vercel.app"
+                  value={
+                    projectURL
+                  }
+                  onChange={(e) =>
+                    setProjectURL(
+                      e.target.value
+                    )
+                  }
+                />
+
+              </div>
+
+
+              {/* MONTH / YEAR */}
+
+              <div className="field">
+
+                <label>
+                  Month / Year
+                </label>
+
+                <input
+                  type="text"
+                  placeholder="August 2026"
+                  value={
+                    projectYear
+                  }
+                  onChange={(e) =>
+                    setProjectYear(
+                      e.target.value
+                    )
+                  }
+                  required
+                />
+
+              </div>
+
+
+              {/* =================================================
+                  TECHNOLOGIES
+                  ================================================= */}
+
+              <div className="field">
+
+                <label>
+                  Technologies
+                </label>
+
+
+                <div className="selector">
+
+                  {skills.map(
+                    (skill) => {
+
+                      const selected =
+                        selectedSkillIds.includes(
+                          skill.id
+                        );
+
+                      return (
+
+                        <label
+                          key={
+                            skill.id
+                          }
+                          className={
+                            `selector-item ${
+                              selected
+                                ? "selected"
+                                : ""
+                            }`
+                          }
+                        >
+
+                          <input
+                            type="checkbox"
+                            checked={
+                              selected
+                            }
+                            onChange={() =>
+                              toggleProjectSkill(
+                                skill.id
+                              )
+                            }
+                          />
+
+
+                          <img
+                            src={
+                              skill.icon
+                            }
+                            alt=""
+                          />
+
+
+                          <span className="selector-name">
+                            {
+                              skill.name
+                            }
+                          </span>
+
+                        </label>
+
+                      );
+
+                    }
+                  )}
+
+                </div>
+
+
+                <div className="help">
+
+                  {selectedSkillIds.length}
+                  {" "}
+                  skill(s) selected.
 
                 </div>
 
               </div>
 
-            )}
 
-            {/* =================================================
-                EDIT MODE
-                ================================================= */}
+              {/* ERROR */}
 
-            {isEditMode &&
-              editingSkill && (
+              {projectError && (
 
-                <form
-                  onSubmit={handleEditSkill}
-                >
-
-                  {/* NAME */}
-
-                  <div className="skill-form-group">
-
-                    <label>
-                      Skill Name
-                    </label>
-
-                    <input
-                      type="text"
-                      value={
-                        editingSkill.name
-                      }
-                      onChange={(e) =>
-                        setEditingSkill({
-                          ...editingSkill,
-                          name:
-                            e.target.value,
-                        })
-                      }
-                      disabled={
-                        updatingSkill
-                      }
-                      required
-                    />
-
-                  </div>
-
-                  {/* IMAGE */}
-
-                  <div className="skill-form-group">
-
-                    <label>
-                      Image Link
-                    </label>
-
-                    <input
-                      type="url"
-                      placeholder="https://example.com/react.png"
-                      value={
-                        editingSkill.icon
-                      }
-                      onChange={(e) =>
-                        setEditingSkill({
-                          ...editingSkill,
-                          icon:
-                            e.target.value,
-                        })
-                      }
-                      disabled={
-                        updatingSkill
-                      }
-                      required
-                    />
-
-                    <div className="input-help">
-                      Accepted:
-                      PNG, JPG, JPEG, GIF,
-                      WEBP and SVG
-                    </div>
-
-                    {editingSkill.icon && (
-
-                      <div className="image-preview">
-
-                        <img
-                          src={
-                            editingSkill.icon
-                          }
-                          alt="Preview"
-                          onError={(e) => {
-                            e.currentTarget.style.display =
-                              "none";
-                          }}
-                        />
-
-                      </div>
-
-                    )}
-
-                  </div>
-
-                  {/* ERROR */}
-
-                  {skillError && (
-
-                    <div className="skill-error">
-                      {skillError}
-                    </div>
-
-                  )}
-
-                  {/* UPDATE */}
-
-                  <button
-                    type="submit"
-                    className="skill-submit-btn"
-                    disabled={
-                      updatingSkill
-                    }
-                  >
-
-                    {updatingSkill
-                      ? "Updating..."
-                      : "Update Skill"}
-
-                  </button>
-
-                  {/* CANCEL */}
-
-                  <button
-                    type="button"
-                    className="skill-cancel-btn"
-                    onClick={
-                      cancelEditingSkill
-                    }
-                    disabled={
-                      updatingSkill
-                    }
-                  >
-                    Cancel
-                  </button>
-
-                </form>
+                <div className="error">
+                  {
+                    projectError
+                  }
+                </div>
 
               )}
+
+
+              {/* CREATE */}
+
+              <button
+                type="submit"
+                className="primary"
+                disabled={
+                  creatingProject
+                }
+                style={{
+                  width:
+                    "100%",
+                }}
+              >
+
+                {creatingProject
+                  ? "Creating Project..."
+                  : "Create Project"}
+
+              </button>
+
+
+              {/* CANCEL */}
+
+              <button
+                type="button"
+                className="secondary"
+                onClick={
+                  closeAddProject
+                }
+              >
+                Cancel
+              </button>
+
+            </form>
 
           </div>
 
@@ -2453,6 +3163,7 @@ export default function Admin() {
       )}
 
     </div>
-  );
-}
 
+  );
+
+}
