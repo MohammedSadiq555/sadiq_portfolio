@@ -1,4 +1,9 @@
+```jsx
 import React, { useEffect, useState } from "react";
+
+/* =========================================================
+   NAVIGATION
+   ========================================================= */
 
 const NAV_ITEMS = [
   { id: "dashboard", label: "Dashboard" },
@@ -17,6 +22,9 @@ const SKILLS_POST_API =
 
 const SKILLS_PUT_API =
   "https://personal-zld4pieb.outsystemscloud.com/SadiqPortfolio/rest/Skillsget/SkillsUpdate";
+
+const SKILLS_DELETE_API =
+  "https://personal-zld4pieb.outsystemscloud.com/SadiqPortfolio/rest/Skillsget/SkillDelete";
 
 /* =========================================================
    IMAGE URL VALIDATION
@@ -45,56 +53,94 @@ const isValidImageUrl = (url) => {
   }
 };
 
+/* =========================================================
+   ADMIN COMPONENT
+   ========================================================= */
+
 export default function Admin() {
+  /* =======================================================
+     GENERAL
+     ======================================================= */
+
   const [theme, setTheme] = useState("dark");
-  const [activeTab, setActiveTab] = useState("dashboard");
-
-  /* =========================================================
-     SKILLS
-     ========================================================= */
-
-  const [skills, setSkills] = useState([]);
-  const [skillsLoading, setSkillsLoading] = useState(false);
-  const [skillError, setSkillError] = useState("");
-
-  /* =========================================================
-     CREATE SKILL
-     ========================================================= */
-
-  const [showAddSkill, setShowAddSkill] = useState(false);
-
-  const [skillName, setSkillName] = useState("");
-  const [imageLink, setImageLink] = useState("");
-
-  const [addingSkill, setAddingSkill] = useState(false);
-
-  /* =========================================================
-     UPDATE SKILL
-     ========================================================= */
-
-  const [showEditSkill, setShowEditSkill] = useState(false);
-
-  const [editingSkill, setEditingSkill] = useState(null);
-
-  const [updatingSkill, setUpdatingSkill] = useState(false);
+  const [activeTab, setActiveTab] =
+    useState("dashboard");
 
   const isDark = theme === "dark";
 
-  /* =========================================================
+  /* =======================================================
+     SKILLS
+     ======================================================= */
+
+  const [skills, setSkills] = useState([]);
+
+  const [skillsLoading, setSkillsLoading] =
+    useState(false);
+
+  const [skillError, setSkillError] =
+    useState("");
+
+  /* =======================================================
+     CREATE SKILL
+     ======================================================= */
+
+  const [showAddSkill, setShowAddSkill] =
+    useState(false);
+
+  const [skillName, setSkillName] =
+    useState("");
+
+  const [imageLink, setImageLink] =
+    useState("");
+
+  const [addingSkill, setAddingSkill] =
+    useState(false);
+
+  /* =======================================================
+     SKILL DETAILS POPUP
+     ======================================================= */
+
+  const [selectedSkill, setSelectedSkill] =
+    useState(null);
+
+  /* =======================================================
+     EDIT MODE
+     ======================================================= */
+
+  const [isEditMode, setIsEditMode] =
+    useState(false);
+
+  const [editingSkill, setEditingSkill] =
+    useState(null);
+
+  const [updatingSkill, setUpdatingSkill] =
+    useState(false);
+
+  /* =======================================================
+     DELETE
+     ======================================================= */
+
+  const [deletingSkill, setDeletingSkill] =
+    useState(false);
+
+  /* =======================================================
      GET SKILLS
-     ========================================================= */
+     ======================================================= */
 
   const fetchSkills = async () => {
     try {
       setSkillsLoading(true);
       setSkillError("");
 
-      const response = await fetch(SKILLS_GET_API, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await fetch(
+        SKILLS_GET_API,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       if (!response.ok) {
         throw new Error(
@@ -104,15 +150,20 @@ export default function Admin() {
 
       const data = await response.json();
 
-      console.log("Skills received:", data);
+      console.log(
+        "Skills received:",
+        data
+      );
 
-      const formattedSkills = data.map((item) => ({
-        id: item.Skills.Id,
-        name: item.Skills.skillname,
-        icon: item.Skills.imagelink,
-      }));
+      const formattedSkills =
+        data.map((item) => ({
+          id: item.Skills.Id,
+          name: item.Skills.skillname,
+          icon: item.Skills.imagelink,
+        }));
 
       setSkills(formattedSkills);
+
     } catch (error) {
       console.error(
         "Failed to fetch skills:",
@@ -122,14 +173,15 @@ export default function Admin() {
       setSkillError(
         "Failed to load skills from OutSystems."
       );
+
     } finally {
       setSkillsLoading(false);
     }
   };
 
-  /* =========================================================
-     LOAD SKILLS WHEN SKILLS TAB IS OPENED
-     ========================================================= */
+  /* =======================================================
+     LOAD SKILLS
+     ======================================================= */
 
   useEffect(() => {
     if (activeTab === "skills") {
@@ -137,9 +189,9 @@ export default function Admin() {
     }
   }, [activeTab]);
 
-  /* =========================================================
-     CREATE / ADD SKILL
-     ========================================================= */
+  /* =======================================================
+     CREATE SKILL
+     ======================================================= */
 
   const handleAddSkill = async (e) => {
     e.preventDefault();
@@ -183,9 +235,12 @@ export default function Admin() {
         url
       );
 
-      const response = await fetch(url, {
-        method: "POST",
-      });
+      const response = await fetch(
+        url,
+        {
+          method: "POST",
+        }
+      );
 
       if (!response.ok) {
         throw new Error(
@@ -206,7 +261,7 @@ export default function Admin() {
 
       setShowAddSkill(false);
 
-      /* Refresh */
+      /* Refresh skills */
 
       await fetchSkills();
 
@@ -219,14 +274,15 @@ export default function Admin() {
       setSkillError(
         "Failed to add skill. Please try again."
       );
+
     } finally {
       setAddingSkill(false);
     }
   };
 
-  /* =========================================================
-     OPEN ADD MODAL
-     ========================================================= */
+  /* =======================================================
+     OPEN CREATE MODAL
+     ======================================================= */
 
   const openAddSkill = () => {
     setSkillName("");
@@ -236,9 +292,9 @@ export default function Admin() {
     setShowAddSkill(true);
   };
 
-  /* =========================================================
-     CLOSE ADD MODAL
-     ========================================================= */
+  /* =======================================================
+     CLOSE CREATE MODAL
+     ======================================================= */
 
   const closeAddSkill = () => {
     if (addingSkill) {
@@ -253,41 +309,86 @@ export default function Admin() {
     setSkillError("");
   };
 
-  /* =========================================================
-     OPEN EDIT MODAL
-     ========================================================= */
+  /* =======================================================
+     OPEN SKILL POPUP
+     
+     CLICKING THE LOGO/CARD OPENS THIS
+     ======================================================= */
 
-  const openEditSkill = (skill) => {
-    setEditingSkill({
-      id: skill.id,
-      name: skill.name,
-      icon: skill.icon,
-    });
+  const openSkillDetails = (skill) => {
+    setSelectedSkill(skill);
 
-    setSkillError("");
+    /* Start in view mode */
 
-    setShowEditSkill(true);
-  };
-
-  /* =========================================================
-     CLOSE EDIT MODAL
-     ========================================================= */
-
-  const closeEditSkill = () => {
-    if (updatingSkill) {
-      return;
-    }
-
-    setShowEditSkill(false);
+    setIsEditMode(false);
 
     setEditingSkill(null);
 
     setSkillError("");
   };
 
-  /* =========================================================
+  /* =======================================================
+     CLOSE SKILL POPUP
+     ======================================================= */
+
+  const closeSkillDetails = () => {
+    if (updatingSkill || deletingSkill) {
+      return;
+    }
+
+    setSelectedSkill(null);
+
+    setIsEditMode(false);
+
+    setEditingSkill(null);
+
+    setSkillError("");
+  };
+
+  /* =======================================================
+     START EDITING
+     ======================================================= */
+
+  const startEditingSkill = () => {
+    if (!selectedSkill) {
+      return;
+    }
+
+    setEditingSkill({
+      id: selectedSkill.id,
+      name: selectedSkill.name,
+      icon: selectedSkill.icon,
+    });
+
+    setIsEditMode(true);
+
+    setSkillError("");
+  };
+
+  /* =======================================================
+     CANCEL EDITING
+     ======================================================= */
+
+  const cancelEditingSkill = () => {
+    if (updatingSkill) {
+      return;
+    }
+
+    setIsEditMode(false);
+
+    setEditingSkill(null);
+
+    setSkillError("");
+  };
+
+  /* =======================================================
      UPDATE SKILL
-     ========================================================= */
+     
+     PUT:
+     SkillId
+     Name
+     InputURL
+     ======================================================= */
 
   const handleEditSkill = async (e) => {
     e.preventDefault();
@@ -322,7 +423,7 @@ export default function Admin() {
       setUpdatingSkill(true);
 
       /*
-       * YOUR EXACT OUTSYSTEMS PUT API
+       * YOUR OUTSYSTEMS PUT API
        *
        * SkillsUpdate
        *
@@ -348,9 +449,12 @@ export default function Admin() {
         url
       );
 
-      const response = await fetch(url, {
-        method: "PUT",
-      });
+      const response = await fetch(
+        url,
+        {
+          method: "PUT",
+        }
+      );
 
       if (!response.ok) {
         throw new Error(
@@ -362,13 +466,24 @@ export default function Admin() {
         "Skill updated successfully."
       );
 
-      /* Close modal */
+      /*
+       * Update the selected skill
+       * immediately in the popup
+       */
 
-      setShowEditSkill(false);
+      const updatedSkill = {
+        id: editingSkill.id,
+        name: editingSkill.name.trim(),
+        icon: editingSkill.icon.trim(),
+      };
+
+      setSelectedSkill(updatedSkill);
 
       setEditingSkill(null);
 
-      /* Reload from OutSystems */
+      setIsEditMode(false);
+
+      /* Refresh from OutSystems */
 
       await fetchSkills();
 
@@ -381,14 +496,104 @@ export default function Admin() {
       setSkillError(
         "Failed to update skill. Please try again."
       );
+
     } finally {
       setUpdatingSkill(false);
     }
   };
 
-  /* =========================================================
-     MAIN UI
-     ========================================================= */
+  /* =======================================================
+     DELETE SKILL
+     
+     DELETE:
+     SkillId
+     ======================================================= */
+
+  const handleDeleteSkill = async () => {
+    if (!selectedSkill) {
+      return;
+    }
+
+    const confirmed =
+      window.confirm(
+        `Are you sure you want to delete "${selectedSkill.name}"?`
+      );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      setDeletingSkill(true);
+
+      setSkillError("");
+
+      /*
+       * YOUR OUTSYSTEMS DELETE API
+       *
+       * SkillDelete
+       *
+       * SkillId
+       */
+
+      const url =
+        `${SKILLS_DELETE_API}` +
+        `?SkillId=${encodeURIComponent(
+          selectedSkill.id
+        )}`;
+
+      console.log(
+        "Deleting skill:",
+        url
+      );
+
+      const response = await fetch(
+        url,
+        {
+          method: "DELETE",
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(
+          `HTTP error! Status: ${response.status}`
+        );
+      }
+
+      console.log(
+        "Skill deleted successfully."
+      );
+
+      /* Close popup */
+
+      setSelectedSkill(null);
+
+      setIsEditMode(false);
+
+      setEditingSkill(null);
+
+      /* Refresh skills */
+
+      await fetchSkills();
+
+    } catch (error) {
+      console.error(
+        "Failed to delete skill:",
+        error
+      );
+
+      setSkillError(
+        "Failed to delete skill. Please try again."
+      );
+
+    } finally {
+      setDeletingSkill(false);
+    }
+  };
+
+  /* =======================================================
+     RETURN
+     ======================================================= */
 
   return (
     <div
@@ -419,9 +624,9 @@ export default function Admin() {
           font-family: inherit;
         }
 
-        /* =====================================================
+        /* =================================================
            THEMES
-           ===================================================== */
+           ================================================= */
 
         .theme-dark {
           --bg: #0C0F15;
@@ -459,9 +664,9 @@ export default function Admin() {
             var(--text);
         }
 
-        /* =====================================================
+        /* =================================================
            NAVBAR
-           ===================================================== */
+           ================================================= */
 
         .admin-nav {
           position: sticky;
@@ -502,9 +707,9 @@ export default function Admin() {
           gap: 14px;
         }
 
-        /* =====================================================
+        /* =================================================
            THEME TOGGLE
-           ===================================================== */
+           ================================================= */
 
         .theme-toggle {
           width: 44px;
@@ -516,7 +721,8 @@ export default function Admin() {
           border:
             1px solid var(--border);
 
-          border-radius: 999px;
+          border-radius:
+            999px;
 
           background:
             var(--surface);
@@ -552,9 +758,9 @@ export default function Admin() {
             translateX(18px);
         }
 
-        /* =====================================================
+        /* =================================================
            LOGOUT
-           ===================================================== */
+           ================================================= */
 
         .logout-btn {
           padding:
@@ -563,7 +769,8 @@ export default function Admin() {
           border:
             1px solid var(--border);
 
-          border-radius: 8px;
+          border-radius:
+            8px;
 
           background:
             var(--surface);
@@ -573,7 +780,8 @@ export default function Admin() {
 
           cursor: pointer;
 
-          font-size: 13px;
+          font-size:
+            13px;
         }
 
         .logout-btn:hover {
@@ -584,9 +792,9 @@ export default function Admin() {
             var(--text);
         }
 
-        /* =====================================================
+        /* =================================================
            LAYOUT
-           ===================================================== */
+           ================================================= */
 
         .admin-layout {
           display: flex;
@@ -625,11 +833,14 @@ export default function Admin() {
           color:
             var(--text-muted);
 
-          text-align: left;
+          text-align:
+            left;
 
-          cursor: pointer;
+          cursor:
+            pointer;
 
-          font-size: 14px;
+          font-size:
+            14px;
 
           transition:
             all .2s ease;
@@ -661,17 +872,19 @@ export default function Admin() {
             32px;
         }
 
-        /* =====================================================
+        /* =================================================
            TITLES
-           ===================================================== */
+           ================================================= */
 
         .content-title {
           margin:
             0 0 8px;
 
-          font-size: 25px;
+          font-size:
+            25px;
 
-          font-weight: 700;
+          font-weight:
+            700;
         }
 
         .content-sub {
@@ -681,41 +894,49 @@ export default function Admin() {
           color:
             var(--text-muted);
 
-          font-size: 14px;
+          font-size:
+            14px;
         }
 
-        /* =====================================================
+        /* =================================================
            SKILLS HEADER
-           ===================================================== */
+           ================================================= */
 
         .skills-header {
-          display: flex;
+          display:
+            flex;
 
-          align-items: center;
+          align-items:
+            center;
 
-          justify-content: space-between;
+          justify-content:
+            space-between;
 
-          gap: 20px;
+          gap:
+            20px;
 
           margin-bottom:
             25px;
         }
 
         .skills-header-text p {
-          margin: 0;
+          margin:
+            0;
 
           color:
             var(--text-muted);
 
-          font-size: 14px;
+          font-size:
+            14px;
         }
 
-        /* =====================================================
+        /* =================================================
            ADD BUTTON
-           ===================================================== */
+           ================================================= */
 
         .add-skill-btn {
-          flex-shrink: 0;
+          flex-shrink:
+            0;
 
           padding:
             11px 18px;
@@ -723,7 +944,8 @@ export default function Admin() {
           border:
             1px solid var(--accent);
 
-          border-radius: 9px;
+          border-radius:
+            9px;
 
           background:
             var(--accent);
@@ -731,11 +953,14 @@ export default function Admin() {
           color:
             white;
 
-          font-size: 13px;
+          font-size:
+            13px;
 
-          font-weight: 600;
+          font-weight:
+            600;
 
-          cursor: pointer;
+          cursor:
+            pointer;
 
           transition:
             transform .2s ease,
@@ -750,12 +975,13 @@ export default function Admin() {
             .92;
         }
 
-        /* =====================================================
-           SKILL GRID
-           ===================================================== */
+        /* =================================================
+           SKILLS GRID
+           ================================================= */
 
         .admin-skills-grid {
-          display: grid;
+          display:
+            grid;
 
           grid-template-columns:
             repeat(
@@ -763,19 +989,25 @@ export default function Admin() {
               minmax(260px, 1fr)
             );
 
-          gap: 16px;
+          gap:
+            16px;
         }
 
-        /* =====================================================
+        /* =================================================
            SKILL CARD
-           ===================================================== */
+           
+           WHOLE CARD IS CLICKABLE
+           ================================================= */
 
         .admin-skill-card {
-          display: flex;
+          display:
+            flex;
 
-          align-items: center;
+          align-items:
+            center;
 
-          gap: 14px;
+          gap:
+            14px;
 
           padding:
             16px;
@@ -789,105 +1021,102 @@ export default function Admin() {
           background:
             var(--surface);
 
+          cursor:
+            pointer;
+
           transition:
             transform .2s ease,
-            border-color .2s ease;
+            border-color .2s ease,
+            box-shadow .2s ease;
         }
 
         .admin-skill-card:hover {
           transform:
-            translateY(-2px);
+            translateY(-3px);
 
           border-color:
             var(--accent);
+
+          box-shadow:
+            0 8px 25px
+            rgba(
+              0,
+              0,
+              0,
+              .15
+            );
         }
 
         .admin-skill-image {
-          width: 48px;
+          width:
+            52px;
 
-          height: 48px;
+          height:
+            52px;
 
-          flex-shrink: 0;
+          flex-shrink:
+            0;
 
-          object-fit: contain;
+          object-fit:
+            contain;
 
-          padding: 7px;
+          padding:
+            7px;
 
           border:
             1px solid var(--border);
 
-          border-radius: 10px;
+          border-radius:
+            10px;
 
           background:
             var(--surface-2);
         }
 
         .admin-skill-info {
-          flex: 1;
+          flex:
+            1;
 
-          min-width: 0;
+          min-width:
+            0;
         }
 
         .admin-skill-name {
-          font-size: 14px;
+          font-size:
+            14px;
 
-          font-weight: 600;
+          font-weight:
+            600;
 
           word-break:
             break-word;
         }
 
         .admin-skill-id {
-          margin-top: 4px;
+          margin-top:
+            4px;
 
           color:
             var(--text-muted);
 
-          font-size: 11px;
+          font-size:
+            11px;
         }
 
-        /* =====================================================
-           EDIT BUTTON
-           ===================================================== */
-
-        .edit-skill-btn {
-          flex-shrink: 0;
-
-          padding:
-            7px 12px;
-
-          border:
-            1px solid var(--border);
-
-          border-radius: 7px;
-
-          background:
-            var(--surface-2);
-
+        .click-hint {
           color:
             var(--text-muted);
 
-          font-size: 12px;
+          font-size:
+            10px;
 
-          font-weight: 600;
-
-          cursor: pointer;
-
-          transition:
-            all .2s ease;
+          opacity:
+            .7;
         }
 
-        .edit-skill-btn:hover {
-          border-color:
-            var(--accent);
-
-          color:
-            var(--accent);
-        }
-
-        /* =====================================================
+        /* =================================================
            LOADING
-           ===================================================== */
+           ================================================= */
 
         .skills-loading {
           padding:
@@ -909,9 +1138,9 @@ export default function Admin() {
             var(--surface);
         }
 
-        /* =====================================================
+        /* =================================================
            EMPTY
-           ===================================================== */
+           ================================================= */
 
         .empty-state {
           padding:
@@ -942,12 +1171,13 @@ export default function Admin() {
         }
 
         .empty-state p {
-          margin: 0;
+          margin:
+            0;
         }
 
-        /* =====================================================
+        /* =================================================
            ERROR
-           ===================================================== */
+           ================================================= */
 
         .skill-error {
           margin-bottom:
@@ -977,43 +1207,51 @@ export default function Admin() {
             13px;
         }
 
-        /* =====================================================
+        /* =================================================
            MODAL BACKDROP
-           ===================================================== */
+           ================================================= */
 
         .skill-modal-backdrop {
-          position: fixed;
+          position:
+            fixed;
 
-          inset: 0;
+          inset:
+            0;
 
-          z-index: 100;
+          z-index:
+            100;
 
-          display: flex;
+          display:
+            flex;
 
-          align-items: center;
+          align-items:
+            center;
 
-          justify-content: center;
+          justify-content:
+            center;
 
-          padding: 20px;
+          padding:
+            20px;
 
           background:
             rgba(
               0,
               0,
               0,
-              .65
+              .68
             );
 
           backdrop-filter:
             blur(8px);
         }
 
-        /* =====================================================
+        /* =================================================
            MODAL
-           ===================================================== */
+           ================================================= */
 
         .skill-modal {
-          width: 100%;
+          width:
+            100%;
 
           max-width:
             460px;
@@ -1052,7 +1290,8 @@ export default function Admin() {
         @keyframes modalIn {
 
           from {
-            opacity: 0;
+            opacity:
+              0;
 
             transform:
               translateY(15px)
@@ -1060,7 +1299,8 @@ export default function Admin() {
           }
 
           to {
-            opacity: 1;
+            opacity:
+              1;
 
             transform:
               translateY(0)
@@ -1069,37 +1309,47 @@ export default function Admin() {
 
         }
 
-        /* =====================================================
+        /* =================================================
            MODAL HEADER
-           ===================================================== */
+           ================================================= */
 
         .skill-modal-header {
-          display: flex;
+          display:
+            flex;
 
-          align-items: center;
+          align-items:
+            center;
 
-          justify-content: space-between;
+          justify-content:
+            space-between;
 
           margin-bottom:
             24px;
         }
 
         .skill-modal-header h2 {
-          margin: 0;
+          margin:
+            0;
 
-          font-size: 21px;
+          font-size:
+            21px;
         }
 
         .skill-modal-close {
-          width: 34px;
+          width:
+            34px;
 
-          height: 34px;
+          height:
+            34px;
 
-          display: flex;
+          display:
+            flex;
 
-          align-items: center;
+          align-items:
+            center;
 
-          justify-content: center;
+          justify-content:
+            center;
 
           border:
             1px solid var(--border);
@@ -1113,9 +1363,11 @@ export default function Admin() {
           color:
             var(--text);
 
-          font-size: 21px;
+          font-size:
+            21px;
 
-          cursor: pointer;
+          cursor:
+            pointer;
         }
 
         .skill-modal-close:hover {
@@ -1126,32 +1378,72 @@ export default function Admin() {
             var(--accent);
         }
 
-        /* =====================================================
-           FORM
-           ===================================================== */
+        /* =================================================
+           DETAIL VIEW
+           ================================================= */
 
-        .skill-form-group {
-          display: flex;
-
-          flex-direction: column;
-
-          gap: 7px;
-
-          margin-bottom:
-            18px;
+        .skill-detail-container {
+          text-align:
+            center;
         }
 
-        .skill-form-group label {
-          font-size: 13px;
+        .skill-detail-image {
+          width:
+            110px;
 
-          font-weight: 600;
-        }
+          height:
+            110px;
 
-        .skill-form-group input {
-          width: 100%;
+          object-fit:
+            contain;
 
           padding:
-            12px 14px;
+            15px;
+
+          margin:
+            0 auto 18px;
+
+          display:
+            block;
+
+          border:
+            1px solid var(--border);
+
+          border-radius:
+            18px;
+
+          background:
+            var(--surface-2);
+        }
+
+        .skill-detail-name {
+          margin:
+            0 0 7px;
+
+          font-size:
+            23px;
+
+          font-weight:
+            700;
+        }
+
+        .skill-detail-id {
+          margin:
+            0 0 20px;
+
+          color:
+            var(--text-muted);
+
+          font-size:
+            12px;
+        }
+
+        .skill-detail-url {
+          padding:
+            12px;
+
+          margin-bottom:
+            22px;
 
           border:
             1px solid var(--border);
@@ -1159,7 +1451,46 @@ export default function Admin() {
           border-radius:
             9px;
 
-          outline: none;
+          background:
+            var(--surface-2);
+
+          color:
+            var(--text-muted);
+
+          font-size:
+            11px;
+
+          word-break:
+            break-all;
+
+          text-align:
+            left;
+        }
+
+        /* =================================================
+           ACTION BUTTONS
+           ================================================= */
+
+        .skill-actions {
+          display:
+            flex;
+
+          gap:
+            10px;
+        }
+
+        .skill-action-btn {
+          flex:
+            1;
+
+          padding:
+            12px;
+
+          border:
+            1px solid var(--border);
+
+          border-radius:
+            9px;
 
           background:
             var(--surface-2);
@@ -1170,13 +1501,112 @@ export default function Admin() {
           font-size:
             13px;
 
+          font-weight:
+            700;
+
+          cursor:
+            pointer;
+
           transition:
-            border-color .2s ease;
+            all .2s ease;
+        }
+
+        .skill-action-btn:hover {
+          border-color:
+            var(--accent);
+
+          color:
+            var(--accent);
+        }
+
+        .skill-delete-btn {
+          border-color:
+            #ef4444;
+
+          color:
+            #ef4444;
+        }
+
+        .skill-delete-btn:hover {
+          background:
+            rgba(
+              239,
+              68,
+              68,
+              .08
+            );
+
+          border-color:
+            #ef4444;
+
+          color:
+            #ef4444;
+        }
+
+        /* =================================================
+           FORM
+           ================================================= */
+
+        .skill-form-group {
+          display:
+            flex;
+
+          flex-direction:
+            column;
+
+          gap:
+            7px;
+
+          margin-bottom:
+            18px;
+        }
+
+        .skill-form-group label {
+          font-size:
+            13px;
+
+          font-weight:
+            600;
+        }
+
+        .skill-form-group input {
+          width:
+            100%;
+
+          padding:
+            12px 14px;
+
+          border:
+            1px solid var(--border);
+
+          border-radius:
+            9px;
+
+          outline:
+            none;
+
+          background:
+            var(--surface-2);
+
+          color:
+            var(--text);
+
+          font-size:
+            13px;
         }
 
         .skill-form-group input:focus {
           border-color:
             var(--accent);
+
+          box-shadow:
+            0 0 0 3px
+            rgba(
+              59,
+              95,
+              224,
+              .15
+            );
         }
 
         .input-help {
@@ -1190,9 +1620,9 @@ export default function Admin() {
             1.5;
         }
 
-        /* =====================================================
+        /* =================================================
            IMAGE PREVIEW
-           ===================================================== */
+           ================================================= */
 
         .image-preview {
           margin-top:
@@ -1204,11 +1634,14 @@ export default function Admin() {
           min-height:
             110px;
 
-          display: flex;
+          display:
+            flex;
 
-          align-items: center;
+          align-items:
+            center;
 
-          justify-content: center;
+          justify-content:
+            center;
 
           border:
             1px solid var(--border);
@@ -1231,23 +1664,13 @@ export default function Admin() {
             contain;
         }
 
-        .preview-placeholder {
-          color:
-            var(--text-muted);
-
-          font-size:
-            12px;
-
-          text-align:
-            center;
-        }
-
-        /* =====================================================
-           SUBMIT
-           ===================================================== */
+        /* =================================================
+           SUBMIT BUTTON
+           ================================================= */
 
         .skill-submit-btn {
-          width: 100%;
+          width:
+            100%;
 
           padding:
             12px;
@@ -1275,9 +1698,6 @@ export default function Admin() {
 
           cursor:
             pointer;
-
-          transition:
-            opacity .2s ease;
         }
 
         .skill-submit-btn:hover {
@@ -1293,9 +1713,53 @@ export default function Admin() {
             not-allowed;
         }
 
-        /* =====================================================
+        /* =================================================
+           CANCEL BUTTON
+           ================================================= */
+
+        .skill-cancel-btn {
+          width:
+            100%;
+
+          padding:
+            12px;
+
+          margin-top:
+            10px;
+
+          border:
+            1px solid var(--border);
+
+          border-radius:
+            9px;
+
+          background:
+            transparent;
+
+          color:
+            var(--text-muted);
+
+          font-size:
+            13px;
+
+          font-weight:
+            600;
+
+          cursor:
+            pointer;
+        }
+
+        .skill-cancel-btn:hover {
+          border-color:
+            var(--text-muted);
+
+          color:
+            var(--text);
+        }
+
+        /* =================================================
            MOBILE
-           ===================================================== */
+           ================================================= */
 
         @media (max-width: 720px) {
 
@@ -1327,6 +1791,11 @@ export default function Admin() {
               1fr;
           }
 
+          .skill-actions {
+            flex-direction:
+              column;
+          }
+
         }
 
       `}</style>
@@ -1353,11 +1822,13 @@ export default function Admin() {
               )
             }
           >
+
             <span className="theme-toggle-knob">
               {isDark
                 ? "🌙"
                 : "☀️"}
             </span>
+
           </button>
 
           <button className="logout-btn">
@@ -1397,9 +1868,7 @@ export default function Admin() {
               }
             >
 
-              <span className="label">
-                {item.label}
-              </span>
+              {item.label}
 
             </button>
 
@@ -1463,8 +1932,8 @@ export default function Admin() {
                   </h1>
 
                   <p>
-                    Manage the skills shown
-                    on your portfolio.
+                    Click a skill to view,
+                    edit or delete it.
                   </p>
 
                 </div>
@@ -1480,11 +1949,15 @@ export default function Admin() {
 
               {/* ERROR */}
 
-              {skillError && (
-                <div className="skill-error">
-                  {skillError}
-                </div>
-              )}
+              {skillError &&
+                !selectedSkill &&
+                !showAddSkill && (
+
+                  <div className="skill-error">
+                    {skillError}
+                  </div>
+
+                )}
 
               {/* LOADING */}
 
@@ -1508,6 +1981,11 @@ export default function Admin() {
                       <div
                         className="admin-skill-card"
                         key={skill.id}
+                        onClick={() =>
+                          openSkillDetails(
+                            skill
+                          )
+                        }
                       >
 
                         <img
@@ -1532,15 +2010,9 @@ export default function Admin() {
 
                         </div>
 
-                        <button
-                          type="button"
-                          className="edit-skill-btn"
-                          onClick={() =>
-                            openEditSkill(skill)
-                          }
-                        >
-                          Edit
-                        </button>
+                        <div className="click-hint">
+                          ›
+                        </div>
 
                       </div>
 
@@ -1617,9 +2089,7 @@ export default function Admin() {
               onSubmit={handleAddSkill}
             >
 
-              {/* =================================================
-                  NAME
-                  ================================================= */}
+              {/* NAME */}
 
               <div className="skill-form-group">
 
@@ -1642,9 +2112,7 @@ export default function Admin() {
 
               </div>
 
-              {/* =================================================
-                  IMAGE URL
-                  ================================================= */}
+              {/* IMAGE */}
 
               <div className="skill-form-group">
 
@@ -1666,14 +2134,13 @@ export default function Admin() {
                 />
 
                 <div className="input-help">
-                  Accepted formats:
+                  Accepted:
                   PNG, JPG, JPEG, GIF,
                   WEBP and SVG
                 </div>
 
-                {/* PREVIEW */}
-
                 {imageLink && (
+
                   <div className="image-preview">
 
                     <img
@@ -1683,20 +2150,15 @@ export default function Admin() {
                         e.currentTarget.style.display =
                           "none";
                       }}
-                      onLoad={(e) => {
-                        e.currentTarget.style.display =
-                          "block";
-                      }}
                     />
 
                   </div>
+
                 )}
 
               </div>
 
-              {/* =================================================
-                  ERROR
-                  ================================================= */}
+              {/* ERROR */}
 
               {skillError && (
 
@@ -1706,9 +2168,7 @@ export default function Admin() {
 
               )}
 
-              {/* =================================================
-                  CREATE
-                  ================================================= */}
+              {/* CREATE */}
 
               <button
                 type="submit"
@@ -1731,169 +2191,268 @@ export default function Admin() {
       )}
 
       {/* =====================================================
-          UPDATE SKILL MODAL
+          SKILL DETAILS / EDIT MODAL
           ===================================================== */}
 
-      {showEditSkill &&
-        editingSkill && (
+      {selectedSkill && (
+
+        <div
+          className="skill-modal-backdrop"
+          onClick={closeSkillDetails}
+        >
 
           <div
-            className="skill-modal-backdrop"
-            onClick={closeEditSkill}
+            className="skill-modal"
+            onClick={(e) =>
+              e.stopPropagation()
+            }
           >
 
-            <div
-              className="skill-modal"
-              onClick={(e) =>
-                e.stopPropagation()
-              }
-            >
+            {/* =================================================
+                MODAL HEADER
+                ================================================= */}
 
-              <div className="skill-modal-header">
+            <div className="skill-modal-header">
 
-                <h2>
-                  Edit Skill
-                </h2>
+              <h2>
+                {isEditMode
+                  ? "Edit Skill"
+                  : "Skill Details"}
+              </h2>
 
-                <button
-                  type="button"
-                  className="skill-modal-close"
-                  onClick={closeEditSkill}
-                  disabled={updatingSkill}
-                >
-                  ×
-                </button>
-
-              </div>
-
-              <form
-                onSubmit={handleEditSkill}
+              <button
+                type="button"
+                className="skill-modal-close"
+                onClick={closeSkillDetails}
+                disabled={
+                  updatingSkill ||
+                  deletingSkill
+                }
               >
+                ×
+              </button>
 
-                {/* =================================================
-                    NAME
-                    ================================================= */}
+            </div>
 
-                <div className="skill-form-group">
+            {/* =================================================
+                VIEW MODE
+                ================================================= */}
 
-                  <label>
-                    Skill Name
-                  </label>
+            {!isEditMode && (
 
-                  <input
-                    type="text"
-                    value={
-                      editingSkill.name
+              <div className="skill-detail-container">
+
+                {/* IMAGE */}
+
+                <img
+                  className="skill-detail-image"
+                  src={selectedSkill.icon}
+                  alt={selectedSkill.name}
+                />
+
+                {/* NAME */}
+
+                <h3 className="skill-detail-name">
+                  {selectedSkill.name}
+                </h3>
+
+                {/* ID */}
+
+                <p className="skill-detail-id">
+                  Skill ID: {selectedSkill.id}
+                </p>
+
+                {/* IMAGE URL */}
+
+                <div className="skill-detail-url">
+                  {selectedSkill.icon}
+                </div>
+
+                {/* ACTIONS */}
+
+                <div className="skill-actions">
+
+                  <button
+                    type="button"
+                    className="skill-action-btn"
+                    onClick={
+                      startEditingSkill
                     }
-                    onChange={(e) =>
-                      setEditingSkill({
-                        ...editingSkill,
-                        name:
-                          e.target.value,
-                      })
+                  >
+                    ✏️ Edit
+                  </button>
+
+                  <button
+                    type="button"
+                    className={
+                      "skill-action-btn " +
+                      "skill-delete-btn"
                     }
-                    disabled={updatingSkill}
-                    required
-                  />
+                    onClick={
+                      handleDeleteSkill
+                    }
+                    disabled={
+                      deletingSkill
+                    }
+                  >
+
+                    {deletingSkill
+                      ? "Deleting..."
+                      : "🗑 Delete"}
+
+                  </button>
 
                 </div>
 
-                {/* =================================================
-                    IMAGE URL
-                    ================================================= */}
+              </div>
 
-                <div className="skill-form-group">
+            )}
 
-                  <label>
-                    Image Link
-                  </label>
+            {/* =================================================
+                EDIT MODE
+                ================================================= */}
 
-                  <input
-                    type="url"
-                    placeholder="https://example.com/react.png"
-                    value={
-                      editingSkill.icon
-                    }
-                    onChange={(e) =>
-                      setEditingSkill({
-                        ...editingSkill,
-                        icon:
-                          e.target.value,
-                      })
-                    }
-                    disabled={updatingSkill}
-                    required
-                  />
+            {isEditMode &&
+              editingSkill && (
 
-                  <div className="input-help">
-                    Accepted formats:
-                    PNG, JPG, JPEG, GIF,
-                    WEBP and SVG
+                <form
+                  onSubmit={handleEditSkill}
+                >
+
+                  {/* NAME */}
+
+                  <div className="skill-form-group">
+
+                    <label>
+                      Skill Name
+                    </label>
+
+                    <input
+                      type="text"
+                      value={
+                        editingSkill.name
+                      }
+                      onChange={(e) =>
+                        setEditingSkill({
+                          ...editingSkill,
+                          name:
+                            e.target.value,
+                        })
+                      }
+                      disabled={
+                        updatingSkill
+                      }
+                      required
+                    />
+
                   </div>
 
-                  {/* PREVIEW */}
+                  {/* IMAGE */}
 
-                  {editingSkill.icon && (
+                  <div className="skill-form-group">
 
-                    <div className="image-preview">
+                    <label>
+                      Image Link
+                    </label>
 
-                      <img
-                        src={
-                          editingSkill.icon
-                        }
-                        alt="Preview"
-                        onError={(e) => {
-                          e.currentTarget.style.display =
-                            "none";
-                        }}
-                        onLoad={(e) => {
-                          e.currentTarget.style.display =
-                            "block";
-                        }}
-                      />
+                    <input
+                      type="url"
+                      placeholder="https://example.com/react.png"
+                      value={
+                        editingSkill.icon
+                      }
+                      onChange={(e) =>
+                        setEditingSkill({
+                          ...editingSkill,
+                          icon:
+                            e.target.value,
+                        })
+                      }
+                      disabled={
+                        updatingSkill
+                      }
+                      required
+                    />
 
+                    <div className="input-help">
+                      Accepted:
+                      PNG, JPG, JPEG, GIF,
+                      WEBP and SVG
+                    </div>
+
+                    {editingSkill.icon && (
+
+                      <div className="image-preview">
+
+                        <img
+                          src={
+                            editingSkill.icon
+                          }
+                          alt="Preview"
+                          onError={(e) => {
+                            e.currentTarget.style.display =
+                              "none";
+                          }}
+                        />
+
+                      </div>
+
+                    )}
+
+                  </div>
+
+                  {/* ERROR */}
+
+                  {skillError && (
+
+                    <div className="skill-error">
+                      {skillError}
                     </div>
 
                   )}
 
-                </div>
+                  {/* UPDATE */}
 
-                {/* =================================================
-                    ERROR
-                    ================================================= */}
+                  <button
+                    type="submit"
+                    className="skill-submit-btn"
+                    disabled={
+                      updatingSkill
+                    }
+                  >
 
-                {skillError && (
+                    {updatingSkill
+                      ? "Updating..."
+                      : "Update Skill"}
 
-                  <div className="skill-error">
-                    {skillError}
-                  </div>
+                  </button>
 
-                )}
+                  {/* CANCEL */}
 
-                {/* =================================================
-                    UPDATE
-                    ================================================= */}
+                  <button
+                    type="button"
+                    className="skill-cancel-btn"
+                    onClick={
+                      cancelEditingSkill
+                    }
+                    disabled={
+                      updatingSkill
+                    }
+                  >
+                    Cancel
+                  </button>
 
-                <button
-                  type="submit"
-                  className="skill-submit-btn"
-                  disabled={updatingSkill}
-                >
+                </form>
 
-                  {updatingSkill
-                    ? "Updating..."
-                    : "Update Skill"}
-
-                </button>
-
-              </form>
-
-            </div>
+              )}
 
           </div>
 
-        )}
+        </div>
+
+      )}
 
     </div>
   );
 }
+```
