@@ -1,13 +1,12 @@
-
 import React, { useEffect, useState } from "react";
 
 /* =========================================================
-   OUTSYSTEMS API URLS
+   API CONFIGURATION
    ========================================================= */
 
-/* -------------------------
-   SKILLS
-   ------------------------- */
+/* =========================
+   SKILLS APIs
+   ========================= */
 
 const SKILLS_GET_API =
   "https://personal-zld4pieb.outsystemscloud.com/SadiqPortfolio/rest/Skillsget/Skillsget";
@@ -21,16 +20,17 @@ const SKILLS_UPDATE_API =
 const SKILLS_DELETE_API =
   "https://personal-zld4pieb.outsystemscloud.com/SadiqPortfolio/rest/Skillsget/SkillDelete";
 
-/* -------------------------
-   PROJECTS
-   ------------------------- */
+
+/* =========================
+   PROJECT API
+   ========================= */
 
 const PROJECT_CREATE_API =
   "https://personal-zld4pieb.outsystemscloud.com/SadiqPortfolio/rest/ProjectsAPI/CreateProject";
 
 
 /* =========================================================
-   MAIN ADMIN COMPONENT
+   ADMIN COMPONENT
    ========================================================= */
 
 export default function Admin() {
@@ -59,9 +59,10 @@ export default function Admin() {
   const [skillsError, setSkillsError] =
     useState("");
 
-  /* -------------------------
+
+  /* =========================
      ADD SKILL
-     ------------------------- */
+     ========================= */
 
   const [showAddSkill, setShowAddSkill] =
     useState(false);
@@ -76,9 +77,9 @@ export default function Admin() {
     useState(false);
 
 
-  /* -------------------------
+  /* =========================
      EDIT SKILL
-     ------------------------- */
+     ========================= */
 
   const [selectedSkill, setSelectedSkill] =
     useState(null);
@@ -92,11 +93,6 @@ export default function Admin() {
   const [updatingSkill, setUpdatingSkill] =
     useState(false);
 
-
-  /* -------------------------
-     DELETE SKILL
-     ------------------------- */
-
   const [deletingSkill, setDeletingSkill] =
     useState(false);
 
@@ -108,6 +104,11 @@ export default function Admin() {
   const [projects, setProjects] =
     useState([]);
 
+
+  /* =========================
+     ADD PROJECT
+     ========================= */
+
   const [showAddProject, setShowAddProject] =
     useState(false);
 
@@ -118,9 +119,9 @@ export default function Admin() {
     useState("");
 
 
-  /* -------------------------
+  /* =========================
      PROJECT FORM
-     ------------------------- */
+     ========================= */
 
   const [projectName, setProjectName] =
     useState("");
@@ -128,8 +129,14 @@ export default function Admin() {
   const [projectDescription, setProjectDescription] =
     useState("");
 
+  /*
+     IMPORTANT:
+
+     This is now a File object,
+     NOT a string URL.
+  */
   const [projectImage, setProjectImage] =
-    useState("");
+    useState(null);
 
   const [projectGithubURL, setProjectGithubURL] =
     useState("");
@@ -141,9 +148,17 @@ export default function Admin() {
     useState("");
 
 
-  /* -------------------------
-     PROJECT SKILLS
-     ------------------------- */
+  /* =========================
+     IMAGE PREVIEW
+     ========================= */
+
+  const [projectImagePreview, setProjectImagePreview] =
+    useState("");
+
+
+  /* =========================
+     PROJECT TECHNOLOGIES
+     ========================= */
 
   const [selectedSkillIds, setSelectedSkillIds] =
     useState([]);
@@ -169,32 +184,44 @@ export default function Admin() {
         );
 
       if (!response.ok) {
+
         throw new Error(
           `HTTP ${response.status}`
         );
+
       }
 
       const data =
         await response.json();
 
       console.log(
-        "Skills API response:",
+        "Skills API Response:",
         data
       );
 
+
       /*
-       IMPORTANT:
+       Handles both possible structures:
 
-       Your previous API response was handled
-       as:
+       [
+         {
+           Skills: {
+             Id: 1,
+             skillname: "React",
+             imagelink: "..."
+           }
+         }
+       ]
 
-       data.map(item => ({
-          id: item.Skills.Id,
-          name: item.Skills.skillname,
-          icon: item.Skills.imagelink
-       }))
+       OR
 
-       Keeping that structure here.
+       [
+         {
+           Id: 1,
+           skillname: "React",
+           imagelink: "..."
+         }
+       ]
       */
 
       const formattedSkills =
@@ -206,6 +233,7 @@ export default function Admin() {
                 item;
 
               return {
+
                 id:
                   skill.Id,
 
@@ -218,10 +246,12 @@ export default function Admin() {
                   skill.imagelink ||
                   skill.ImageURL ||
                   "",
+
               };
 
             })
           : [];
+
 
       setSkills(
         formattedSkills
@@ -230,7 +260,7 @@ export default function Admin() {
     } catch (error) {
 
       console.error(
-        "Get Skills Error:",
+        "GET Skills Error:",
         error
       );
 
@@ -248,7 +278,7 @@ export default function Admin() {
 
 
   /* =======================================================
-     LOAD SKILLS
+     LOAD SKILLS WHEN PAGE OPENS
      ======================================================= */
 
   useEffect(() => {
@@ -259,7 +289,7 @@ export default function Admin() {
 
 
   /* =======================================================
-     OPEN ADD SKILL
+     ADD SKILL
      ======================================================= */
 
   const openAddSkill = () => {
@@ -271,10 +301,6 @@ export default function Admin() {
 
   };
 
-
-  /* =======================================================
-     CLOSE ADD SKILL
-     ======================================================= */
 
   const closeAddSkill = () => {
 
@@ -299,6 +325,7 @@ export default function Admin() {
 
       e.preventDefault();
 
+
       if (!newSkillName.trim()) {
 
         alert(
@@ -308,6 +335,7 @@ export default function Admin() {
         return;
 
       }
+
 
       if (!newSkillImage.trim()) {
 
@@ -319,9 +347,11 @@ export default function Admin() {
 
       }
 
+
       try {
 
         setAddingSkill(true);
+
 
         const url =
           `${SKILLS_CREATE_API}` +
@@ -332,6 +362,7 @@ export default function Admin() {
             newSkillImage.trim()
           )}`;
 
+
         const response =
           await fetch(
             url,
@@ -339,6 +370,7 @@ export default function Admin() {
               method: "POST",
             }
           );
+
 
         if (!response.ok) {
 
@@ -348,9 +380,11 @@ export default function Admin() {
 
         }
 
+
         alert(
           "Skill created successfully!"
         );
+
 
         closeAddSkill();
 
@@ -404,8 +438,13 @@ export default function Admin() {
 
   const closeEditSkill = () => {
 
-    if (updatingSkill) {
+    if (
+      updatingSkill ||
+      deletingSkill
+    ) {
+
       return;
+
     }
 
     setSelectedSkill(null);
@@ -425,9 +464,11 @@ export default function Admin() {
 
       e.preventDefault();
 
+
       if (!selectedSkill) {
         return;
       }
+
 
       if (!editSkillName.trim()) {
 
@@ -439,6 +480,7 @@ export default function Admin() {
 
       }
 
+
       if (!editSkillImage.trim()) {
 
         alert(
@@ -449,9 +491,11 @@ export default function Admin() {
 
       }
 
+
       try {
 
         setUpdatingSkill(true);
+
 
         const url =
           `${SKILLS_UPDATE_API}` +
@@ -465,6 +509,7 @@ export default function Admin() {
             editSkillImage.trim()
           )}`;
 
+
         const response =
           await fetch(
             url,
@@ -472,6 +517,7 @@ export default function Admin() {
               method: "PUT",
             }
           );
+
 
         if (!response.ok) {
 
@@ -481,9 +527,11 @@ export default function Admin() {
 
         }
 
+
         alert(
           "Skill updated successfully!"
         );
+
 
         closeEditSkill();
 
@@ -520,24 +568,29 @@ export default function Admin() {
         return;
       }
 
+
       const confirmed =
         window.confirm(
-          `Delete "${selectedSkill.name}"?`
+          `Are you sure you want to delete "${selectedSkill.name}"?`
         );
+
 
       if (!confirmed) {
         return;
       }
 
+
       try {
 
         setDeletingSkill(true);
+
 
         const url =
           `${SKILLS_DELETE_API}` +
           `?SkillId=${encodeURIComponent(
             selectedSkill.id
           )}`;
+
 
         const response =
           await fetch(
@@ -547,6 +600,7 @@ export default function Admin() {
             }
           );
 
+
         if (!response.ok) {
 
           throw new Error(
@@ -555,9 +609,11 @@ export default function Admin() {
 
         }
 
+
         alert(
           "Skill deleted successfully!"
         );
+
 
         closeEditSkill();
 
@@ -584,6 +640,109 @@ export default function Admin() {
 
 
   /* =======================================================
+     PROJECT IMAGE SELECT
+     ======================================================= */
+
+  const handleProjectImageChange =
+    (e) => {
+
+      const file =
+        e.target.files?.[0];
+
+
+      if (!file) {
+
+        setProjectImage(null);
+        setProjectImagePreview("");
+
+        return;
+
+      }
+
+
+      /* -------------------------
+         Validate image
+         ------------------------- */
+
+      const allowedTypes = [
+        "image/png",
+        "image/jpeg",
+        "image/jpg",
+        "image/webp",
+      ];
+
+
+      if (
+        !allowedTypes.includes(
+          file.type
+        )
+      ) {
+
+        alert(
+          "Please upload PNG, JPG, JPEG or WEBP."
+        );
+
+        e.target.value = "";
+
+        setProjectImage(null);
+        setProjectImagePreview("");
+
+        return;
+
+      }
+
+
+      /* -------------------------
+         Optional size validation
+         ------------------------- */
+
+      const maxSize =
+        10 * 1024 * 1024;
+
+
+      if (
+        file.size >
+        maxSize
+      ) {
+
+        alert(
+          "Image must be smaller than 10 MB."
+        );
+
+        e.target.value = "";
+
+        setProjectImage(null);
+        setProjectImagePreview("");
+
+        return;
+
+      }
+
+
+      setProjectImage(
+        file
+      );
+
+
+      /*
+       Create temporary browser
+       preview.
+      */
+
+      const previewURL =
+        URL.createObjectURL(
+          file
+        );
+
+
+      setProjectImagePreview(
+        previewURL
+      );
+
+    };
+
+
+  /* =======================================================
      OPEN ADD PROJECT
      ======================================================= */
 
@@ -591,7 +750,10 @@ export default function Admin() {
 
     setProjectName("");
     setProjectDescription("");
-    setProjectImage("");
+
+    setProjectImage(null);
+    setProjectImagePreview("");
+
     setProjectGithubURL("");
     setProjectURL("");
     setProjectYear("");
@@ -615,11 +777,15 @@ export default function Admin() {
       return;
     }
 
+
     setShowAddProject(false);
 
     setProjectName("");
     setProjectDescription("");
-    setProjectImage("");
+
+    setProjectImage(null);
+    setProjectImagePreview("");
+
     setProjectGithubURL("");
     setProjectURL("");
     setProjectYear("");
@@ -632,7 +798,7 @@ export default function Admin() {
 
 
   /* =======================================================
-     SELECT / UNSELECT PROJECT SKILL
+     SELECT / UNSELECT TECHNOLOGY
      ======================================================= */
 
   const toggleProjectSkill =
@@ -654,6 +820,7 @@ export default function Admin() {
 
           }
 
+
           return [
             ...previous,
             skillId,
@@ -661,46 +828,6 @@ export default function Admin() {
 
         }
       );
-
-    };
-
-
-  /* =======================================================
-     IMAGE URL VALIDATION
-     ======================================================= */
-
-  const isValidImage =
-    (url) => {
-
-      if (!url.trim()) {
-        return false;
-      }
-
-      try {
-
-        const parsed =
-          new URL(
-            url.trim()
-          );
-
-        const path =
-          parsed.pathname
-            .toLowerCase();
-
-        return (
-          path.endsWith(".png") ||
-          path.endsWith(".jpg") ||
-          path.endsWith(".jpeg") ||
-          path.endsWith(".gif") ||
-          path.endsWith(".webp") ||
-          path.endsWith(".svg")
-        );
-
-      } catch {
-
-        return false;
-
-      }
 
     };
 
@@ -716,9 +843,10 @@ export default function Admin() {
 
       setProjectError("");
 
-      /* -------------------------
+
+      /* =================================================
          VALIDATION
-         ------------------------- */
+         ================================================= */
 
       if (!projectName.trim()) {
 
@@ -730,44 +858,55 @@ export default function Admin() {
 
       }
 
+
       if (!projectDescription.trim()) {
 
         setProjectError(
-          "Please enter the description."
+          "Please enter the project description."
         );
 
         return;
 
       }
 
-      if (!projectImage.trim()) {
+
+      if (!projectImage) {
 
         setProjectError(
-          "Please enter the project image URL."
+          "Please select a project image."
         );
 
         return;
 
       }
 
-      if (
-        !isValidImage(
-          projectImage
-        )
-      ) {
+
+      if (!projectGithubURL.trim()) {
 
         setProjectError(
-          "Image must be a valid PNG, JPG, JPEG, GIF, WEBP or SVG URL."
+          "Please enter the GitHub URL."
         );
 
         return;
 
       }
+
+
+      if (!projectURL.trim()) {
+
+        setProjectError(
+          "Please enter the Project URL."
+        );
+
+        return;
+
+      }
+
 
       if (!projectYear.trim()) {
 
         setProjectError(
-          "Please enter the month/year."
+          "Please enter the year."
         );
 
         return;
@@ -775,15 +914,36 @@ export default function Admin() {
       }
 
 
-      /* -------------------------
-         CREATE
-         ------------------------- */
+      /* =================================================
+         CREATE PROJECT
+         ================================================= */
 
       try {
 
         setCreatingProject(
           true
         );
+
+
+        /*
+         Your OutSystems API expects:
+
+         QUERY:
+
+         Name
+         Description
+         GithubURL
+         ProjectURL
+         Year
+
+         BODY:
+
+         ImageLink = binary
+
+         Therefore we send the actual
+         File object as the request body.
+        */
+
 
         const url =
           `${PROJECT_CREATE_API}` +
@@ -803,20 +963,63 @@ export default function Admin() {
             projectYear.trim()
           )}`;
 
+
         console.log(
-          "Create Project:",
+          "Create Project URL:",
           url
         );
+
+
+        console.log(
+          "Image being uploaded:",
+          projectImage
+        );
+
+
+        /*
+         IMPORTANT:
+
+         Do NOT use FormData here.
+
+         Your OutSystems screenshot shows
+         ImageLink as:
+
+             Type: binary
+             Parameter Type: body
+
+         So we send the file itself as
+         the request body.
+        */
+
 
         const response =
           await fetch(
             url,
             {
               method: "POST",
+
+              headers: {
+                "Content-Type":
+                  projectImage.type ||
+                  "application/octet-stream",
+              },
+
+              body:
+                projectImage,
             }
           );
 
+
         if (!response.ok) {
+
+          const errorText =
+            await response.text();
+
+          console.error(
+            "OutSystems response:",
+            errorText
+          );
+
 
           throw new Error(
             `HTTP ${response.status}`
@@ -825,15 +1028,23 @@ export default function Admin() {
         }
 
 
-        /* -------------------------
-           LOCAL PROJECT
+        /*
+         Project successfully
+         inserted into OutSystems.
+        */
 
-           This lets the UI display
-           the project immediately.
 
-           ProjectSkill API will be
-           connected separately.
-           ------------------------- */
+        /*
+         Add it to local React state
+         so it immediately appears
+         in the UI.
+
+         NOTE:
+
+         The actual Project ID will
+         come from OutSystems if your
+         API returns it.
+        */
 
         const newProject = {
 
@@ -847,7 +1058,7 @@ export default function Admin() {
             projectDescription.trim(),
 
           image:
-            projectImage.trim(),
+            projectImagePreview,
 
           githubURL:
             projectGithubURL.trim(),
@@ -863,6 +1074,7 @@ export default function Admin() {
 
         };
 
+
         setProjects(
           (previous) => [
             ...previous,
@@ -875,6 +1087,7 @@ export default function Admin() {
           "Project created successfully!"
         );
 
+
         closeAddProject();
 
       } catch (error) {
@@ -884,8 +1097,9 @@ export default function Admin() {
           error
         );
 
+
         setProjectError(
-          "Failed to create project."
+          "Failed to create project. Check the browser console for details."
         );
 
       } finally {
@@ -900,7 +1114,7 @@ export default function Admin() {
 
 
   /* =======================================================
-     GET SELECTED SKILLS FOR A PROJECT
+     GET PROJECT TECHNOLOGIES
      ======================================================= */
 
   const getProjectSkills =
@@ -915,6 +1129,7 @@ export default function Admin() {
 
       }
 
+
       return skills.filter(
         (skill) =>
           project.skillIds.includes(
@@ -926,7 +1141,35 @@ export default function Admin() {
 
 
   /* =======================================================
-     RENDER
+     CLEANUP IMAGE PREVIEW
+     ======================================================= */
+
+  useEffect(() => {
+
+    return () => {
+
+      if (
+        projectImagePreview &&
+        projectImagePreview.startsWith(
+          "blob:"
+        )
+      ) {
+
+        URL.revokeObjectURL(
+          projectImagePreview
+        );
+
+      }
+
+    };
+
+  }, [
+    projectImagePreview
+  ]);
+
+
+  /* =======================================================
+     RETURN UI
      ======================================================= */
 
   return (
@@ -939,8 +1182,9 @@ export default function Admin() {
       }
     >
 
+
       {/* ===================================================
-          GLOBAL CSS
+          CSS
           =================================================== */}
 
       <style>{`
@@ -957,8 +1201,15 @@ export default function Admin() {
             sans-serif;
         }
 
+
+        /* =========================
+           ROOT
+           ========================= */
+
         .admin {
-          min-height: 100vh;
+
+          min-height:
+            100vh;
 
           --bg:
             #0d1117;
@@ -986,9 +1237,12 @@ export default function Admin() {
 
           color:
             var(--text);
+
         }
 
+
         .admin.light {
+
           --bg:
             #f5f6f8;
 
@@ -1009,15 +1263,18 @@ export default function Admin() {
 
           --accent:
             #4f46e5;
+
         }
 
 
-        /* =================================================
+        /* =========================
            NAVBAR
-           ================================================= */
+           ========================= */
 
         .navbar {
-          height: 64px;
+
+          height:
+            64px;
 
           display:
             flex;
@@ -1040,20 +1297,28 @@ export default function Admin() {
           position:
             sticky;
 
-          top: 0;
+          top:
+            0;
 
-          z-index: 20;
+          z-index:
+            20;
+
         }
 
+
         .brand {
+
           font-size:
             18px;
 
           font-weight:
             700;
+
         }
 
+
         .nav-actions {
+
           display:
             flex;
 
@@ -1062,9 +1327,12 @@ export default function Admin() {
 
           gap:
             10px;
+
         }
 
+
         .theme-button {
+
           width:
             40px;
 
@@ -1085,9 +1353,12 @@ export default function Admin() {
 
           font-size:
             16px;
+
         }
 
+
         .logout {
+
           padding:
             9px 14px;
 
@@ -1105,22 +1376,27 @@ export default function Admin() {
 
           cursor:
             pointer;
+
         }
 
 
-        /* =================================================
+        /* =========================
            LAYOUT
-           ================================================= */
+           ========================= */
 
         .layout {
+
           display:
             flex;
 
           min-height:
             calc(100vh - 64px);
+
         }
 
+
         .sidebar {
+
           width:
             220px;
 
@@ -1135,9 +1411,12 @@ export default function Admin() {
 
           background:
             var(--bg);
+
         }
 
+
         .nav-item {
+
           width:
             100%;
 
@@ -1167,17 +1446,23 @@ export default function Admin() {
 
           font-size:
             14px;
+
         }
 
+
         .nav-item:hover {
+
           background:
             var(--surface);
 
           color:
             var(--text);
+
         }
 
+
         .nav-item.active {
+
           background:
             var(--surface);
 
@@ -1186,9 +1471,12 @@ export default function Admin() {
 
           border-left:
             3px solid var(--accent);
+
         }
 
+
         .content {
+
           flex:
             1;
 
@@ -1197,14 +1485,16 @@ export default function Admin() {
 
           min-width:
             0;
+
         }
 
 
-        /* =================================================
-           PAGE HEADER
-           ================================================= */
+        /* =========================
+           HEADER
+           ========================= */
 
         .page-header {
+
           display:
             flex;
 
@@ -1219,17 +1509,23 @@ export default function Admin() {
 
           gap:
             20px;
+
         }
 
+
         .title {
+
           margin:
             0 0 6px;
 
           font-size:
             27px;
+
         }
 
+
         .subtitle {
+
           margin:
             0;
 
@@ -1238,14 +1534,16 @@ export default function Admin() {
 
           font-size:
             13px;
+
         }
 
 
-        /* =================================================
+        /* =========================
            BUTTONS
-           ================================================= */
+           ========================= */
 
         .primary {
+
           padding:
             11px 17px;
 
@@ -1266,14 +1564,31 @@ export default function Admin() {
 
           font-weight:
             600;
+
         }
+
 
         .primary:hover {
+
           opacity:
             .9;
+
         }
 
+
+        .primary:disabled {
+
+          opacity:
+            .5;
+
+          cursor:
+            not-allowed;
+
+        }
+
+
         .secondary {
+
           width:
             100%;
 
@@ -1297,14 +1612,16 @@ export default function Admin() {
 
           cursor:
             pointer;
+
         }
 
 
-        /* =================================================
+        /* =========================
            EMPTY
-           ================================================= */
+           ========================= */
 
         .empty {
+
           padding:
             60px 20px;
 
@@ -1322,22 +1639,27 @@ export default function Admin() {
 
           color:
             var(--muted);
+
         }
 
+
         .empty h3 {
+
           margin:
             0 0 7px;
 
           color:
             var(--text);
+
         }
 
 
-        /* =================================================
+        /* =========================
            SKILL GRID
-           ================================================= */
+           ========================= */
 
         .skill-grid {
+
           display:
             grid;
 
@@ -1352,9 +1674,12 @@ export default function Admin() {
 
           gap:
             16px;
+
         }
 
+
         .skill-card {
+
           padding:
             20px;
 
@@ -1376,17 +1701,23 @@ export default function Admin() {
           transition:
             transform .2s,
             border-color .2s;
+
         }
 
+
         .skill-card:hover {
+
           transform:
             translateY(-3px);
 
           border-color:
             var(--accent);
+
         }
 
+
         .skill-logo {
+
           width:
             65px;
 
@@ -1398,9 +1729,12 @@ export default function Admin() {
 
           margin-bottom:
             12px;
+
         }
 
+
         .skill-name {
+
           font-size:
             14px;
 
@@ -1409,9 +1743,12 @@ export default function Admin() {
 
           word-break:
             break-word;
+
         }
 
+
         .skill-id {
+
           margin-top:
             5px;
 
@@ -1420,14 +1757,16 @@ export default function Admin() {
 
           font-size:
             11px;
+
         }
 
 
-        /* =================================================
+        /* =========================
            PROJECT GRID
-           ================================================= */
+           ========================= */
 
         .project-grid {
+
           display:
             grid;
 
@@ -1442,9 +1781,12 @@ export default function Admin() {
 
           gap:
             18px;
+
         }
 
+
         .project-card {
+
           overflow:
             hidden;
 
@@ -1460,17 +1802,23 @@ export default function Admin() {
           transition:
             transform .2s,
             border-color .2s;
+
         }
 
+
         .project-card:hover {
+
           transform:
             translateY(-3px);
 
           border-color:
             var(--accent);
+
         }
 
+
         .project-image {
+
           width:
             100%;
 
@@ -1485,22 +1833,31 @@ export default function Admin() {
 
           background:
             var(--surface2);
+
         }
+
 
         .project-body {
+
           padding:
             17px;
+
         }
 
+
         .project-name {
+
           margin:
             0 0 7px;
 
           font-size:
             17px;
+
         }
 
+
         .project-description {
+
           margin:
             0 0 12px;
 
@@ -1512,22 +1869,27 @@ export default function Admin() {
 
           line-height:
             1.5;
+
         }
 
+
         .project-year {
+
           color:
             var(--muted);
 
           font-size:
             12px;
+
         }
 
 
-        /* =================================================
+        /* =========================
            TECHNOLOGIES
-           ================================================= */
+           ========================= */
 
         .technology-list {
+
           display:
             flex;
 
@@ -1539,9 +1901,12 @@ export default function Admin() {
 
           margin-top:
             14px;
+
         }
 
+
         .technology {
+
           display:
             flex;
 
@@ -1565,9 +1930,12 @@ export default function Admin() {
 
           font-size:
             11px;
+
         }
 
+
         .technology img {
+
           width:
             18px;
 
@@ -1576,14 +1944,16 @@ export default function Admin() {
 
           object-fit:
             contain;
+
         }
 
 
-        /* =================================================
+        /* =========================
            MODAL
-           ================================================= */
+           ========================= */
 
         .overlay {
+
           position:
             fixed;
 
@@ -1615,9 +1985,12 @@ export default function Admin() {
 
           backdrop-filter:
             blur(7px);
+
         }
 
+
         .modal {
+
           width:
             100%;
 
@@ -1641,9 +2014,12 @@ export default function Admin() {
 
           background:
             var(--surface);
+
         }
 
+
         .modal-header {
+
           display:
             flex;
 
@@ -1655,17 +2031,23 @@ export default function Admin() {
 
           margin-bottom:
             22px;
+
         }
 
+
         .modal-header h2 {
+
           margin:
             0;
 
           font-size:
             21px;
+
         }
 
+
         .close {
+
           width:
             34px;
 
@@ -1689,19 +2071,24 @@ export default function Admin() {
 
           font-size:
             19px;
+
         }
 
 
-        /* =================================================
+        /* =========================
            FORM
-           ================================================= */
+           ========================= */
 
         .field {
+
           margin-bottom:
             17px;
+
         }
 
+
         .field label {
+
           display:
             block;
 
@@ -1713,10 +2100,13 @@ export default function Admin() {
 
           font-weight:
             600;
+
         }
+
 
         .field input,
         .field textarea {
+
           width:
             100%;
 
@@ -1740,23 +2130,32 @@ export default function Admin() {
 
           font-size:
             13px;
+
         }
 
+
+        .field input:focus,
+        .field textarea:focus {
+
+          border-color:
+            var(--accent);
+
+        }
+
+
         .field textarea {
+
           min-height:
             105px;
 
           resize:
             vertical;
+
         }
 
-        .field input:focus,
-        .field textarea:focus {
-          border-color:
-            var(--accent);
-        }
 
         .help {
+
           margin-top:
             6px;
 
@@ -1765,19 +2164,36 @@ export default function Admin() {
 
           font-size:
             11px;
+
         }
 
 
-        /* =================================================
+        /* =========================
+           FILE INPUT
+           ========================= */
+
+        .file-input {
+
+          padding:
+            12px !important;
+
+          cursor:
+            pointer;
+
+        }
+
+
+        /* =========================
            IMAGE PREVIEW
-           ================================================= */
+           ========================= */
 
         .preview {
+
           margin-top:
             10px;
 
           min-height:
-            100px;
+            120px;
 
           padding:
             10px;
@@ -1799,25 +2215,30 @@ export default function Admin() {
 
           background:
             var(--surface2);
+
         }
 
+
         .preview img {
+
           max-width:
             100%;
 
           max-height:
-            120px;
+            160px;
 
           object-fit:
             contain;
+
         }
 
 
-        /* =================================================
-           SKILL SELECTOR
-           ================================================= */
+        /* =========================
+           SELECTOR
+           ========================= */
 
         .selector {
+
           display:
             grid;
 
@@ -1850,9 +2271,12 @@ export default function Admin() {
 
           background:
             var(--surface2);
+
         }
 
+
         .selector-item {
+
           display:
             flex;
 
@@ -1876,9 +2300,12 @@ export default function Admin() {
 
           cursor:
             pointer;
+
         }
 
+
         .selector-item.selected {
+
           border-color:
             var(--accent);
 
@@ -1889,9 +2316,12 @@ export default function Admin() {
               242,
               .12
             );
+
         }
 
+
         .selector-item input {
+
           width:
             15px;
 
@@ -1900,9 +2330,12 @@ export default function Admin() {
 
           accent-color:
             var(--accent);
+
         }
 
+
         .selector-item img {
+
           width:
             25px;
 
@@ -1911,9 +2344,12 @@ export default function Admin() {
 
           object-fit:
             contain;
+
         }
 
+
         .selector-name {
+
           font-size:
             12px;
 
@@ -1925,14 +2361,16 @@ export default function Admin() {
 
           text-overflow:
             ellipsis;
+
         }
 
 
-        /* =================================================
+        /* =========================
            ERROR
-           ================================================= */
+           ========================= */
 
         .error {
+
           margin-bottom:
             15px;
 
@@ -1958,14 +2396,16 @@ export default function Admin() {
 
           font-size:
             12px;
+
         }
 
 
-        /* =================================================
-           EDIT / DELETE
-           ================================================= */
+        /* =========================
+           EDIT BUTTONS
+           ========================= */
 
         .edit-buttons {
+
           display:
             flex;
 
@@ -1974,9 +2414,12 @@ export default function Admin() {
 
           margin-top:
             20px;
+
         }
 
+
         .update-button {
+
           flex:
             1;
 
@@ -2000,9 +2443,12 @@ export default function Admin() {
 
           font-weight:
             600;
+
         }
 
+
         .delete-button {
+
           flex:
             1;
 
@@ -2026,47 +2472,62 @@ export default function Admin() {
 
           font-weight:
             600;
+
         }
+
 
         .update-button:disabled,
         .delete-button:disabled {
+
           opacity:
             .5;
 
           cursor:
             not-allowed;
+
         }
 
 
-        /* =================================================
+        /* =========================
            RESPONSIVE
-           ================================================= */
+           ========================= */
 
         @media (
           max-width: 700px
         ) {
 
           .sidebar {
+
             width:
               70px;
+
           }
+
 
           .content {
+
             padding:
               20px 15px;
+
           }
 
+
           .page-header {
+
             align-items:
               flex-start;
 
             flex-direction:
               column;
+
           }
 
+
           .primary {
+
             width:
               100%;
+
           }
 
         }
@@ -2084,6 +2545,7 @@ export default function Admin() {
           Sadiq Portfolio Admin
         </div>
 
+
         <div className="nav-actions">
 
           <button
@@ -2099,6 +2561,7 @@ export default function Admin() {
               : "☀️"}
           </button>
 
+
           <button className="logout">
             Logout
           </button>
@@ -2109,7 +2572,7 @@ export default function Admin() {
 
 
       {/* ===================================================
-          LAYOUT
+          MAIN LAYOUT
           =================================================== */}
 
       <div className="layout">
@@ -2200,20 +2663,29 @@ export default function Admin() {
                 Dashboard
               </h1>
 
+
               <p className="subtitle">
                 Manage your portfolio.
               </p>
 
-              <div className="empty">
+
+              <div
+                className="empty"
+                style={{
+                  marginTop:
+                    "25px",
+                }}
+              >
 
                 <h3>
                   Welcome back 👋
                 </h3>
 
+
                 <p>
                   Use the sidebar to
-                  manage Skills and
-                  Projects.
+                  manage your Skills
+                  and Projects.
                 </p>
 
               </div>
@@ -2239,6 +2711,7 @@ export default function Admin() {
                   <h1 className="title">
                     Skills
                   </h1>
+
 
                   <p className="subtitle">
                     Click a skill to edit
@@ -2275,13 +2748,15 @@ export default function Admin() {
                   Loading skills...
                 </div>
 
-              ) : skills.length === 0 ? (
+              ) : skills.length ===
+                0 ? (
 
                 <div className="empty">
 
                   <h3>
                     No skills found
                   </h3>
+
 
                   <p>
                     Add your first skill.
@@ -2297,10 +2772,10 @@ export default function Admin() {
                     (skill) => (
 
                       <div
-                        className="skill-card"
                         key={
                           skill.id
                         }
+                        className="skill-card"
                         onClick={() =>
                           openEditSkill(
                             skill
@@ -2318,11 +2793,13 @@ export default function Admin() {
                           }
                         />
 
+
                         <div className="skill-name">
                           {
                             skill.name
                           }
                         </div>
+
 
                         <div className="skill-id">
                           ID:{" "}
@@ -2362,6 +2839,7 @@ export default function Admin() {
                     Projects
                   </h1>
 
+
                   <p className="subtitle">
                     Manage your portfolio
                     projects.
@@ -2391,6 +2869,7 @@ export default function Admin() {
                     No projects yet
                   </h3>
 
+
                   <p>
                     Click "+ Add Project"
                     to create one.
@@ -2410,6 +2889,7 @@ export default function Admin() {
                           project
                         );
 
+
                       return (
 
                         <div
@@ -2418,6 +2898,7 @@ export default function Admin() {
                             project.id
                           }
                         >
+
 
                           <img
                             className="project-image"
@@ -2474,6 +2955,7 @@ export default function Admin() {
                                         }
                                         alt=""
                                       />
+
 
                                       <span>
                                         {
@@ -2538,6 +3020,7 @@ export default function Admin() {
                 Add Skill
               </h2>
 
+
               <button
                 className="close"
                 onClick={
@@ -2562,9 +3045,10 @@ export default function Admin() {
                   Skill Name
                 </label>
 
+
                 <input
                   type="text"
-                  placeholder="e.g. React"
+                  placeholder="React"
                   value={
                     newSkillName
                   }
@@ -2584,6 +3068,7 @@ export default function Admin() {
                   Image URL
                 </label>
 
+
                 <input
                   type="url"
                   placeholder="https://example.com/react.png"
@@ -2597,10 +3082,11 @@ export default function Admin() {
                   }
                 />
 
+
                 <div className="help">
-                  PNG, JPG, JPEG, GIF,
-                  WEBP and SVG URLs are
-                  supported.
+                  PNG, JPG, JPEG,
+                  WEBP and SVG links
+                  are supported.
                 </div>
 
               </div>
@@ -2623,8 +3109,8 @@ export default function Admin() {
 
 
               <button
-                className="primary"
                 type="submit"
+                className="primary"
                 disabled={
                   addingSkill
                 }
@@ -2688,6 +3174,7 @@ export default function Admin() {
                 Edit Skill
               </h2>
 
+
               <button
                 className="close"
                 onClick={
@@ -2712,6 +3199,7 @@ export default function Admin() {
                   Skill Name
                 </label>
 
+
                 <input
                   type="text"
                   value={
@@ -2732,6 +3220,7 @@ export default function Admin() {
                 <label>
                   Image URL
                 </label>
+
 
                 <input
                   type="url"
@@ -2837,6 +3326,7 @@ export default function Admin() {
                 Add Project
               </h2>
 
+
               <button
                 className="close"
                 onClick={
@@ -2856,13 +3346,16 @@ export default function Admin() {
             >
 
 
-              {/* NAME */}
+              {/* =========================
+                  PROJECT NAME
+                  ========================= */}
 
               <div className="field">
 
                 <label>
                   Project Name
                 </label>
+
 
                 <input
                   type="text"
@@ -2875,13 +3368,14 @@ export default function Admin() {
                       e.target.value
                     )
                   }
-                  required
                 />
 
               </div>
 
 
-              {/* DESCRIPTION */}
+              {/* =========================
+                  DESCRIPTION
+                  ========================= */}
 
               <div className="field">
 
@@ -2889,8 +3383,9 @@ export default function Admin() {
                   Description
                 </label>
 
+
                 <textarea
-                  placeholder="Describe the project..."
+                  placeholder="Describe your project..."
                   value={
                     projectDescription
                   }
@@ -2899,13 +3394,14 @@ export default function Admin() {
                       e.target.value
                     )
                   }
-                  required
                 />
 
               </div>
 
 
-              {/* IMAGE */}
+              {/* =========================
+                  PROJECT IMAGE
+                  ========================= */}
 
               <div className="field">
 
@@ -2913,35 +3409,69 @@ export default function Admin() {
                   Project Image
                 </label>
 
+
                 <input
-                  type="url"
-                  placeholder="https://example.com/project.png"
-                  value={
-                    projectImage
+                  className="file-input"
+                  type="file"
+                  accept="
+                    image/png,
+                    image/jpeg,
+                    image/jpg,
+                    image/webp
+                  "
+                  onChange={
+                    handleProjectImageChange
                   }
-                  onChange={(e) =>
-                    setProjectImage(
-                      e.target.value
-                    )
-                  }
-                  required
                 />
 
+
                 <div className="help">
-                  PNG, JPG, JPEG, GIF,
-                  WEBP and SVG supported.
+
+                  Upload PNG, JPG,
+                  JPEG or WEBP.
+
+                  Maximum size:
+                  10 MB.
+
                 </div>
+
+
+                {projectImage && (
+
+                  <div
+                    className="help"
+                    style={{
+                      marginTop:
+                        "10px",
+                    }}
+                  >
+
+                    Selected:
+                    {" "}
+                    <strong>
+                      {
+                        projectImage.name
+                      }
+                    </strong>
+
+                  </div>
+
+                )}
 
               </div>
 
 
-              {projectImage && (
+              {/* =========================
+                  IMAGE PREVIEW
+                  ========================= */}
+
+              {projectImagePreview && (
 
                 <div className="preview">
 
                   <img
                     src={
-                      projectImage
+                      projectImagePreview
                     }
                     alt="Project preview"
                   />
@@ -2951,13 +3481,16 @@ export default function Admin() {
               )}
 
 
-              {/* GITHUB */}
+              {/* =========================
+                  GITHUB
+                  ========================= */}
 
               <div className="field">
 
                 <label>
                   GitHub URL
                 </label>
+
 
                 <input
                   type="url"
@@ -2975,13 +3508,16 @@ export default function Admin() {
               </div>
 
 
-              {/* PROJECT URL */}
+              {/* =========================
+                  PROJECT URL
+                  ========================= */}
 
               <div className="field">
 
                 <label>
                   Project URL
                 </label>
+
 
                 <input
                   type="url"
@@ -2999,13 +3535,16 @@ export default function Admin() {
               </div>
 
 
-              {/* MONTH / YEAR */}
+              {/* =========================
+                  YEAR
+                  ========================= */}
 
               <div className="field">
 
                 <label>
                   Month / Year
                 </label>
+
 
                 <input
                   type="text"
@@ -3018,15 +3557,14 @@ export default function Admin() {
                       e.target.value
                     )
                   }
-                  required
                 />
 
               </div>
 
 
-              {/* =================================================
+              {/* =========================
                   TECHNOLOGIES
-                  ================================================= */}
+                  ========================= */}
 
               <div className="field">
 
@@ -3037,61 +3575,79 @@ export default function Admin() {
 
                 <div className="selector">
 
-                  {skills.map(
-                    (skill) => {
+                  {skills.length ===
+                    0 ? (
 
-                      const selected =
-                        selectedSkillIds.includes(
-                          skill.id
+                    <div
+                      className="help"
+                      style={{
+                        padding:
+                          "10px",
+                      }}
+                    >
+                      No skills available.
+                    </div>
+
+                  ) : (
+
+                    skills.map(
+                      (skill) => {
+
+                        const selected =
+                          selectedSkillIds.includes(
+                            skill.id
+                          );
+
+
+                        return (
+
+                          <label
+                            key={
+                              skill.id
+                            }
+                            className={
+                              `selector-item ${
+                                selected
+                                  ? "selected"
+                                  : ""
+                              }`
+                            }
+                          >
+
+                            <input
+                              type="checkbox"
+                              checked={
+                                selected
+                              }
+                              onChange={() =>
+                                toggleProjectSkill(
+                                  skill.id
+                                )
+                              }
+                            />
+
+
+                            <img
+                              src={
+                                skill.icon
+                              }
+                              alt=""
+                            />
+
+
+                            <span className="selector-name">
+                              {
+                                skill.name
+                              }
+                            </span>
+
+                          </label>
+
                         );
 
-                      return (
+                      }
+                    )
 
-                        <label
-                          key={
-                            skill.id
-                          }
-                          className={
-                            `selector-item ${
-                              selected
-                                ? "selected"
-                                : ""
-                            }`
-                          }
-                        >
-
-                          <input
-                            type="checkbox"
-                            checked={
-                              selected
-                            }
-                            onChange={() =>
-                              toggleProjectSkill(
-                                skill.id
-                              )
-                            }
-                          />
-
-
-                          <img
-                            src={
-                              skill.icon
-                            }
-                            alt=""
-                          />
-
-
-                          <span className="selector-name">
-                            {
-                              skill.name
-                            }
-                          </span>
-
-                        </label>
-
-                      );
-
-                    }
                   )}
 
                 </div>
@@ -3099,16 +3655,25 @@ export default function Admin() {
 
                 <div className="help">
 
-                  {selectedSkillIds.length}
+                  {
+                    selectedSkillIds.length
+                  }
                   {" "}
-                  skill(s) selected.
+                  technology
+                  {selectedSkillIds.length ===
+                  1
+                    ? ""
+                    : "ies"}{" "}
+                  selected.
 
                 </div>
 
               </div>
 
 
-              {/* ERROR */}
+              {/* =========================
+                  ERROR
+                  ========================= */}
 
               {projectError && (
 
@@ -3121,7 +3686,9 @@ export default function Admin() {
               )}
 
 
-              {/* CREATE */}
+              {/* =========================
+                  CREATE PROJECT
+                  ========================= */}
 
               <button
                 type="submit"
@@ -3136,13 +3703,15 @@ export default function Admin() {
               >
 
                 {creatingProject
-                  ? "Creating Project..."
+                  ? "Uploading & Creating..."
                   : "Create Project"}
 
               </button>
 
 
-              {/* CANCEL */}
+              {/* =========================
+                  CANCEL
+                  ========================= */}
 
               <button
                 type="button"
