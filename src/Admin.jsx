@@ -390,11 +390,9 @@ export default function Admin() {
                 project.description ||
                 "",
 
-              image:
-                project.ImageLink ||
-                project.Image ||
-                project.image ||
-                "",
+ image: project.ImageLink
+  ? `data:image/png;base64,${project.ImageLink}`
+  : "",
 
               githubURL:
                 project.GithubURL ||
