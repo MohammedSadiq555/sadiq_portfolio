@@ -1,7 +1,10 @@
+
+
+App · JSX
 import React, { useState, useEffect, useRef } from "react";
-
+ 
 const TYPE_WORDS = ["Programmer", "Web Developer", "Designer"];
-
+ 
 const PROJECTS = [
   {
     id: 1,
@@ -56,7 +59,7 @@ const PROJECTS = [
     live: "#",
   },
 ];
-
+ 
 const EDUCATION = [
   {
     id: 1,
@@ -64,11 +67,10 @@ const EDUCATION = [
     degree: "",
     start: "2008",
     end: "2020",
-    description:"Daniel Matriculation Higher Secondary School",
+    description:
+      "Daniel Matriculation Higher Secondary School",
     achievements: [
     ],
-    x: 8,
-    y: 70,
   },
   {
     id: 2,
@@ -76,11 +78,10 @@ const EDUCATION = [
     degree: "Maths With Computer",
     start: "2020",
     end: "2022",
-    description:"Daniel Matriculation Higher Secondary School",
+    description:
+      "Daniel Matriculation Higher Secondary School",
     achievements: [
     ],
-    x: 37,
-    y: 25,
   },
   {
     id: 3,
@@ -92,16 +93,37 @@ const EDUCATION = [
       "Dhaanish Ahmed College Of Engineering, Anna University",
     achievements: [
     ],
-    x: 65,
-    y: 62,
   },
  
 ];
-
+ 
+/* =========================================================
+   EDUCATION AUTO-LAYOUT
+   Positions each node automatically from its index and the
+   total count, so the curve always fits however many
+   education entries exist — no manual x/y needed.
+   ========================================================= */
+ 
+function layoutEduNodes(nodes) {
+  const n = nodes.length;
+ 
+  return nodes.map((node, i) => {
+    const x =
+      n > 1
+        ? 8 + (84 * i) / (n - 1)
+        : 50;
+ 
+    const y =
+      i % 2 === 0 ? 68 : 26;
+ 
+    return { ...node, x, y };
+  });
+}
+ 
 /* =========================================================
    EXPERIENCE
    ========================================================= */
-
+ 
 const EXPERIENCE = [
   {
     id: 1,
@@ -122,7 +144,7 @@ const EXPERIENCE = [
       "Reduced infra costs by 40% through a platform migration",
     ],
   },
-
+ 
   {
     id: 2,
     company: "Previous Company",
@@ -140,7 +162,7 @@ const EXPERIENCE = [
       "Collaborated with cross-functional teams",
     ],
   },
-
+ 
   {
     id: 3,
     company: "Earlier Company",
@@ -158,7 +180,7 @@ const EXPERIENCE = [
       "Worked with version control and agile workflows",
     ],
   },
-
+ 
   {
     id: 4,
     company: "First Company",
@@ -177,7 +199,7 @@ const EXPERIENCE = [
     ],
   },
 ];
-
+ 
 const NAV_LINKS = [
   "home",
   "projects",
@@ -187,11 +209,11 @@ const NAV_LINKS = [
   "products",
   "contact",
 ];
-
+ 
 /* =========================================================
    TYPEWRITER
    ========================================================= */
-
+ 
 function useTypewriter(
   words,
   typingSpeed = 90,
@@ -202,7 +224,7 @@ function useTypewriter(
   const [subIndex, setSubIndex] = useState(0);
   const [deleting, setDeleting] = useState(false);
   const [blink, setBlink] = useState(true);
-
+ 
   useEffect(() => {
     if (
       subIndex === words[index].length + 1 &&
@@ -212,20 +234,20 @@ function useTypewriter(
         () => setDeleting(true),
         pause
       );
-
+ 
       return () => clearTimeout(t);
     }
-
+ 
     if (subIndex === 0 && deleting) {
       setDeleting(false);
-
+ 
       setIndex(
         (prev) => (prev + 1) % words.length
       );
-
+ 
       return;
     }
-
+ 
     const t = setTimeout(
       () => {
         setSubIndex(
@@ -237,7 +259,7 @@ function useTypewriter(
         ? deletingSpeed
         : typingSpeed
     );
-
+ 
     return () => clearTimeout(t);
   }, [
     subIndex,
@@ -248,16 +270,16 @@ function useTypewriter(
     deletingSpeed,
     pause,
   ]);
-
+ 
   useEffect(() => {
     const b = setInterval(
       () => setBlink((v) => !v),
       500
     );
-
+ 
     return () => clearInterval(b);
   }, []);
-
+ 
   return {
     text: words[index].substring(
       0,
@@ -266,22 +288,22 @@ function useTypewriter(
     blink,
   };
 }
-
+ 
 /* =========================================================
    INTERSECTION OBSERVER
    ========================================================= */
-
+ 
 function useInView(threshold = 0.25) {
   const ref = useRef(null);
-
+ 
   const [inView, setInView] =
     useState(false);
-
+ 
   useEffect(() => {
     const el = ref.current;
-
+ 
     if (!el) return;
-
+ 
     const obs =
       new IntersectionObserver(
         ([entry]) => {
@@ -292,29 +314,29 @@ function useInView(threshold = 0.25) {
         },
         { threshold }
       );
-
+ 
     obs.observe(el);
-
+ 
     return () => obs.disconnect();
   }, [threshold]);
-
+ 
   return [ref, inView];
 }
-
+ 
 /* =========================================================
    EDUCATION PATH
    ========================================================= */
-
+ 
 function pathFromNodes(nodes) {
   const pts = nodes.map((n) => ({
     x: n.x * 10,
     y: n.y * 3.2,
   }));
-
+ 
   if (pts.length < 2) return "";
-
+ 
   let d = `M ${pts[0].x},${pts[0].y} `;
-
+ 
   for (
     let i = 0;
     i < pts.length - 1;
@@ -324,90 +346,90 @@ function pathFromNodes(nodes) {
     const p1 = pts[i];
     const p2 = pts[i + 1];
     const p3 = pts[i + 2] || p2;
-
+ 
     const cp1x =
       p1.x + (p2.x - p0.x) / 6;
-
+ 
     const cp1y =
       p1.y + (p2.y - p0.y) / 6;
-
+ 
     const cp2x =
       p2.x - (p3.x - p1.x) / 6;
-
+ 
     const cp2y =
       p2.y - (p3.y - p1.y) / 6;
-
+ 
     d +=
       `C ${cp1x},${cp1y} ` +
       `${cp2x},${cp2y} ` +
       `${p2.x},${p2.y} `;
   }
-
+ 
   return d;
 }
-
+ 
 /* =========================================================
    SKILLS DOCK
    ========================================================= */
-
+ 
 function SkillsDock({ skills }) {
   const wrapRef = useRef(null);
   const tileRefs = useRef([]);
-
+ 
   const handleMouseMove = (e) => {
     const wrap = wrapRef.current;
-
+ 
     if (!wrap) return;
-
+ 
     const mouseX = e.clientX;
     const mouseY = e.clientY;
-
+ 
     tileRefs.current.forEach(
       (tile) => {
         if (!tile) return;
-
+ 
         const rect =
           tile.getBoundingClientRect();
-
+ 
         const cx =
           rect.left +
           rect.width / 2;
-
+ 
         const cy =
           rect.top +
           rect.height / 2;
-
+ 
         const dist = Math.hypot(
           mouseX - cx,
           mouseY - cy
         );
-
+ 
         const radius = 140;
         const maxScale = 1.6;
         const maxLift = -14;
-
+ 
         if (dist < radius) {
           const strength =
             1 - dist / radius;
-
+ 
           const scale =
             1 +
             strength *
               (maxScale - 1);
-
+ 
           const lift =
             strength * maxLift;
-
+ 
           tile.style.transform =
             `translateY(${lift}px) scale(${scale})`;
-
+ 
           tile.classList.add(
             "magnified"
           );
         } else {
           tile.style.transform =
             "translateY(0px) scale(1)";
-
+ 
           tile.classList.remove(
             "magnified"
           );
@@ -415,22 +437,22 @@ function SkillsDock({ skills }) {
       }
     );
   };
-
+ 
   const handleMouseLeave = () => {
     tileRefs.current.forEach(
       (tile) => {
         if (!tile) return;
-
+ 
         tile.style.transform =
           "translateY(0px) scale(1)";
-
+ 
         tile.classList.remove(
           "magnified"
         );
       }
     );
   };
-
+ 
   return (
     <div
       className="skills-wrap"
@@ -451,7 +473,7 @@ function SkillsDock({ skills }) {
             alt={s.name}
             loading="lazy"
           />
-
+ 
           <span className="skill-tile-label">
             {s.name}
           </span>
@@ -460,19 +482,19 @@ function SkillsDock({ skills }) {
     </div>
   );
 }
-
+ 
 /* =========================================================
    MAIN APP
    ========================================================= */
-
+ 
 export default function App() {
   const [loading, setLoading] = useState(true);
-
+ 
 useEffect(() => {
   const timer = setTimeout(() => {
     setLoading(false);
-  }, 5000);
-
+  }, 4000);
+ 
   return () => clearTimeout(timer);
 }, []);
   const [theme, setTheme] =
@@ -485,19 +507,19 @@ const [skillsLoading, setSkillsLoading] = useState(true);
       const response = await fetch(
         "https://personal-zld4pieb.outsystemscloud.com/SadiqPortfolio/rest/Skillsget/Skillsget"
       );
-
+ 
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
-
+ 
       const data = await response.json();
-
+ 
       const formattedSkills = data.map((item) => ({
         id: item.Skills.Id,
         name: item.Skills.skillname,
         icon: item.Skills.imagelink,
       }));
-
+ 
       setSkills(formattedSkills);
     } catch (error) {
       console.error("Failed to fetch skills:", error);
@@ -505,58 +527,58 @@ const [skillsLoading, setSkillsLoading] = useState(true);
       setSkillsLoading(false);
     }
   };
-
+ 
   fetchSkills();
 }, []);
-
+ 
   const [menuOpen, setMenuOpen] =
     useState(false);
-
+ 
   const [scrolled, setScrolled] =
     useState(false);
-
+ 
   const [activeProject, setActiveProject] =
     useState(null);
-
+ 
   const [activeSection, setActiveSection] =
     useState("home");
-
+ 
   const [activeEduNode, setActiveEduNode] =
     useState(null);
-
+ 
   const [hoveredExperience, setHoveredExperience] =
     useState(null);
-
+ 
   const typed =
     useTypewriter(TYPE_WORDS);
-
+ 
   const [eduRef, eduInView] =
     useInView(0.2);
-
+ 
   const [
     experienceRef,
     experienceInView,
   ] = useInView(0.2);
-
+ 
   useEffect(() => {
     const onScroll = () => {
       setScrolled(
         window.scrollY > 20
       );
     };
-
+ 
     window.addEventListener(
       "scroll",
       onScroll
     );
-
+ 
     return () =>
       window.removeEventListener(
         "scroll",
         onScroll
       );
   }, []);
-
+ 
   useEffect(() => {
     const onKey = (e) => {
       if (e.key === "Escape") {
@@ -564,28 +586,28 @@ const [skillsLoading, setSkillsLoading] = useState(true);
         setActiveEduNode(null);
       }
     };
-
+ 
     window.addEventListener(
       "keydown",
       onKey
     );
-
+ 
     return () =>
       window.removeEventListener(
         "keydown",
         onKey
       );
   }, []);
-
+ 
   useEffect(() => {
     const sections = NAV_LINKS
       .map((id) =>
         document.getElementById(id)
       )
       .filter(Boolean);
-
+ 
     if (!sections.length) return;
-
+ 
     const obs =
       new IntersectionObserver(
         (entries) => {
@@ -607,41 +629,44 @@ const [skillsLoading, setSkillsLoading] = useState(true);
           threshold: 0,
         }
       );
-
+ 
     sections.forEach((s) =>
       obs.observe(s)
     );
-
+ 
     return () =>
       obs.disconnect();
   }, []);
-
+ 
   const scrollTo = (id) => {
     setMenuOpen(false);
-
+ 
     document
       .getElementById(id)
       ?.scrollIntoView({
         behavior: "smooth",
       });
   };
-
+ 
   const isDark =
     theme === "dark";
-
+ 
+  const eduLayout =
+    layoutEduNodes(EDUCATION);
+ 
   const eduPath =
-    pathFromNodes(EDUCATION);
-
+    pathFromNodes(eduLayout);
+ 
   const currentExperience =
     EXPERIENCE.find(
       (e) => e.current
     );
-
+ 
   const previousExperience =
     EXPERIENCE.filter(
       (e) => !e.current
     );
-
+ 
   return (
       <>
     {loading && (
@@ -657,7 +682,7 @@ const [skillsLoading, setSkillsLoading] = useState(true);
             <circle className="loader-ring-track" cx="60" cy="60" r="52" />
             <circle className="loader-ring-arc" cx="60" cy="60" r="52" />
           </svg>
-
+ 
           <div className="loader-orbit-dot"></div>
           <div className="loader-center-dot"></div>
         </div>
@@ -675,32 +700,32 @@ const [skillsLoading, setSkillsLoading] = useState(true);
         minHeight: "100vh",
       }}
     >
-
+ 
       <style>{`
-
+ 
         * {
           box-sizing: border-box;
         }
-
+ 
         html {
           scroll-behavior: smooth;
         }
-
+ 
         body {
           margin: 0;
           padding: 0;
         }
-
+ 
         button,
         input,
         textarea {
           font-family: inherit;
         }
-
+ 
         /* =================================================
            THEMES
            ================================================= */
-
+ 
         .theme-dark {
           --bg: #0C0F15;
           --surface: #171C27;
@@ -710,15 +735,15 @@ const [skillsLoading, setSkillsLoading] = useState(true);
           --text-muted: #8D93A3;
           --accent: #3B5FE0;
           --warm: #C1793F;
-
+ 
           background: var(--bg);
           color: var(--text);
-
+ 
           transition:
             background-color .35s ease,
             color .35s ease;
         }
-
+ 
         .theme-light {
           --bg: #F1F2F5;
           --surface: #FFFFFF;
@@ -728,39 +753,39 @@ const [skillsLoading, setSkillsLoading] = useState(true);
           --text-muted: #62687A;
           --accent: #3B5FE0;
           --warm: #C1793F;
-
+ 
           background: var(--bg);
           color: var(--text);
-
+ 
           transition:
             background-color .35s ease,
             color .35s ease;
         }
-
+ 
         /* =================================================
            NAV
            ================================================= */
-
+ 
         .nav {
           position: sticky;
           top: 0;
           z-index: 50;
-
+ 
           padding: 18px 24px;
-
+ 
           display: flex;
           align-items: center;
           justify-content: space-between;
-
+ 
           border-bottom:
             1px solid transparent;
-
+ 
           transition: all .3s ease;
-
+ 
           backdrop-filter:
             blur(10px);
         }
-
+ 
         .nav.scrolled {
           background:
             color-mix(
@@ -768,299 +793,299 @@ const [skillsLoading, setSkillsLoading] = useState(true);
               var(--bg) 88%,
               transparent
             );
-
+ 
           border-bottom:
             1px solid var(--border);
         }
-
+ 
         .logo {
           font-size: 20px;
           font-weight: 700;
         }
-
+ 
         .nav-links {
           display: flex;
           gap: 28px;
-
+ 
           list-style: none;
-
+ 
           margin: 0;
           padding: 0;
         }
-
+ 
         .nav-links button {
           background: none;
           border: none;
-
+ 
           cursor: pointer;
-
+ 
           font-size: 14px;
-
+ 
           color: var(--text-muted);
-
+ 
           text-transform: capitalize;
-
+ 
           transition:
             color .2s ease;
-
+ 
           padding: 4px 0;
-
+ 
           position: relative;
         }
-
+ 
         .nav-links button:hover {
           color: var(--text);
         }
-
+ 
         .nav-links button.active {
           color: var(--text);
         }
-
+ 
         .nav-links button.active::after {
           content: '';
-
+ 
           position: absolute;
-
+ 
           left: 0;
           right: 0;
-
+ 
           bottom: -6px;
-
+ 
           height: 2px;
-
+ 
           background: var(--accent);
-
+ 
           border-radius: 2px;
         }
-
+ 
         .nav-right {
           display: flex;
-
+ 
           align-items: center;
-
+ 
           gap: 14px;
         }
-
+ 
         .theme-toggle {
           width: 44px;
           height: 24px;
-
+ 
           border-radius: 999px;
-
+ 
           border:
             1px solid var(--border);
-
+ 
           background:
             var(--surface);
-
+ 
           position: relative;
-
+ 
           cursor: pointer;
-
+ 
           padding: 0;
         }
-
+ 
         .theme-toggle-knob {
           position: absolute;
-
+ 
           top: 2px;
           left: 2px;
-
+ 
           width: 18px;
           height: 18px;
-
+ 
           border-radius: 50%;
-
+ 
           background:
             var(--accent);
-
+ 
           display: flex;
-
+ 
           align-items: center;
           justify-content: center;
-
+ 
           transition:
             transform .3s ease;
-
+ 
           font-size: 11px;
         }
-
+ 
         .theme-dark
         .theme-toggle-knob {
           transform:
             translateX(0);
         }
-
+ 
         .theme-light
         .theme-toggle-knob {
           transform:
             translateX(20px);
         }
-
+ 
         /* =================================================
            HAMBURGER
            ================================================= */
-
+ 
         .hamburger {
           display: none;
-
+ 
           flex-direction: column;
-
+ 
           justify-content: center;
-
+ 
           gap: 5px;
-
+ 
           width: 32px;
           height: 32px;
-
+ 
           background: none;
           border: none;
-
+ 
           cursor: pointer;
-
+ 
           z-index: 100;
-
+ 
           padding: 0;
         }
-
+ 
         .bar {
           width: 100%;
           height: 2px;
-
+ 
           background:
             var(--text);
-
+ 
           border-radius: 2px;
-
+ 
           transition:
             transform .3s ease,
             opacity .3s ease;
         }
-
+ 
         .hamburger.open
         .bar:nth-child(1) {
           transform:
             translateY(7px)
             rotate(45deg);
         }
-
+ 
         .hamburger.open
         .bar:nth-child(2) {
           opacity: 0;
         }
-
+ 
         .hamburger.open
         .bar:nth-child(3) {
           transform:
             translateY(-7px)
             rotate(-45deg);
         }
-
+ 
         .mobile-menu {
           position: fixed;
-
+ 
           inset: 0;
-
+ 
           background:
             var(--bg);
-
+ 
           display: flex;
-
+ 
           flex-direction: column;
-
+ 
           align-items: center;
           justify-content: center;
-
+ 
           gap: 26px;
-
+ 
           transform:
             translateX(100%);
-
+ 
           transition:
             transform .35s ease;
-
+ 
           z-index: 90;
         }
-
+ 
         .mobile-menu.open {
           transform:
             translateX(0);
         }
-
+ 
         .mobile-menu button {
           font-size: 26px;
-
+ 
           color: var(--text);
-
+ 
           cursor: pointer;
-
+ 
           background: none;
-
+ 
           border: none;
-
+ 
           text-transform:
             capitalize;
         }
-
+ 
         /* =================================================
            HERO
            ================================================= */
-
+ 
         .hero {
           display: flex;
-
+ 
           align-items: center;
-
+ 
           justify-content: space-between;
-
+ 
           gap: 60px;
-
+ 
           padding: 100px 60px;
-
+ 
           max-width: 1200px;
-
+ 
           margin: 0 auto;
         }
-
+ 
         .hero-circle-wrap {
           position: relative;
-
+ 
           flex-shrink: 0;
-
+ 
           width: 380px;
           height: 380px;
-
+ 
           display: flex;
-
+ 
           align-items: center;
           justify-content: center;
         }
-
+ 
         .hero-circle {
           width: 100%;
           height: 100%;
-
+ 
           border-radius: 50%;
-
+ 
           background:
             linear-gradient(
               155deg,
               var(--surface),
               var(--bg)
             );
-
+ 
           border:
             1px solid var(--border);
-
+ 
           box-shadow:
             0 30px 60px -20px
             rgba(0,0,0,.5);
         }
-
+ 
         .hero-text {
           flex: 1;
         }
-
+ 
         .hero-text h1 {
           font-size:
             clamp(
@@ -1068,56 +1093,56 @@ const [skillsLoading, setSkillsLoading] = useState(true);
               4.5vw,
               54px
             );
-
+ 
           font-weight: 700;
-
+ 
           line-height: 1.1;
-
+ 
           margin: 0 0 20px;
         }
-
+ 
         .hero-typed {
           color:
             var(--accent);
         }
-
+ 
         .cursor {
           color:
             var(--accent);
         }
-
+ 
         .hero-text p {
           color:
             var(--text-muted);
-
+ 
           font-size: 16px;
-
+ 
           line-height: 1.7;
-
+ 
           max-width: 460px;
-
+ 
           margin-bottom: 28px;
         }
-
+ 
         /* =================================================
            GENERAL SECTIONS
            ================================================= */
-
+ 
         section {
           padding: 80px 60px;
-
+ 
           max-width: 1200px;
-
+ 
           margin: 0 auto;
-
+ 
           border-top:
             1px solid var(--border);
         }
-
+ 
         .section-head {
           margin-bottom: 40px;
         }
-
+ 
         .section-head h2 {
           font-size:
             clamp(
@@ -1125,735 +1150,735 @@ const [skillsLoading, setSkillsLoading] = useState(true);
               3vw,
               36px
             );
-
+ 
           margin:
             0 0 10px;
         }
-
+ 
         .section-head p {
           color:
             var(--text-muted);
-
+ 
           margin: 0;
         }
-
+ 
         /* =================================================
            PROJECTS
            ================================================= */
-
+ 
         .project-grid {
           display: grid;
-
+ 
           grid-template-columns:
             repeat(2, 1fr);
-
+ 
           gap: 20px;
         }
-
+ 
         .project-card {
           background:
             var(--surface);
-
+ 
           border:
             1px solid var(--border);
-
+ 
           border-radius: 16px;
-
+ 
           overflow: hidden;
-
+ 
           cursor: pointer;
-
+ 
           transition:
             transform .25s ease,
             border-color .25s ease,
             box-shadow .25s ease;
-
+ 
           text-align: left;
-
+ 
           padding: 0;
         }
-
+ 
         .project-card:hover {
           transform:
             translateY(-4px);
-
+ 
           border-color:
             var(--accent);
-
+ 
           box-shadow:
             0 20px 40px -24px
             rgba(0,0,0,.4);
         }
-
+ 
         .project-card-img {
           width: 100%;
-
+ 
           height: 170px;
-
+ 
           object-fit: cover;
-
+ 
           display: block;
-
+ 
           transition:
             transform .35s ease;
         }
-
+ 
         .project-card:hover
         .project-card-img {
           transform:
             scale(1.04);
         }
-
+ 
         .project-card-body {
           padding:
             22px 26px 26px;
         }
-
+ 
         .project-card h3 {
           font-size: 20px;
-
+ 
           margin:
             0 0 10px;
         }
-
+ 
         .project-card p {
           color:
             var(--text-muted);
-
+ 
           font-size: 14.5px;
-
+ 
           line-height: 1.6;
-
+ 
           margin:
             0 0 16px;
         }
-
+ 
         .project-tech {
           display: flex;
-
+ 
           flex-wrap: wrap;
-
+ 
           gap: 6px;
         }
-
+ 
         .tag {
           font-size: 12px;
-
+ 
           padding:
             5px 10px;
-
+ 
           border-radius: 8px;
-
+ 
           background:
             var(--surface-2);
-
+ 
           border:
             1px solid var(--border);
-
+ 
           color:
             var(--text-muted);
         }
-
+ 
         /* =================================================
            MODAL
            ================================================= */
-
+ 
         .modal-backdrop {
           position: fixed;
-
+ 
           inset: 0;
-
+ 
           z-index: 100;
-
+ 
           background:
             rgba(0,0,0,.55);
-
+ 
           display: flex;
-
+ 
           align-items: center;
           justify-content: center;
-
+ 
           padding: 24px;
-
+ 
           animation:
             fadeIn .2s ease;
         }
-
+ 
         @keyframes fadeIn {
           from {
             opacity: 0;
           }
-
+ 
           to {
             opacity: 1;
           }
         }
-
+ 
         .modal-card {
           background:
             var(--surface);
-
+ 
           border:
             1px solid var(--border);
-
+ 
           border-radius: 20px;
-
+ 
           max-width: 580px;
-
+ 
           width: 100%;
-
+ 
           max-height: 88vh;
-
+ 
           overflow-y: auto;
-
+ 
           position: relative;
-
+ 
           animation:
             popIn .25s ease;
         }
-
+ 
         @keyframes popIn {
           from {
             opacity: 0;
-
+ 
             transform:
               scale(.94)
               translateY(10px);
           }
-
+ 
           to {
             opacity: 1;
-
+ 
             transform:
               scale(1)
               translateY(0);
           }
         }
-
+ 
         .modal-img {
           width: 100%;
-
+ 
           height: 240px;
-
+ 
           object-fit: cover;
-
+ 
           display: block;
         }
-
+ 
         .modal-body {
           padding:
             34px 40px 40px;
         }
-
+ 
         .modal-close {
           position: absolute;
-
+ 
           top: 16px;
           right: 16px;
-
+ 
           width: 34px;
           height: 34px;
-
+ 
           border-radius: 50%;
-
+ 
           background:
             rgba(0,0,0,.5);
-
+ 
           border:
             1px solid
             rgba(255,255,255,.2);
-
+ 
           color: #fff;
-
+ 
           cursor: pointer;
-
+ 
           display: flex;
-
+ 
           align-items: center;
           justify-content: center;
         }
-
+ 
         .modal-card h3 {
           font-size: 28px;
-
+ 
           margin:
             0 0 14px;
         }
-
+ 
         .modal-card p.long {
           color:
             var(--text-muted);
-
+ 
           font-size: 15px;
-
+ 
           line-height: 1.8;
-
+ 
           margin:
             0 0 20px;
         }
-
+ 
         .modal-tech {
           display: flex;
-
+ 
           flex-wrap: wrap;
-
+ 
           gap: 8px;
-
+ 
           margin-bottom: 26px;
         }
-
+ 
         .modal-links {
           display: flex;
-
+ 
           gap: 14px;
         }
-
+ 
         .modal-links a {
           padding:
             10px 18px;
-
+ 
           border-radius: 10px;
-
+ 
           font-size: 14px;
-
+ 
           font-weight: 600;
-
+ 
           text-decoration: none;
         }
-
+ 
         .modal-links a.primary {
           background:
             var(--accent);
-
+ 
           color: white;
         }
-
+ 
         .modal-links a.ghost {
           border:
             1px solid var(--border);
-
+ 
           color:
             var(--text);
         }
-
+ 
         /* =================================================
            EDUCATION
            ================================================= */
-
+ 
         .edu-map-wrap {
           position: relative;
-
+ 
           height: 340px;
         }
-
+ 
         .edu-map-svg {
           position: absolute;
-
+ 
           inset: 0;
-
+ 
           width: 100%;
           height: 100%;
         }
-
+ 
         .edu-path {
           fill: none;
-
+ 
           stroke:
             var(--border);
-
+ 
           stroke-width: 2;
-
+ 
           stroke-dasharray:
             4 7;
-
+ 
           stroke-linecap: round;
         }
-
+ 
         .edu-path-draw {
           fill: none;
-
+ 
           stroke:
             var(--accent);
-
+ 
           stroke-width: 2;
-
+ 
           stroke-dasharray: 1000;
-
+ 
           stroke-dashoffset: 1000;
-
+ 
           stroke-linecap: round;
-
+ 
           transition:
             stroke-dashoffset
             1.8s ease;
         }
-
+ 
         .edu-path-draw.in-view {
           stroke-dashoffset: 0;
         }
-
+ 
         .edu-node {
           position: absolute;
-
+ 
           transform:
             translate(-50%, -50%);
-
+ 
           width: 18px;
           height: 18px;
-
+ 
           border-radius: 50%;
-
+ 
           background:
             var(--surface);
-
+ 
           border:
             2px solid
             var(--border);
-
+ 
           cursor: pointer;
-
+ 
           opacity: 0;
-
+ 
           transition:
             opacity .4s ease,
             transform .2s ease,
             border-color .2s ease;
         }
-
+ 
         .edu-node.in-view {
           opacity: 1;
         }
-
+ 
         .edu-node:hover,
         .edu-node.active {
           border-color:
             var(--accent);
-
+ 
           transform:
             translate(-50%, -50%)
             scale(1.3);
         }
-
+ 
         .edu-node.current {
           border-color:
             var(--warm);
-
+ 
           background:
             var(--warm);
         }
-
+ 
         .edu-node.current::after {
           content: '';
-
+ 
           position: absolute;
-
+ 
           inset: -6px;
-
+ 
           border-radius: 50%;
-
+ 
           border:
             1.5px solid
             var(--warm);
-
+ 
           animation:
             pulse 2.2s
             ease-out infinite;
         }
-
+ 
         @keyframes pulse {
           0% {
             transform: scale(.8);
             opacity: .8;
           }
-
+ 
           100% {
             transform: scale(1.8);
             opacity: 0;
           }
         }
-
+ 
         .edu-node-label {
           position: absolute;
-
+ 
           transform:
             translate(-50%, 16px);
-
+ 
           white-space: nowrap;
-
+ 
           font-size: 12px;
-
+ 
           color:
             var(--text-muted);
-
+ 
           opacity: 0;
-
+ 
           transition:
             opacity .4s ease .2s;
-
+ 
           pointer-events: none;
-
+ 
           text-align: center;
         }
-
+ 
         .edu-node-label.in-view {
           opacity: 1;
         }
-
+ 
         .edu-card {
           position: absolute;
-
+ 
           width: 280px;
-
+ 
           background:
             var(--surface);
-
+ 
           border:
             1px solid var(--border);
-
+ 
           border-radius: 14px;
-
+ 
           padding: 18px;
-
+ 
           z-index: 20;
-
+ 
           box-shadow:
             0 24px 50px -20px
             rgba(0,0,0,.5);
-
+ 
           animation:
             popIn .18s ease;
         }
-
+ 
         .edu-card-badge {
           display: inline-block;
-
+ 
           font-size: 10px;
-
+ 
           letter-spacing: .06em;
-
+ 
           color:
             var(--warm);
-
+ 
           border:
             1px solid var(--warm);
-
+ 
           border-radius: 999px;
-
+ 
           padding:
             2px 8px;
-
+ 
           margin-bottom: 10px;
         }
-
+ 
         .edu-card h4 {
           font-size: 17px;
-
+ 
           margin:
             0 0 2px;
         }
-
+ 
         .edu-card .degree {
           font-size: 13px;
-
+ 
           color:
             var(--accent);
-
+ 
           font-weight: 600;
         }
-
+ 
         .edu-card .years {
           font-size: 12px;
-
+ 
           color:
             var(--text-muted);
-
+ 
           margin-bottom: 12px;
         }
-
+ 
         .edu-card p.desc {
           font-size: 13px;
-
+ 
           line-height: 1.6;
-
+ 
           color:
             var(--text-muted);
-
+ 
           margin:
             0 0 12px;
         }
-
+ 
         .edu-card ul {
           list-style: none;
-
+ 
           padding: 0;
-
+ 
           margin: 0;
         }
-
+ 
         .edu-card ul li {
           font-size: 12.5px;
-
+ 
           color:
             var(--text-muted);
-
+ 
           padding-left: 14px;
-
+ 
           position: relative;
-
+ 
           margin-bottom: 5px;
         }
-
+ 
         .edu-card ul li::before {
           content: '—';
-
+ 
           position: absolute;
-
+ 
           left: 0;
-
+ 
           color:
             var(--accent);
         }
-
+ 
         .edu-map-mobile {
           display: none;
         }
-
+ 
         .edu-mobile-item {
           display: flex;
-
+ 
           gap: 16px;
-
+ 
           margin-bottom: 24px;
         }
-
+ 
         .edu-mobile-rail {
           display: flex;
-
+ 
           flex-direction: column;
-
+ 
           align-items: center;
-
+ 
           flex-shrink: 0;
         }
-
+ 
         .edu-mobile-dot {
           width: 14px;
           height: 14px;
-
+ 
           border-radius: 50%;
-
+ 
           background: var(--surface);
-
+ 
           border: 2px solid var(--border);
-
+ 
           flex-shrink: 0;
         }
-
+ 
         .edu-mobile-dot.current {
           background: var(--warm);
           border-color: var(--warm);
         }
-
+ 
         .edu-mobile-line {
           flex: 1;
-
+ 
           width: 2px;
-
+ 
           background: var(--border);
-
+ 
           margin: 6px 0;
         }
-
+ 
         .edu-mobile-btn {
           width: 100%;
-
+ 
           text-align: left;
-
+ 
           background: var(--surface);
-
+ 
           border: 1px solid var(--border);
-
+ 
           border-radius: 12px;
-
+ 
           padding: 14px 16px;
-
+ 
           cursor: pointer;
         }
-
+ 
         .edu-mobile-btn h4 {
           margin: 0 0 2px;
-
+ 
           font-size: 15px;
-
+ 
           color: var(--text);
         }
-
+ 
         .edu-mobile-btn .degree {
           font-size: 13px;
-
+ 
           color: var(--accent);
-
+ 
           font-weight: 600;
         }
-
+ 
         .edu-mobile-btn .years {
           font-size: 12px;
-
+ 
           color: var(--text-muted);
         }
-
+ 
         .edu-mobile-card {
           margin-top: 8px;
-
+ 
           padding: 14px 16px;
-
+ 
           background: var(--surface-2);
-
+ 
           border: 1px solid var(--border);
-
+ 
           border-radius: 12px;
         }
-
+ 
         /* =================================================
            EXPERIENCE
            ================================================= */
-
+ 
         .experience-current {
           margin-bottom: 70px;
         }
-
+ 
         .experience-current-label {
           display: flex;
-
+ 
           align-items: center;
-
+ 
           gap: 10px;
-
+ 
           margin-bottom: 16px;
-
+ 
           font-size: 12px;
-
+ 
           font-weight: 700;
-
+ 
           letter-spacing: .08em;
-
+ 
           text-transform: uppercase;
-
+ 
           color:
             var(--warm);
         }
-
+ 
         .experience-current-label::before {
           content: '';
-
+ 
           width: 8px;
           height: 8px;
-
+ 
           border-radius: 50%;
-
+ 
           background:
             var(--warm);
-
+ 
           box-shadow:
             0 0 0 5px
             color-mix(
@@ -1862,33 +1887,33 @@ const [skillsLoading, setSkillsLoading] = useState(true);
               transparent
             );
         }
-
+ 
         .exp-card {
           display: grid;
-
+ 
           grid-template-columns:
             340px 1fr;
-
+ 
           gap: 44px;
-
+ 
           background:
             var(--surface);
-
+ 
           border:
             1px solid var(--border);
-
+ 
           border-radius: 20px;
-
+ 
           padding: 32px;
-
+ 
           align-items: center;
-
+ 
           transition:
             border-color .3s ease,
             box-shadow .3s ease,
             transform .3s ease;
         }
-
+ 
         .exp-card:hover {
           border-color:
             color-mix(
@@ -1896,236 +1921,236 @@ const [skillsLoading, setSkillsLoading] = useState(true);
               var(--accent) 55%,
               var(--border)
             );
-
+ 
           box-shadow:
             0 30px 60px -35px
             rgba(0,0,0,.55);
         }
-
+ 
         .exp-photo-wrap {
           position: relative;
         }
-
+ 
         .exp-photo {
           width: 100%;
-
+ 
           aspect-ratio: 4/5;
-
+ 
           object-fit: cover;
-
+ 
           border-radius: 14px;
-
+ 
           border:
             1px solid var(--border);
-
+ 
           display: block;
         }
-
+ 
         .exp-badge {
           position: absolute;
-
+ 
           top: 14px;
           left: 14px;
-
+ 
           display: inline-flex;
-
+ 
           align-items: center;
-
+ 
           gap: 6px;
-
+ 
           background:
             var(--warm);
-
+ 
           color: #fff;
-
+ 
           font-size: 11px;
-
+ 
           font-weight: 700;
-
+ 
           letter-spacing: .05em;
-
+ 
           padding:
             5px 10px;
-
+ 
           border-radius: 999px;
         }
-
+ 
         .exp-badge::before {
           content: '';
-
+ 
           width: 6px;
           height: 6px;
-
+ 
           border-radius: 50%;
-
+ 
           background: #fff;
         }
-
+ 
         .exp-details h3 {
           font-size: 26px;
-
+ 
           margin:
             0 0 4px;
         }
-
+ 
         .exp-details .role {
           font-size: 15px;
-
+ 
           color:
             var(--accent);
-
+ 
           font-weight: 600;
-
+ 
           margin-bottom: 4px;
         }
-
+ 
         .exp-details .meta {
           font-size: 13px;
-
+ 
           color:
             var(--text-muted);
-
+ 
           margin-bottom: 18px;
         }
-
+ 
         .exp-details p.desc {
           font-size: 14.5px;
-
+ 
           line-height: 1.75;
-
+ 
           color:
             var(--text-muted);
-
+ 
           margin:
             0 0 20px;
         }
-
+ 
         .exp-tech {
           display: flex;
-
+ 
           flex-wrap: wrap;
-
+ 
           gap: 8px;
-
+ 
           margin-bottom: 22px;
         }
-
+ 
         .exp-details ul {
           list-style: none;
-
+ 
           padding: 0;
-
+ 
           margin: 0;
         }
-
+ 
         .exp-details ul li {
           font-size: 14px;
-
+ 
           color:
             var(--text-muted);
-
+ 
           padding-left: 16px;
-
+ 
           position: relative;
-
+ 
           margin-bottom: 8px;
         }
-
+ 
         .exp-details ul li::before {
           content: '—';
-
+ 
           position: absolute;
-
+ 
           left: 0;
-
+ 
           color:
             var(--accent);
         }
-
+ 
         /* -------------------------------------------------
            CAREER TIMELINE
            ------------------------------------------------- */
-
+ 
         .career-timeline {
           position: relative;
-
+ 
           margin-top: 30px;
-
+ 
           padding:
             15px 0 15px;
         }
-
+ 
         .career-timeline-title {
           margin-bottom: 35px;
-
+ 
           font-size: 14px;
-
+ 
           font-weight: 700;
-
+ 
           text-transform: uppercase;
-
+ 
           letter-spacing: .12em;
-
+ 
           color:
             var(--text-muted);
         }
-
+ 
         .career-timeline-content {
           position: relative;
-
+ 
           display: grid;
-
+ 
           grid-template-columns:
             90px 1fr;
-
+ 
           column-gap: 35px;
         }
-
+ 
         /* Vertical line */
-
+ 
         .career-line {
           position: absolute;
-
+ 
           left: 34px;
-
+ 
           top: 20px;
-
+ 
           bottom: 20px;
-
+ 
           width: 2px;
-
+ 
           background:
             var(--border);
-
+ 
           overflow: hidden;
-
+ 
           border-radius: 10px;
         }
-
+ 
         .career-line-progress {
           position: absolute;
-
+ 
           left: 0;
-
+ 
           top: 0;
-
+ 
           width: 100%;
-
+ 
           height: 100%;
-
+ 
           background:
             linear-gradient(
               to bottom,
               var(--warm),
               var(--accent)
             );
-
+ 
           transform-origin:
             top center;
-
+ 
           transform:
             scaleY(0);
-
+ 
           transition:
             transform
             1.8s
@@ -2136,66 +2161,66 @@ const [skillsLoading, setSkillsLoading] = useState(true);
               1
             );
         }
-
+ 
         .career-line-progress.in-view {
           transform:
             scaleY(1);
         }
-
+ 
         .career-nodes {
           position: relative;
-
+ 
           display: flex;
-
+ 
           flex-direction: column;
-
+ 
           gap: 36px;
-
+ 
           z-index: 2;
         }
-
+ 
         .career-node {
           width: 70px;
-
+ 
           min-height: 110px;
-
+ 
           display: flex;
-
+ 
           align-items: flex-start;
-
+ 
           justify-content: center;
-
+ 
           position: relative;
         }
-
+ 
         .career-dot {
           width: 18px;
           height: 18px;
-
+ 
           border-radius: 50%;
-
+ 
           background:
             var(--bg);
-
+ 
           border:
             2px solid
             var(--border);
-
+ 
           position: relative;
-
+ 
           margin-top: 5px;
-
+ 
           transition:
             all .3s ease;
         }
-
+ 
         .career-dot.current {
           background:
             var(--warm);
-
+ 
           border-color:
             var(--warm);
-
+ 
           box-shadow:
             0 0 0 6px
             color-mix(
@@ -2204,54 +2229,54 @@ const [skillsLoading, setSkillsLoading] = useState(true);
               transparent
             );
         }
-
+ 
         .career-dot.current::after {
           content: '';
-
+ 
           position: absolute;
-
+ 
           inset: -5px;
-
+ 
           border-radius: 50%;
-
+ 
           border:
             1px solid
             var(--warm);
-
+ 
           animation:
             careerPulse
             2s
             ease-out
             infinite;
         }
-
+ 
         @keyframes careerPulse {
           0% {
             transform: scale(.8);
-
+ 
             opacity: .8;
           }
-
+ 
           100% {
             transform: scale(1.9);
-
+ 
             opacity: 0;
           }
         }
-
+ 
         .career-dot.completed {
           border-color:
             var(--accent);
-
+ 
           background:
             var(--surface);
         }
-
+ 
         .career-node.active
         .career-dot.completed {
           background:
             var(--accent);
-
+ 
           box-shadow:
             0 0 0 6px
             color-mix(
@@ -2260,229 +2285,229 @@ const [skillsLoading, setSkillsLoading] = useState(true);
               transparent
             );
         }
-
+ 
         .career-node-year {
     position: absolute;
     top: 31px;
-
+ 
     /* Move year to the LEFT of the timeline */
     right: calc(50% + 25px);
-
+ 
     /* Prevent it from being centered on the line */
     left: auto;
     transform: none;
-
+ 
     font-size: 10px;
     white-space: nowrap;
     text-align: right;
-
+ 
     color: var(--text-muted);
     opacity: .8;
 }
-
+ 
         /* Previous cards */
-
+ 
         .career-cards {
           display: flex;
-
+ 
           flex-direction: column;
-
+ 
           gap: 36px;
         }
-
+ 
         .previous-company-card {
           min-height: 110px;
-
+ 
           background:
             var(--surface);
-
+ 
           border:
             1px solid var(--border);
-
+ 
           border-radius: 16px;
-
+ 
           padding:
             22px 24px;
-
+ 
           position: relative;
-
+ 
           cursor: default;
-
+ 
           transition:
             transform .3s ease,
             border-color .3s ease,
             box-shadow .3s ease,
             background .3s ease;
-
+ 
           opacity: 0;
-
+ 
           transform:
             translateX(30px);
         }
-
+ 
         .previous-company-card.in-view {
           opacity: 1;
-
+ 
           transform:
             translateX(0);
         }
-
+ 
         .previous-company-card:hover,
         .previous-company-card.active {
           transform:
             translateX(6px);
-
+ 
           border-color:
             var(--accent);
-
+ 
           background:
             color-mix(
               in srgb,
               var(--surface) 94%,
               var(--accent)
             );
-
+ 
           box-shadow:
             0 18px 40px -28px
             var(--accent);
         }
-
+ 
         .previous-company-card.in-view:hover,
         .previous-company-card.in-view.active {
           transform:
             translateX(6px);
         }
-
+ 
         .previous-company-top {
           display: flex;
-
+ 
           align-items: flex-start;
-
+ 
           justify-content: space-between;
-
+ 
           gap: 20px;
-
+ 
           margin-bottom: 5px;
         }
-
+ 
         .previous-company-name {
           font-size: 18px;
-
+ 
           font-weight: 700;
-
+ 
           color:
             var(--text);
-
+ 
           margin: 0;
         }
-
+ 
         .previous-company-years {
           flex-shrink: 0;
-
+ 
           font-size: 11px;
-
+ 
           padding:
             4px 8px;
-
+ 
           border-radius: 999px;
-
+ 
           background:
             var(--surface-2);
-
+ 
           border:
             1px solid var(--border);
-
+ 
           color:
             var(--text-muted);
         }
-
+ 
         .previous-company-role {
           color:
             var(--accent);
-
+ 
           font-size: 13px;
-
+ 
           font-weight: 600;
-
+ 
           margin-bottom: 10px;
         }
-
+ 
         .previous-company-description {
           color:
             var(--text-muted);
-
+ 
           font-size: 13px;
-
+ 
           line-height: 1.6;
-
+ 
           margin:
             0 0 13px;
-
+ 
           max-width: 700px;
         }
-
+ 
         .previous-company-tech {
           display: flex;
-
+ 
           flex-wrap: wrap;
-
+ 
           gap: 6px;
         }
-
+ 
         .previous-company-tech
         .tag {
           font-size: 10px;
-
+ 
           padding:
             4px 8px;
         }
-
+ 
         .previous-company-achievements {
           display: none;
         }
-
+ 
         /* =================================================
            SKILLS
            ================================================= */
-
+ 
         .skills-wrap {
           display: flex;
-
+ 
           flex-wrap: wrap;
-
+ 
           justify-content: center;
-
+ 
           align-items: flex-end;
-
+ 
           gap: 22px;
-
+ 
           padding:
             40px 0 20px;
-
+ 
           min-height: 200px;
         }
-
+ 
         .skill-tile {
           width: 74px;
           height: 74px;
-
+ 
           border-radius: 20px;
-
+ 
           background:
             var(--surface);
-
+ 
           border:
             1px solid var(--border);
-
+ 
           display: flex;
-
+ 
           align-items: center;
           justify-content: center;
-
+ 
           position: relative;
-
+ 
           cursor: pointer;
-
+ 
           transition:
             transform .18s
               cubic-bezier(
@@ -2493,622 +2518,622 @@ const [skillsLoading, setSkillsLoading] = useState(true);
               ),
             box-shadow .18s ease,
             border-color .18s ease;
-
+ 
           will-change:
             transform;
         }
-
+ 
         .skill-tile img {
           width: 38px;
           height: 38px;
-
+ 
           object-fit: contain;
         }
-
+ 
         .skill-tile:hover,
         .skill-tile.magnified {
           border-color:
             var(--accent);
-
+ 
           box-shadow:
             0 18px 34px -14px
             rgba(59,95,224,.45);
         }
-
+ 
         .skill-tile-label {
           position: absolute;
-
+ 
           bottom: -26px;
-
+ 
           left: 50%;
-
+ 
           transform:
             translateX(-50%);
-
+ 
           font-size: 11px;
-
+ 
           color:
             var(--text-muted);
-
+ 
           white-space: nowrap;
-
+ 
           opacity: 0;
-
+ 
           transition:
             opacity .15s ease;
-
+ 
           pointer-events: none;
         }
-
+ 
         .skill-tile:hover
         .skill-tile-label {
           opacity: 1;
         }
-
+ 
         /* =================================================
            FOOTER
            ================================================= */
-
+ 
         .footer {
           max-width: 1200px;
-
+ 
           margin: 0 auto;
-
+ 
           padding:
             80px 60px 30px;
-
+ 
           border-top:
             1px solid var(--border);
         }
-
+ 
         .footer-main {
           display: grid;
-
+ 
           grid-template-columns:
             1.5fr 1fr 1fr;
-
+ 
           gap: 60px;
-
+ 
           padding-bottom: 55px;
         }
-
+ 
         .footer-brand h2 {
           font-size: 30px;
-
+ 
           margin:
             0 0 14px;
         }
-
+ 
         .footer-brand p {
           color:
             var(--text-muted);
-
+ 
           max-width: 380px;
-
+ 
           line-height: 1.7;
-
+ 
           font-size: 14px;
-
+ 
           margin-bottom: 25px;
         }
-
+ 
         .footer-title {
           font-size: 13px;
-
+ 
           text-transform: uppercase;
-
+ 
           letter-spacing: .08em;
-
+ 
           color:
             var(--text-muted);
-
+ 
           margin-bottom: 18px;
         }
-
+ 
         .footer-links {
           display: flex;
-
+ 
           flex-direction: column;
-
+ 
           gap: 12px;
         }
-
+ 
         .footer-links a {
           color:
             var(--text);
-
+ 
           text-decoration: none;
-
+ 
           font-size: 14px;
-
+ 
           transition:
             color .2s ease,
             transform .2s ease;
-
+ 
           width: fit-content;
         }
-
+ 
         .footer-links a:hover {
           color:
             var(--accent);
-
+ 
           transform:
             translateX(4px);
         }
-
+ 
         .footer-socials {
           display: flex;
-
+ 
           gap: 10px;
-
+ 
           flex-wrap: wrap;
         }
-
+ 
         .footer-social {
           width: 42px;
           height: 42px;
-
+ 
           border-radius: 12px;
-
+ 
           border:
             1px solid var(--border);
-
+ 
           background:
             var(--surface);
-
+ 
           display: flex;
-
+ 
           align-items: center;
           justify-content: center;
-
+ 
           text-decoration: none;
-
+ 
           color:
             var(--text);
-
+ 
           font-size: 14px;
-
+ 
           font-weight: 700;
-
+ 
           transition:
             all .25s ease;
         }
-
+ 
         .footer-social:hover {
           border-color:
             var(--accent);
-
+ 
           color:
             var(--accent);
-
+ 
           transform:
             translateY(-4px);
-
+ 
           box-shadow:
             0 12px 25px -15px
             var(--accent);
         }
-
+ 
         .footer-bottom {
           border-top:
             1px solid var(--border);
-
+ 
           padding-top: 22px;
-
+ 
           display: flex;
-
+ 
           justify-content:
             space-between;
-
+ 
           align-items: center;
-
+ 
           gap: 20px;
-
+ 
           color:
             var(--text-muted);
-
+ 
           font-size: 12px;
         }
-
+ 
         .footer-bottom a {
           color:
             var(--text-muted);
-
+ 
           text-decoration: none;
         }
-
+ 
         .footer-bottom a:hover {
           color:
             var(--accent);
         }
-
+ 
         /* =================================================
            RESPONSIVE
            ================================================= */
-
+ 
         @media (max-width: 900px) {
-
+ 
           .hero {
             flex-direction:
               column-reverse;
-
+ 
             text-align: center;
-
+ 
             padding:
               60px 24px;
           }
-
+ 
           .hero-circle-wrap {
             width: 240px;
             height: 240px;
           }
-
+ 
           .hero-text p {
             margin-left: auto;
             margin-right: auto;
           }
         }
-
+ 
         @media (max-width: 850px) {
-
+ 
           .exp-card {
             grid-template-columns:
               1fr;
-
+ 
             gap: 28px;
           }
-
+ 
           .exp-photo {
             aspect-ratio:
               16 / 9;
           }
-
+ 
           .career-timeline-content {
             grid-template-columns:
               70px 1fr;
-
+ 
             column-gap: 25px;
           }
-
+ 
           .career-line {
             left: 26px;
           }
-
+ 
           .career-node {
             width: 55px;
           }
         }
-
+ 
         @media (max-width: 800px) {
-
+ 
           .nav-links {
             display: none;
           }
-
+ 
           .hamburger {
             display: flex;
           }
-
+ 
           .edu-map-wrap {
             display: none;
           }
-
+ 
           .edu-map-mobile {
             display: block;
           }
-
+ 
           .footer-main {
             grid-template-columns:
               1fr;
-
+ 
             gap: 40px;
           }
         }
-
+ 
         @media (max-width: 700px) {
-
+ 
           section {
             padding:
               60px 24px;
           }
-
+ 
           .project-grid {
             grid-template-columns:
               1fr;
           }
-
+ 
           .career-timeline {
             margin-top: 15px;
           }
-
+ 
           .career-timeline-content {
             grid-template-columns:
               42px 1fr;
-
+ 
             column-gap: 18px;
           }
-
+ 
           .career-line {
             left: 18px;
-
+ 
             top: 15px;
-
+ 
             bottom: 15px;
           }
-
+ 
           .career-nodes {
             gap: 22px;
           }
-
+ 
           .career-node {
             width: 38px;
-
+ 
             min-height: 140px;
           }
-
+ 
           .career-dot {
             width: 15px;
             height: 15px;
-
+ 
             margin-top: 7px;
           }
-
+ 
           .career-node-year {
             top: 30px;
-
+ 
             font-size: 9px;
-
+ 
             transform:
               translateX(-50%)
               rotate(-90deg);
-
+ 
             display: none;
           }
-
+ 
           .career-cards {
             gap: 22px;
           }
-
+ 
           .previous-company-card {
             min-height: 140px;
-
+ 
             padding:
               18px 18px;
           }
-
+ 
           .previous-company-card:hover,
           .previous-company-card.active {
             transform:
               translateX(3px);
           }
-
+ 
           .previous-company-card.in-view:hover,
           .previous-company-card.in-view.active {
             transform:
               translateX(3px);
           }
-
+ 
           .previous-company-top {
             flex-direction:
               column;
-
+ 
             gap: 8px;
           }
-
+ 
           .previous-company-years {
             align-self:
               flex-start;
           }
-
+ 
           .footer {
             padding:
               60px 24px 25px;
           }
-
+ 
           .footer-bottom {
             flex-direction:
               column;
-
+ 
             align-items:
               flex-start;
           }
         }
-
+ 
         @media (max-width: 500px) {
-
+ 
           .hero-circle-wrap {
             width: 200px;
             height: 200px;
           }
-
+ 
           .hero {
             padding-top: 45px;
           }
-
+ 
           .modal-body {
             padding:
               28px 22px 30px;
           }
-
+ 
           .modal-links {
             flex-direction:
               column;
           }
-
+ 
           .modal-links a {
             text-align:
               center;
           }
-
+ 
           .footer-brand h2 {
             font-size: 26px;
           }
-
+ 
           .career-timeline-content {
             grid-template-columns:
               30px 1fr;
-
+ 
             column-gap: 14px;
           }
-
+ 
           .career-line {
             left: 14px;
           }
-
+ 
           .career-node {
             width: 30px;
           }
-
+ 
           .career-dot {
             width: 13px;
             height: 13px;
           }
         }
-
+ 
         /* =========================================================
            INITIAL PAGE LOADER
            ========================================================= */
-
+ 
         .page-loader {
           position: fixed;
           inset: 0;
-
+ 
           z-index: 999999;
-
+ 
           display: flex;
           align-items: center;
           justify-content: center;
-
+ 
           background:
             radial-gradient(
               circle at 50% 40%,
               #10131b,
               #050505
             );
-
+ 
           color: #ffffff;
-
+ 
           animation: loaderFadeOut 0.6s ease 3.4s forwards;
         }
-
+ 
         .loader-circle-wrap {
           position: relative;
-
+ 
           width: 130px;
           height: 130px;
-
+ 
           display: flex;
           align-items: center;
           justify-content: center;
         }
-
+ 
         .loader-ring-svg {
           width: 100%;
           height: 100%;
-
+ 
           animation: loaderSpin 1.4s linear infinite;
-
+ 
           filter: drop-shadow(0 0 16px rgba(59,95,224,.55));
         }
-
+ 
         .loader-ring-track {
           fill: none;
-
+ 
           stroke: rgba(255,255,255,.08);
-
+ 
           stroke-width: 3;
         }
-
+ 
         .loader-ring-arc {
           fill: none;
-
+ 
           stroke: url(#loaderGradient);
-
+ 
           stroke-width: 3;
-
+ 
           stroke-linecap: round;
-
+ 
           stroke-dasharray: 105 240;
-
+ 
           transform-origin: 60px 60px;
         }
-
+ 
         .loader-center-dot {
           position: absolute;
-
+ 
           width: 14px;
           height: 14px;
-
+ 
           border-radius: 50%;
-
+ 
           background: linear-gradient(135deg, #3B5FE0, #C1793F);
-
+ 
           animation: loaderPulseDot 1.4s ease-in-out infinite;
         }
-
+ 
         .loader-orbit-dot {
           position: absolute;
-
+ 
           width: 8px;
           height: 8px;
-
+ 
           border-radius: 50%;
-
+ 
           background: #C1793F;
-
+ 
           box-shadow: 0 0 10px 2px rgba(193,121,63,.7);
-
+ 
           top: 50%;
           left: 50%;
-
+ 
           transform-origin: -1px 65px;
-
+ 
           animation: loaderOrbit 2.1s linear infinite reverse;
         }
-
+ 
         @keyframes loaderSpin {
           to { transform: rotate(360deg); }
         }
-
+ 
         @keyframes loaderPulseDot {
           0%, 100% {
             transform: scale(.7);
             opacity: .6;
           }
-
+ 
           50% {
             transform: scale(1.2);
             opacity: 1;
           }
         }
-
+ 
         @keyframes loaderOrbit {
           from { transform: translate(-50%, -50%) rotate(0deg); }
           to { transform: translate(-50%, -50%) rotate(360deg); }
         }
-
+ 
         /* Remove loader */
-
+ 
         @keyframes loaderFadeOut {
           from {
             opacity: 1;
             visibility: visible;
           }
-
+ 
           to {
             opacity: 0;
             visibility: hidden;
             pointer-events: none;
           }
         }
-
+ 
       `}</style>
-
-
+ 
+ 
       {/* =================================================
           NAVIGATION
           ================================================= */}
-
+ 
       <nav
         className={`nav ${
           scrolled
@@ -3116,19 +3141,19 @@ const [skillsLoading, setSkillsLoading] = useState(true);
             : ""
         }`}
       >
-
+ 
         <div className="logo">
           Mohammed Sadiq K
         </div>
-
-
+ 
+ 
         <ul className="nav-links">
-
+ 
           {NAV_LINKS.map(
             (id) => (
-
+ 
               <li key={id}>
-
+ 
                 <button
                   className={
                     activeSection === id
@@ -3141,17 +3166,17 @@ const [skillsLoading, setSkillsLoading] = useState(true);
                 >
                   {id}
                 </button>
-
+ 
               </li>
-
+ 
             )
           )}
-
+ 
         </ul>
-
-
+ 
+ 
         <div className="nav-right">
-
+ 
           <button
             className="theme-toggle"
             onClick={() =>
@@ -3164,7 +3189,7 @@ const [skillsLoading, setSkillsLoading] = useState(true);
             aria-label=
               "Toggle day and night mode"
           >
-
+ 
             <span className=
               "theme-toggle-knob"
             >
@@ -3172,10 +3197,10 @@ const [skillsLoading, setSkillsLoading] = useState(true);
                 ? "🌙"
                 : "☀️"}
             </span>
-
+ 
           </button>
-
-
+ 
+ 
           <button
             className={`hamburger ${
               menuOpen
@@ -3190,22 +3215,22 @@ const [skillsLoading, setSkillsLoading] = useState(true);
             aria-label=
               "Toggle menu"
           >
-
+ 
             <span className="bar" />
             <span className="bar" />
             <span className="bar" />
-
+ 
           </button>
-
+ 
         </div>
-
+ 
       </nav>
-
-
+ 
+ 
       {/* =================================================
           MOBILE MENU
           ================================================= */}
-
+ 
       <div
         className={`mobile-menu ${
           menuOpen
@@ -3213,10 +3238,10 @@ const [skillsLoading, setSkillsLoading] = useState(true);
             : ""
         }`}
       >
-
+ 
         {NAV_LINKS.map(
           (id) => (
-
+ 
             <button
               key={id}
               onClick={() =>
@@ -3225,17 +3250,17 @@ const [skillsLoading, setSkillsLoading] = useState(true);
             >
               {id}
             </button>
-
+ 
           )
         )}
-
+ 
       </div>
-
-
+ 
+ 
       {/* =================================================
           HERO
           ================================================= */}
-
+ 
       <header
         id="home"
         className="hero"
@@ -3244,37 +3269,37 @@ const [skillsLoading, setSkillsLoading] = useState(true);
             "none",
         }}
       >
-
+ 
         <div
           className=
             "hero-circle-wrap"
         >
-
+ 
           <div
             className=
               "hero-circle"
           />
-
+ 
         </div>
-
-
+ 
+ 
         <div
           className=
             "hero-text"
         >
-
+ 
           <h1>
-
+ 
             I am a
             <br />
-
+ 
             <span
               className=
                 "hero-typed"
             >
               {typed.text}
             </span>
-
+ 
             <span
               className="cursor"
               style={{
@@ -3286,10 +3311,10 @@ const [skillsLoading, setSkillsLoading] = useState(true);
             >
               |
             </span>
-
+ 
           </h1>
-
-
+ 
+ 
           <p>
             I build software and
             the systems around it —
@@ -3299,42 +3324,42 @@ const [skillsLoading, setSkillsLoading] = useState(true);
             products that stay legible
             as they grow.
           </p>
-
+ 
         </div>
-
+ 
       </header>
-
-
+ 
+ 
       {/* =================================================
           PROJECTS
           ================================================= */}
-
+ 
       <section id="projects">
-
+ 
         <div className=
           "section-head"
         >
-
+ 
           <h2>
             Selected Projects
           </h2>
-
+ 
           <p>
             Click a card to see
             the full details.
           </p>
-
+ 
         </div>
-
-
+ 
+ 
         <div
           className=
             "project-grid"
         >
-
+ 
           {PROJECTS.map(
             (p) => (
-
+ 
               <button
                 className=
                   "project-card"
@@ -3343,37 +3368,37 @@ const [skillsLoading, setSkillsLoading] = useState(true);
                   setActiveProject(p)
                 }
               >
-
+ 
                 <img
                   className=
                     "project-card-img"
                   src={p.image}
                   alt={p.title}
                 />
-
-
+ 
+ 
                 <div
                   className=
                     "project-card-body"
                 >
-
+ 
                   <h3>
                     {p.title}
                   </h3>
-
+ 
                   <p>
                     {p.description}
                   </p>
-
-
+ 
+ 
                   <div
                     className=
                       "project-tech"
                   >
-
+ 
                     {p.tech.map(
                       (t) => (
-
+ 
                         <span
                           key={t}
                           className=
@@ -3381,56 +3406,56 @@ const [skillsLoading, setSkillsLoading] = useState(true);
                         >
                           {t}
                         </span>
-
+ 
                       )
                     )}
-
+ 
                   </div>
-
+ 
                 </div>
-
+ 
               </button>
-
+ 
             )
           )}
-
+ 
         </div>
-
+ 
       </section>
-
-
+ 
+ 
       {/* =================================================
           EDUCATION
           ================================================= */}
-
+ 
       <section
         id="education"
         ref={eduRef}
       >
-
+ 
         <div
           className=
             "section-head"
         >
-
+ 
           <h2>
             Education
           </h2>
-
+ 
           <p>
             Hover a point on desktop,
             or tap it on mobile,
             for the full story.
           </p>
-
+ 
         </div>
-
-
+ 
+ 
         <div
           className=
             "edu-map-wrap"
         >
-
+ 
           <svg
             className=
               "edu-map-svg"
@@ -3439,13 +3464,13 @@ const [skillsLoading, setSkillsLoading] = useState(true);
             preserveAspectRatio=
               "none"
           >
-
+ 
             <path
               className=
                 "edu-path"
               d={eduPath}
             />
-
+ 
             <path
               className={`
                 edu-path-draw
@@ -3457,22 +3482,22 @@ const [skillsLoading, setSkillsLoading] = useState(true);
               `}
               d={eduPath}
             />
-
+ 
           </svg>
-
-
-          {EDUCATION.map(
+ 
+ 
+          {eduLayout.map(
             (n, i) => {
-
+ 
               const isCurrent =
                 n.end ===
                 "Present";
-
+ 
               return (
                 <React.Fragment
                   key={n.id}
                 >
-
+ 
                   <button
                     className={`
                       edu-node
@@ -3526,8 +3551,8 @@ const [skillsLoading, setSkillsLoading] = useState(true);
                       )
                     }
                   />
-
-
+ 
+ 
                   <div
                     className={`
                       edu-node-label
@@ -3546,11 +3571,11 @@ const [skillsLoading, setSkillsLoading] = useState(true);
                   >
                     {n.institution}
                   </div>
-
-
+ 
+ 
                   {activeEduNode ===
                     n.id && (
-
+ 
                     <div
                       className=
                         "edu-card"
@@ -3595,7 +3620,7 @@ const [skillsLoading, setSkillsLoading] = useState(true);
                         )
                       }
                     >
-
+ 
                       {isCurrent && (
                         <span
                           className=
@@ -3604,18 +3629,18 @@ const [skillsLoading, setSkillsLoading] = useState(true);
                           CURRENT
                         </span>
                       )}
-
+ 
                       <h4>
                         {n.institution}
                       </h4>
-
+ 
                       <div
                         className=
                           "degree"
                       >
                         {n.degree}
                       </div>
-
+ 
                       <div
                         className=
                           "years"
@@ -3623,16 +3648,16 @@ const [skillsLoading, setSkillsLoading] = useState(true);
                         {n.start}—
                         {n.end}
                       </div>
-
+ 
                       <p
                         className=
                           "desc"
                       >
                         {n.description}
                       </p>
-
+ 
                       <ul>
-
+ 
                         {n.achievements.map(
                           (a, i2) => (
                             <li
@@ -3642,46 +3667,46 @@ const [skillsLoading, setSkillsLoading] = useState(true);
                             </li>
                           )
                         )}
-
+ 
                       </ul>
-
+ 
                     </div>
                   )}
-
+ 
                 </React.Fragment>
               );
             }
           )}
-
+ 
         </div>
-
-
+ 
+ 
         {/* MOBILE EDUCATION */}
-
+ 
         <div
           className=
             "edu-map-mobile"
         >
-
+ 
           {EDUCATION.map(
             (n, i) => {
-
+ 
               const isCurrent =
                 n.end ===
                 "Present";
-
+ 
               return (
                 <div
                   className=
                     "edu-mobile-item"
                   key={n.id}
                 >
-
+ 
                   <div
                     className=
                       "edu-mobile-rail"
                   >
-
+ 
                     <div
                       className={`
                         edu-mobile-dot
@@ -3692,7 +3717,7 @@ const [skillsLoading, setSkillsLoading] = useState(true);
                         }
                       `}
                     />
-
+ 
                     {i <
                       EDUCATION.length -
                         1 && (
@@ -3701,16 +3726,16 @@ const [skillsLoading, setSkillsLoading] = useState(true);
                           "edu-mobile-line"
                       />
                     )}
-
+ 
                   </div>
-
-
+ 
+ 
                   <div
                     style={{
                       flex: 1,
                     }}
                   >
-
+ 
                     <button
                       className=
                         "edu-mobile-btn"
@@ -3723,18 +3748,18 @@ const [skillsLoading, setSkillsLoading] = useState(true);
                         )
                       }
                     >
-
+ 
                       <h4>
                         {n.institution}
                       </h4>
-
+ 
                       <div
                         className=
                           "degree"
                       >
                         {n.degree}
                       </div>
-
+ 
                       <div
                         className=
                           "years"
@@ -3742,27 +3767,27 @@ const [skillsLoading, setSkillsLoading] = useState(true);
                         {n.start}—
                         {n.end}
                       </div>
-
+ 
                     </button>
-
-
+ 
+ 
                     {activeEduNode ===
                       n.id && (
-
+ 
                       <div
                         className=
                           "edu-mobile-card"
                       >
-
+ 
                         <p
                           className=
                             "desc"
                         >
                           {n.description}
                         </p>
-
+ 
                         <ul>
-
+ 
                           {n.achievements.map(
                             (a, i2) => (
                               <li
@@ -3772,78 +3797,78 @@ const [skillsLoading, setSkillsLoading] = useState(true);
                               </li>
                             )
                           )}
-
+ 
                         </ul>
-
+ 
                       </div>
                     )}
-
+ 
                   </div>
-
+ 
                 </div>
               );
             }
           )}
-
+ 
         </div>
-
+ 
       </section>
-
-
+ 
+ 
       {/* =================================================
           EXPERIENCE
           ================================================= */}
-
+ 
       <section
         id="experience"
         ref={experienceRef}
       >
-
+ 
         <div
           className=
             "section-head"
         >
-
+ 
           <h2>
             Experience
           </h2>
-
+ 
           <p>
             My professional journey,
             from where I started to
             where I am today.
           </p>
-
+ 
         </div>
-
-
+ 
+ 
         {/* CURRENT COMPANY */}
-
+ 
         {currentExperience && (
-
+ 
           <div
             className=
               "experience-current"
           >
-
+ 
             <div
               className=
                 "experience-current-label"
             >
               Currently working at
             </div>
-
-
+ 
+ 
             <div
               className=
                 "exp-card"
             >
-
+ 
               <div
                 className=
                   "exp-photo-wrap"
               >
-
+ 
                 <img
                   className=
                     "exp-photo"
@@ -3854,29 +3879,29 @@ const [skillsLoading, setSkillsLoading] = useState(true);
                     currentExperience.company
                   }
                 />
-
-
+ 
+ 
                 <span
                   className=
                     "exp-badge"
                 >
                   CURRENT
                 </span>
-
+ 
               </div>
-
-
+ 
+ 
               <div
                 className=
                   "exp-details"
               >
-
+ 
                 <h3>
                   {
                     currentExperience.company
                   }
                 </h3>
-
+ 
                 <div
                   className=
                     "role"
@@ -3885,7 +3910,7 @@ const [skillsLoading, setSkillsLoading] = useState(true);
                     currentExperience.position
                   }
                 </div>
-
+ 
                 <div
                   className=
                     "meta"
@@ -3902,8 +3927,8 @@ const [skillsLoading, setSkillsLoading] = useState(true);
                     currentExperience.end
                   }
                 </div>
-
-
+ 
+ 
                 <p
                   className=
                     "desc"
@@ -3912,13 +3937,13 @@ const [skillsLoading, setSkillsLoading] = useState(true);
                     currentExperience.description
                   }
                 </p>
-
-
+ 
+ 
                 <div
                   className=
                     "exp-tech"
                 >
-
+ 
                   {
                     currentExperience.tech.map(
                       (t) => (
@@ -3932,12 +3957,12 @@ const [skillsLoading, setSkillsLoading] = useState(true);
                       )
                     )
                   }
-
+ 
                 </div>
-
-
+ 
+ 
                 <ul>
-
+ 
                   {
                     currentExperience.achievements.map(
                       (a, i) => (
@@ -3947,44 +3972,44 @@ const [skillsLoading, setSkillsLoading] = useState(true);
                       )
                     )
                   }
-
+ 
                 </ul>
-
+ 
               </div>
-
+ 
             </div>
-
+ 
           </div>
         )}
-
-
+ 
+ 
         {/* CAREER TIMELINE */}
-
+ 
         <div
           className=
             "career-timeline"
         >
-
+ 
           <div
             className=
               "career-timeline-title"
           >
             Career Journey
           </div>
-
-
+ 
+ 
           <div
             className=
               "career-timeline-content"
           >
-
+ 
             {/* TIMELINE LINE */}
-
+ 
             <div
               className=
                 "career-line"
             >
-
+ 
               <div
                 className={`
                   career-line-progress
@@ -3995,44 +4020,44 @@ const [skillsLoading, setSkillsLoading] = useState(true);
                   }
                 `}
               />
-
+ 
             </div>
-
-
+ 
+ 
             {/* TIMELINE NODES */}
-
+ 
             <div
               className=
                 "career-nodes"
             >
-
+ 
               {/* CURRENT NODE */}
-
+ 
               <div
                 className=
                   "career-node"
               >
-
+ 
                 <div
                   className=
                     "career-dot current"
                 />
-
+ 
                 <span
                   className=
                     "career-node-year"
                 >
                   Present
                 </span>
-
+ 
               </div>
-
-
+ 
+ 
               {/* PREVIOUS NODES */}
-
+ 
               {previousExperience.map(
                 (company) => (
-
+ 
                   <div
                     key={company.id}
                     className={`
@@ -4045,12 +4070,12 @@ const [skillsLoading, setSkillsLoading] = useState(true);
                       }
                     `}
                   >
-
+ 
                     <div
                       className=
                         "career-dot completed"
                     />
-
+ 
                     <span
                       className=
                         "career-node-year"
@@ -4059,32 +4084,32 @@ const [skillsLoading, setSkillsLoading] = useState(true);
                         company.start
                       }
                     </span>
-
+ 
                   </div>
-
+ 
                 )
               )}
-
+ 
             </div>
-
-
+ 
+ 
             {/* PREVIOUS COMPANY CARDS */}
-
+ 
             <div
               className=
                 "career-cards"
             >
-
+ 
               {previousExperience.map(
                 (company, index) => (
-
+ 
                   /*
                     IMPORTANT:
                     These are deliberately
                     DIV elements, NOT buttons.
                     They cannot be opened.
                   */
-
+ 
                   <div
                     key={company.id}
                     className={`
@@ -4122,12 +4147,12 @@ const [skillsLoading, setSkillsLoading] = useState(true);
                       )
                     }
                   >
-
+ 
                     <div
                       className=
                         "previous-company-top"
                     >
-
+ 
                       <h3
                         className=
                           "previous-company-name"
@@ -4136,8 +4161,8 @@ const [skillsLoading, setSkillsLoading] = useState(true);
                           company.company
                         }
                       </h3>
-
-
+ 
+ 
                       <span
                         className=
                           "previous-company-years"
@@ -4150,10 +4175,10 @@ const [skillsLoading, setSkillsLoading] = useState(true);
                           company.end
                         }
                       </span>
-
+ 
                     </div>
-
-
+ 
+ 
                     <div
                       className=
                         "previous-company-role"
@@ -4166,8 +4191,8 @@ const [skillsLoading, setSkillsLoading] = useState(true);
                         company.type
                       }
                     </div>
-
-
+ 
+ 
                     <p
                       className=
                         "previous-company-description"
@@ -4176,13 +4201,13 @@ const [skillsLoading, setSkillsLoading] = useState(true);
                         company.description
                       }
                     </p>
-
-
+ 
+ 
                     <div
                       className=
                         "previous-company-tech"
                     >
-
+ 
                       {
                         company.tech.map(
                           (tech) => (
@@ -4196,46 +4221,46 @@ const [skillsLoading, setSkillsLoading] = useState(true);
                           )
                         )
                       }
-
+ 
                     </div>
-
+ 
                   </div>
-
+ 
                 )
               )}
-
+ 
             </div>
-
+ 
           </div>
-
+ 
         </div>
-
+ 
       </section>
-
-
+ 
+ 
       {/* =================================================
           SKILLS
           ================================================= */}
-
+ 
       <section id="skills">
-
+ 
         <div
           className=
             "section-head"
         >
-
+ 
           <h2>
             Skills
           </h2>
-
+ 
           <p>
             Move your cursor across
             the icons.
           </p>
-
+ 
         </div>
-
-
+ 
+ 
         {skillsLoading ? (
   <div className="skills-wrap">
     Loading skills...
@@ -4245,16 +4270,16 @@ const [skillsLoading, setSkillsLoading] = useState(true);
     skills={skills}
   />
 )}
-
+ 
       </section>
-
-
+ 
+ 
       {/* =================================================
           PROJECT MODAL
           ================================================= */}
-
+ 
       {activeProject && (
-
+ 
         <div
           className=
             "modal-backdrop"
@@ -4262,7 +4287,7 @@ const [skillsLoading, setSkillsLoading] = useState(true);
             setActiveProject(null)
           }
         >
-
+ 
           <div
             className=
               "modal-card"
@@ -4270,7 +4295,7 @@ const [skillsLoading, setSkillsLoading] = useState(true);
               e.stopPropagation()
             }
           >
-
+ 
             <button
               className=
                 "modal-close"
@@ -4280,8 +4305,8 @@ const [skillsLoading, setSkillsLoading] = useState(true);
             >
               ✕
             </button>
-
-
+ 
+ 
             <img
               className=
                 "modal-img"
@@ -4292,20 +4317,20 @@ const [skillsLoading, setSkillsLoading] = useState(true);
                 activeProject.title
               }
             />
-
-
+ 
+ 
             <div
               className=
                 "modal-body"
             >
-
+ 
               <h3>
                 {
                   activeProject.title
                 }
               </h3>
-
-
+ 
+ 
               <p
                 className=
                   "long"
@@ -4314,13 +4339,13 @@ const [skillsLoading, setSkillsLoading] = useState(true);
                   activeProject.longDescription
                 }
               </p>
-
-
+ 
+ 
               <div
                 className=
                   "modal-tech"
               >
-
+ 
                 {
                   activeProject.tech.map(
                     (t) => (
@@ -4334,15 +4359,15 @@ const [skillsLoading, setSkillsLoading] = useState(true);
                     )
                   )
                 }
-
+ 
               </div>
-
-
+ 
+ 
               <div
                 className=
                   "modal-links"
               >
-
+ 
                 <a
                   className=
                     "primary"
@@ -4355,8 +4380,8 @@ const [skillsLoading, setSkillsLoading] = useState(true);
                 >
                   Live Demo
                 </a>
-
-
+ 
+ 
                 <a
                   className=
                     "ghost"
@@ -4369,44 +4394,44 @@ const [skillsLoading, setSkillsLoading] = useState(true);
                 >
                   View Code
                 </a>
-
+ 
               </div>
-
+ 
             </div>
-
+ 
           </div>
-
+ 
         </div>
       )}
-
-
+ 
+ 
       {/* =================================================
           FOOTER
           ================================================= */}
-
+ 
       <footer
         className=
           "footer"
         id="contact"
       >
-
+ 
         <div
           className=
             "footer-main"
         >
-
+ 
           {/* BRAND */}
-
+ 
           <div
             className=
               "footer-brand"
           >
-
+ 
             <h2>
               Let's build something.
             </h2>
-
-
+ 
+ 
             <p>
               Have a project, idea,
               or opportunity in mind?
@@ -4415,13 +4440,13 @@ const [skillsLoading, setSkillsLoading] = useState(true);
               interesting conversations
               and collaborations.
             </p>
-
-
+ 
+ 
             <div
               className=
                 "footer-socials"
             >
-
+ 
 <a
   className="footer-social"
   href="https://github.com/MohammedSadiq555"
@@ -4441,8 +4466,8 @@ const [skillsLoading, setSkillsLoading] = useState(true);
     }}
   />
 </a>
-
-
+ 
+ 
 <a
       className="footer-social"
       href="https://www.linkedin.com/in/mohammed-sadiq-81382b221?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app"
@@ -4463,8 +4488,8 @@ const [skillsLoading, setSkillsLoading] = useState(true);
     }}
       />
     </a>
-
-
+ 
+ 
               <a
                 className=
                   "footer-social"
@@ -4487,30 +4512,30 @@ const [skillsLoading, setSkillsLoading] = useState(true);
     }}
       />
               </a>
-
-
+ 
+ 
             </div>
-
+ 
           </div>
-
-
+ 
+ 
           {/* CONTACT */}
-
+ 
           <div>
-
+ 
             <div
               className=
                 "footer-title"
             >
               Contact
             </div>
-
-
+ 
+ 
             <div
               className=
                 "footer-links"
             >
-
+ 
               <a
                 href=
                   "mailto:sadiq.mohammed.dev@gmail.com"
@@ -4519,8 +4544,8 @@ const [skillsLoading, setSkillsLoading] = useState(true);
                 {" "}
                 sadiq.mohammed.dev@gmail.com
               </a>
-
-
+ 
+ 
               <a
                 href=
                   "tel:+919789935475"
@@ -4529,65 +4554,65 @@ const [skillsLoading, setSkillsLoading] = useState(true);
                 {" "}
                 +91 97899 35475
               </a>
-
+ 
             </div>
-
+ 
           </div>
-
-
+ 
+ 
           {/* NAVIGATION */}
-
+ 
           <div>
-
+ 
             <div
               className=
                 "footer-title"
             >
               Explore
             </div>
-
-
+ 
+ 
             <div
               className=
                 "footer-links"
             >
-
+ 
               <a href="#home">
                 Home
               </a>
-
+ 
               <a href="#projects">
                 Projects
               </a>
-
+ 
               <a href="#education">
                 Education
               </a>
-
+ 
               <a href="#experience">
                 Experience
               </a>
-
+ 
               <a href="#skills">
                 Skills
               </a>
-
+ 
               <a href="#contact">
                 Contact
               </a>
-
+ 
             </div>
-
+ 
           </div>
-
+ 
         </div>
-
-
+ 
+ 
         <div
           className=
             "footer-bottom"
         >
-
+ 
           <span>
             ©{" "}
             {new Date().getFullYear()}
@@ -4595,17 +4620,18 @@ const [skillsLoading, setSkillsLoading] = useState(true);
             A. Rivera.
             All rights reserved.
           </span>
-
-
+ 
+ 
           <a href="#home">
             Back to top ↑
           </a>
-
+ 
         </div>
-
+ 
       </footer>
-
+ 
     </div>
         </>
   );
 }
+ 
