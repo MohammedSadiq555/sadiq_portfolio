@@ -473,7 +473,7 @@ export default function App() {
 useEffect(() => {
   const timer = setTimeout(() => {
     setLoading(false);
-  }, 2000);
+  }, 4000);
 
   return () => clearTimeout(timer);
 }, []);
@@ -648,23 +648,20 @@ const [skillsLoading, setSkillsLoading] = useState(true);
       <>
     {loading && (
       <div className="page-loader">
-        <div className="loader-terminal">
-          <div className="loader-terminal-topbar">
-            <span></span>
-            <span></span>
-            <span></span>
-            <span className="loader-terminal-label">portfolio.sh</span>
-          </div>
+        <div className="loader-circle-wrap">
+          <svg className="loader-ring-svg" viewBox="0 0 120 120">
+            <defs>
+              <linearGradient id="loaderGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#3B5FE0" stopOpacity="0" />
+                <stop offset="100%" stopColor="#3B5FE0" stopOpacity="1" />
+              </linearGradient>
+            </defs>
+            <circle className="loader-ring-track" cx="60" cy="60" r="52" />
+            <circle className="loader-ring-arc" cx="60" cy="60" r="52" />
+          </svg>
 
-          <div className="loader-terminal-body">
-            <span className="loader-prompt">$</span>
-            <span className="loader-typed-text">building_site...</span>
-            <span className="loader-cursor">▋</span>
-          </div>
-
-          <div className="loader-progress-track">
-            <div className="loader-progress-bar"></div>
-          </div>
+          <div className="loader-orbit-dot"></div>
+          <div className="loader-center-dot"></div>
         </div>
       </div>
     )}
@@ -2996,144 +2993,100 @@ const [skillsLoading, setSkillsLoading] = useState(true);
           animation: loaderFadeOut 0.6s ease 1.4s forwards;
         }
 
-        /* Terminal window */
+        .loader-circle-wrap {
+          position: relative;
 
-        .loader-terminal {
-          width: 300px;
+          width: 130px;
+          height: 130px;
 
-          border-radius: 12px;
-
-          background: #0d1117;
-
-          border: 1px solid rgba(255,255,255,0.08);
-
-          overflow: hidden;
-
-          font-family: 'Courier New', monospace;
-
-          box-shadow:
-            0 40px 90px -20px rgba(59,95,224,.4),
-            0 0 0 1px rgba(255,255,255,.03);
-
-          animation: loaderFloat 2.4s ease-in-out infinite;
-        }
-
-        .loader-terminal-topbar {
           display: flex;
-
           align-items: center;
-
-          gap: 6px;
-
-          padding: 10px 14px;
-
-          background: #161b22;
-
-          border-bottom: 1px solid rgba(255,255,255,.06);
+          justify-content: center;
         }
 
-        .loader-terminal-topbar span {
-          width: 9px;
-          height: 9px;
+        .loader-ring-svg {
+          width: 100%;
+          height: 100%;
+
+          animation: loaderSpin 1.4s linear infinite;
+
+          filter: drop-shadow(0 0 16px rgba(59,95,224,.55));
+        }
+
+        .loader-ring-track {
+          fill: none;
+
+          stroke: rgba(255,255,255,.08);
+
+          stroke-width: 3;
+        }
+
+        .loader-ring-arc {
+          fill: none;
+
+          stroke: url(#loaderGradient);
+
+          stroke-width: 3;
+
+          stroke-linecap: round;
+
+          stroke-dasharray: 105 240;
+
+          transform-origin: 60px 60px;
+        }
+
+        .loader-center-dot {
+          position: absolute;
+
+          width: 14px;
+          height: 14px;
 
           border-radius: 50%;
 
-          display: inline-block;
+          background: linear-gradient(135deg, #3B5FE0, #C1793F);
+
+          animation: loaderPulseDot 1.4s ease-in-out infinite;
         }
 
-        .loader-terminal-topbar span:nth-child(1) { background: #ff5f56; }
-        .loader-terminal-topbar span:nth-child(2) { background: #ffbd2e; }
-        .loader-terminal-topbar span:nth-child(3) { background: #27c93f; }
+        .loader-orbit-dot {
+          position: absolute;
 
-        .loader-terminal-label {
-          margin-left: 8px;
+          width: 8px;
+          height: 8px;
 
-          font-size: 10px;
+          border-radius: 50%;
 
-          letter-spacing: .08em;
+          background: #C1793F;
 
-          color: rgba(255,255,255,.3);
+          box-shadow: 0 0 10px 2px rgba(193,121,63,.7);
+
+          top: 50%;
+          left: 50%;
+
+          transform-origin: -1px 65px;
+
+          animation: loaderOrbit 2.1s linear infinite reverse;
         }
 
-        .loader-terminal-body {
-          padding: 20px 16px 24px;
-
-          font-size: 13px;
-
-          display: flex;
-
-          align-items: center;
-
-          white-space: nowrap;
+        @keyframes loaderSpin {
+          to { transform: rotate(360deg); }
         }
 
-        .loader-prompt {
-          color: #3B5FE0;
+        @keyframes loaderPulseDot {
+          0%, 100% {
+            transform: scale(.7);
+            opacity: .6;
+          }
 
-          margin-right: 8px;
-
-          font-weight: 700;
+          50% {
+            transform: scale(1.2);
+            opacity: 1;
+          }
         }
 
-        .loader-typed-text {
-          display: inline-block;
-
-          overflow: hidden;
-
-          width: 0;
-
-          color: #7ee787;
-
-          animation: loaderTyping 1.6s steps(23, end) forwards;
-        }
-
-        .loader-cursor {
-          display: inline-block;
-
-          width: 7px;
-
-          margin-left: 3px;
-
-          color: #7ee787;
-
-          animation: loaderCursorBlink .8s steps(1) infinite;
-        }
-
-        .loader-progress-track {
-          height: 3px;
-
-          background: rgba(255,255,255,.06);
-
-          overflow: hidden;
-        }
-
-        .loader-progress-bar {
-          height: 100%;
-
-          width: 0%;
-
-          background: linear-gradient(90deg, #3B5FE0, #C1793F);
-
-          animation: loaderProgress 1.9s cubic-bezier(.65,0,.35,1) forwards;
-        }
-
-        @keyframes loaderTyping {
-          from { width: 0; }
-          to { width: 15ch; }
-        }
-
-        @keyframes loaderCursorBlink {
-          50% { opacity: 0; }
-        }
-
-        @keyframes loaderProgress {
-          from { width: 0%; }
-          to { width: 100%; }
-        }
-
-        @keyframes loaderFloat {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-6px); }
+        @keyframes loaderOrbit {
+          from { transform: translate(-50%, -50%) rotate(0deg); }
+          to { transform: translate(-50%, -50%) rotate(360deg); }
         }
 
         /* Remove loader */
