@@ -648,12 +648,23 @@ const [skillsLoading, setSkillsLoading] = useState(true);
       <>
     {loading && (
       <div className="page-loader">
-        <div className="loader-circle">
-          <div className="loader-inner"></div>
-        </div>
+        <div className="loader-terminal">
+          <div className="loader-terminal-topbar">
+            <span></span>
+            <span></span>
+            <span></span>
+            <span className="loader-terminal-label">portfolio.sh</span>
+          </div>
 
-        <div className="loader-text">
-          LOADING
+          <div className="loader-terminal-body">
+            <span className="loader-prompt">$</span>
+            <span className="loader-typed-text">building_site...</span>
+            <span className="loader-cursor">▋</span>
+          </div>
+
+          <div className="loader-progress-track">
+            <div className="loader-progress-bar"></div>
+          </div>
         </div>
       </div>
     )}
@@ -2970,115 +2981,159 @@ const [skillsLoading, setSkillsLoading] = useState(true);
           z-index: 999999;
 
           display: flex;
-          flex-direction: column;
           align-items: center;
           justify-content: center;
 
-          background: #050505;
+          background:
+            radial-gradient(
+              circle at 50% 40%,
+              #10131b,
+              #050505
+            );
+
           color: #ffffff;
 
           animation: loaderFadeOut 0.6s ease 1.4s forwards;
         }
 
-        /* Circle */
+        /* Terminal window */
 
-        .loader-circle {
-          position: relative;
+        .loader-terminal {
+          width: 300px;
 
-          width: 90px;
-          height: 90px;
+          border-radius: 12px;
 
-          border-radius: 50%;
+          background: #0d1117;
 
-          border: 1px solid rgba(255,255,255,0.15);
+          border: 1px solid rgba(255,255,255,0.08);
 
+          overflow: hidden;
+
+          font-family: 'Courier New', monospace;
+
+          box-shadow:
+            0 40px 90px -20px rgba(59,95,224,.4),
+            0 0 0 1px rgba(255,255,255,.03);
+
+          animation: loaderFloat 2.4s ease-in-out infinite;
+        }
+
+        .loader-terminal-topbar {
           display: flex;
+
           align-items: center;
-          justify-content: center;
+
+          gap: 6px;
+
+          padding: 10px 14px;
+
+          background: #161b22;
+
+          border-bottom: 1px solid rgba(255,255,255,.06);
         }
 
-        /* Animated ring */
-
-        .loader-circle::before {
-          content: "";
-
-          position: absolute;
-          inset: -1px;
+        .loader-terminal-topbar span {
+          width: 9px;
+          height: 9px;
 
           border-radius: 50%;
 
-          border: 2px solid transparent;
-
-          border-top-color: #ffffff;
-
-          animation: loaderSpin 0.9s linear infinite;
+          display: inline-block;
         }
 
-        /* Inner circle */
+        .loader-terminal-topbar span:nth-child(1) { background: #ff5f56; }
+        .loader-terminal-topbar span:nth-child(2) { background: #ffbd2e; }
+        .loader-terminal-topbar span:nth-child(3) { background: #27c93f; }
 
-        .loader-inner {
-          width: 12px;
-          height: 12px;
-
-          border-radius: 50%;
-
-          background: #ffffff;
-
-          animation: loaderPulse 1s ease-in-out infinite;
-        }
-
-        /* Text */
-
-        .loader-text {
-          margin-top: 22px;
+        .loader-terminal-label {
+          margin-left: 8px;
 
           font-size: 10px;
 
-          letter-spacing: 0.35em;
+          letter-spacing: .08em;
 
-          color: rgba(255,255,255,0.5);
-
-          animation: loaderTextPulse 1s ease-in-out infinite;
+          color: rgba(255,255,255,.3);
         }
 
-        /* Spin */
+        .loader-terminal-body {
+          padding: 20px 16px 24px;
 
-        @keyframes loaderSpin {
-          from {
-            transform: rotate(0deg);
-          }
+          font-size: 13px;
 
-          to {
-            transform: rotate(360deg);
-          }
+          display: flex;
+
+          align-items: center;
+
+          white-space: nowrap;
         }
 
-        /* Pulse */
+        .loader-prompt {
+          color: #3B5FE0;
 
-        @keyframes loaderPulse {
-          0%,
-          100% {
-            transform: scale(0.7);
-            opacity: 0.5;
-          }
+          margin-right: 8px;
 
-          50% {
-            transform: scale(1.2);
-            opacity: 1;
-          }
+          font-weight: 700;
         }
 
-        /* Text pulse */
+        .loader-typed-text {
+          display: inline-block;
 
-        @keyframes loaderTextPulse {
-          0%,
-          100% {
-            opacity: 0.35;
-          }
+          overflow: hidden;
 
-          50% {
-            opacity: 1;
-          }
+          width: 0;
+
+          color: #7ee787;
+
+          animation: loaderTyping 1.6s steps(23, end) forwards;
+        }
+
+        .loader-cursor {
+          display: inline-block;
+
+          width: 7px;
+
+          margin-left: 3px;
+
+          color: #7ee787;
+
+          animation: loaderCursorBlink .8s steps(1) infinite;
+        }
+
+        .loader-progress-track {
+          height: 3px;
+
+          background: rgba(255,255,255,.06);
+
+          overflow: hidden;
+        }
+
+        .loader-progress-bar {
+          height: 100%;
+
+          width: 0%;
+
+          background: linear-gradient(90deg, #3B5FE0, #C1793F);
+
+          animation: loaderProgress 1.9s cubic-bezier(.65,0,.35,1) forwards;
+        }
+
+        @keyframes loaderTyping {
+          from { width: 0; }
+          to { width: 15ch; }
+        }
+
+        @keyframes loaderCursorBlink {
+          50% { opacity: 0; }
+        }
+
+        @keyframes loaderProgress {
+          from { width: 0%; }
+          to { width: 100%; }
+        }
+
+        @keyframes loaderFloat {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-6px); }
         }
 
         /* Remove loader */
