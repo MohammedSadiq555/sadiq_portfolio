@@ -60,11 +60,11 @@ const PROJECTS = [
 const EDUCATION = [
   {
     id: 1,
-    institution: "Daniel Matriculation Higher Secondary School",
-    degree: "SSLC",
+    institution: "SSLC",
+    degree: "",
     start: "2008",
     end: "2020",
-    description:
+    description:Daniel Matriculation Higher Secondary School
       "",
     achievements: [
     ],
@@ -73,11 +73,11 @@ const EDUCATION = [
   },
   {
     id: 2,
-    institution: "Daniel Matriculation Higher Secondary School",
+    institution: "HSC",
     degree: "Maths With Computer",
     start: "2020",
     end: "2022",
-    description:
+    description:Daniel Matriculation Higher Secondary School
       "",
     achievements: [
     ],
