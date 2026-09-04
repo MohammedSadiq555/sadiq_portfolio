@@ -64,7 +64,7 @@ const EDUCATION = [
     degree: "",
     start: "2008",
     end: "2020",
-    description:Daniel Matriculation Higher Secondary School
+    description:"Daniel Matriculation Higher Secondary School"
       "",
     achievements: [
     ],
@@ -77,7 +77,7 @@ const EDUCATION = [
     degree: "Maths With Computer",
     start: "2020",
     end: "2022",
-    description:Daniel Matriculation Higher Secondary School
+    description:"Daniel Matriculation Higher Secondary School"
       "",
     achievements: [
     ],
