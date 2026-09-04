@@ -2,6 +2,70 @@ import React, { useState, useEffect, useRef } from "react";
 
 const TYPE_WORDS = ["Programmer", "Web Developer", "Designer"];
 
+const PROJECTS = [
+  {
+    id: 1,
+    title: "Meridian",
+    image:
+      "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&q=80",
+    description:
+      "A real-time collaborative design tool with conflict-free multiplayer editing and version history.",
+    longDescription:
+      "Meridian lets multiple designers work on the same canvas simultaneously without conflicts, using a CRDT-based sync engine. Built for teams that need Figma-like collaboration without the latency.",
+    tech: ["React", "WebRTC", "Rust"],
+    github: "#",
+    live: "#",
+  },
+  {
+    id: 2,
+    title: "Fieldnote",
+    image:
+      "https://images.unsplash.com/photo-1517842645767-c639042777db?w=600&q=80",
+    description:
+      "Offline-first note-taking for researchers, with local-first sync and citation graphing.",
+    longDescription:
+      "Fieldnote works fully offline and syncs when a connection is available. It automatically builds a citation graph as you write, connecting notes to sources and to each other.",
+    tech: ["Next.js", "SQLite", "CRDT"],
+    github: "#",
+    live: "#",
+  },
+  {
+    id: 3,
+    title: "Lumen CLI",
+    image:
+      "https://images.unsplash.com/photo-1629654297299-c8506221ca97?w=600&q=80",
+    description:
+      "A terminal companion that turns shell history into searchable, taggable knowledge.",
+    longDescription:
+      "Lumen indexes your shell history locally, lets you tag and annotate commands, and turns your terminal into a personal knowledge base you can search in plain English.",
+    tech: ["Go", "BoltDB"],
+    github: "#",
+    live: "#",
+  },
+  {
+    id: 4,
+    title: "Atlas UI",
+    image:
+      "https://images.unsplash.com/photo-1522542550221-31fd19575a2d?w=600&q=80",
+    description:
+      "An open component library built around motion-first design tokens and accessible primitives.",
+    longDescription:
+      "Atlas UI is a component library where every component ships with motion baked in from a shared token system, while remaining fully accessible and keyboard-navigable out of the box.",
+    tech: ["TypeScript", "Vite", "Radix"],
+    github: "#",
+    live: "#",
+  },
+];
+
+const EDUCATION = [
+  {
+    id: 1,
+    institution: "SSLC",
+    degree: "",
+    start: "2008",
+    end: "2020",
+    description:
+      "Daniel Matriculation Higher Secondary School",
     achievements: [
     ],
   },
@@ -433,58 +497,6 @@ useEffect(() => {
   const [theme, setTheme] =
     useState("dark");
   const [skills, setSkills] = useState([]);
-  const [projects, setProjects] = useState([]);
-  const [projectsLoading, setProjectsLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchProjects = async () => {
-      try {
-        const response = await fetch(
-          "https://personal-zld4pieb.outsystemscloud.com/SadiqPortfolio/rest/ProjectsAPI/getProject"
-        );
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-
-        const data = await response.json();
-
-        console.log("Projects API response:", data);
-
-        const formattedProjects = data.map((item) => {
-          const project = item.Projects || item;
-
-          return {
-            id: project.Id,
-            title: project.ProjectName || project.projectname || "Untitled Project",
-            image: project.ImageLink || project.imagelink || "",
-            description: project.Description || project.description || "",
-            longDescription:
-              project.LongDescription ||
-              project.longdescription ||
-              project.Description ||
-              project.description ||
-              "",
-            tech: project.Technology
-              ? project.Technology.split(",").map((t) => t.trim()).filter(Boolean)
-              : project.Technologies
-                ? project.Technologies.split(",").map((t) => t.trim()).filter(Boolean)
-                : [],
-            github: project.GithubLink || project.GitHubLink || project.github || "#",
-            live: project.LiveLink || project.live || "#",
-          };
-        });
-
-        setProjects(formattedProjects);
-      } catch (error) {
-        console.error("Failed to fetch projects:", error);
-      } finally {
-        setProjectsLoading(false);
-      }
-    };
-
-    fetchProjects();
-  }, []);
 const [skillsLoading, setSkillsLoading] = useState(true);
   useEffect(() => {
   const fetchSkills = async () => {
@@ -3342,19 +3354,10 @@ const [skillsLoading, setSkillsLoading] = useState(true);
             "project-grid"
         >
 
-          {projectsLoading ? (
-            <div style={{ gridColumn: "1 / -1", textAlign: "center", padding: "40px", color: "var(--text-muted)" }}>
-              Loading projects...
-            </div>
-          ) : projects.length === 0 ? (
-            <div style={{ gridColumn: "1 / -1", textAlign: "center", padding: "40px", color: "var(--text-muted)" }}>
-              No projects available.
-            </div>
-          ) : (
-            projects.map(
-              (p) => (
+          {PROJECTS.map(
+            (p) => (
 
-                <button
+              <button
                 className=
                   "project-card"
                 key={p.id}
@@ -3408,9 +3411,8 @@ const [skillsLoading, setSkillsLoading] = useState(true);
 
                 </div>
 
-                </button>
+              </button>
 
-              )
             )
           )}
 
