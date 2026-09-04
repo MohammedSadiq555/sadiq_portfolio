@@ -1255,10 +1255,12 @@ const [projectsLoading, setProjectsLoading] = useState(true);
         .project-card-body {
           padding:
             22px 26px 26px;
+            
         }
 
         .project-card h3 {
           font-size: 20px;
+          color: #ffffff;
 
           margin:
             0 0 10px;
