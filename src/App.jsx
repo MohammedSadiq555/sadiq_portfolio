@@ -473,7 +473,7 @@ export default function App() {
 useEffect(() => {
   const timer = setTimeout(() => {
     setLoading(false);
-  }, 4000);
+  }, 5000);
 
   return () => clearTimeout(timer);
 }, []);
@@ -2990,7 +2990,7 @@ const [skillsLoading, setSkillsLoading] = useState(true);
 
           color: #ffffff;
 
-          animation: loaderFadeOut 0.6s ease 1.4s forwards;
+          animation: loaderFadeOut 0.6s ease 3.4s forwards;
         }
 
         .loader-circle-wrap {
