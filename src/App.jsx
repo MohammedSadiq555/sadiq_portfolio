@@ -531,15 +531,6 @@ function SkillsDock({ skills }) {
    ========================================================= */
 
 export default function App() {
-  const [loading, setLoading] = useState(true);
-
-useEffect(() => {
-  const timer = setTimeout(() => {
-    setLoading(false);
-  }, 2000);
-
-  return () => clearTimeout(timer);
-}, []);
   const [theme, setTheme] =
     useState("dark");
   const [skills, setSkills] = useState([]);
@@ -708,18 +699,6 @@ const [skillsLoading, setSkillsLoading] = useState(true);
     );
 
   return (
-      <>
-    {loading && (
-      <div className="page-loader">
-        <div className="loader-circle">
-          <div className="loader-inner"></div>
-        </div>
-
-        <div className="loader-text">
-          LOADING
-        </div>
-      </div>
-    )}
     <div
       className={
         isDark
@@ -2926,152 +2905,7 @@ const [skillsLoading, setSkillsLoading] = useState(true);
           }
         }
 
-      `}
-      /* =========================================================
-   INITIAL PAGE LOADER
-========================================================= */
-
-.page-loader {
-  position: fixed;
-  inset: 0;
-
-  z-index: 999999;
-
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-
-  background: #050505;
-  color: #ffffff;
-
-  animation: loaderFadeOut 0.6s ease 1.4s forwards;
-}
-
-
-/* Circle */
-
-.loader-circle {
-  position: relative;
-
-  width: 90px;
-  height: 90px;
-
-  border-radius: 50%;
-
-  border: 1px solid rgba(255,255,255,0.15);
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-
-/* Animated ring */
-
-.loader-circle::before {
-  content: "";
-
-  position: absolute;
-  inset: -1px;
-
-  border-radius: 50%;
-
-  border: 2px solid transparent;
-
-  border-top-color: #ffffff;
-
-  animation: loaderSpin 0.9s linear infinite;
-}
-
-
-/* Inner circle */
-
-.loader-inner {
-  width: 12px;
-  height: 12px;
-
-  border-radius: 50%;
-
-  background: #ffffff;
-
-  animation: loaderPulse 1s ease-in-out infinite;
-}
-
-
-/* Text */
-
-.loader-text {
-  margin-top: 22px;
-
-  font-size: 10px;
-
-  letter-spacing: 0.35em;
-
-  color: rgba(255,255,255,0.5);
-
-  animation: loaderTextPulse 1s ease-in-out infinite;
-}
-
-
-/* Spin */
-
-@keyframes loaderSpin {
-  from {
-    transform: rotate(0deg);
-  }
-
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-
-/* Pulse */
-
-@keyframes loaderPulse {
-  0%,
-  100% {
-    transform: scale(0.7);
-    opacity: 0.5;
-  }
-
-  50% {
-    transform: scale(1.2);
-    opacity: 1;
-  }
-}
-
-
-/* Text pulse */
-
-@keyframes loaderTextPulse {
-  0%,
-  100% {
-    opacity: 0.35;
-  }
-
-  50% {
-    opacity: 1;
-  }
-}
-
-
-/* Remove loader */
-
-@keyframes loaderFadeOut {
-  from {
-    opacity: 1;
-    visibility: visible;
-  }
-
-  to {
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
-  }
-}
-      </style>
+      `}</style>
 
 
       {/* =================================================
@@ -4579,6 +4413,5 @@ const [skillsLoading, setSkillsLoading] = useState(true);
       </footer>
 
     </div>
-        </>
   );
 }
