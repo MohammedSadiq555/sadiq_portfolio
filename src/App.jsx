@@ -504,10 +504,9 @@ const [projectsLoading, setProjectsLoading] = useState(true);
             project.projectname ||
             "Untitled Project",
 
-          image:
-            project.ImageLink ||
-            project.imagelink ||
-            "",
+ image: project.ImageLink
+  ? `data:image/png;base64,${project.ImageLink}`
+  : "",
 
           description:
             project.Description ||
