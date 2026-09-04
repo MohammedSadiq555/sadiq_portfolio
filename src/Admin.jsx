@@ -1,1538 +1,689 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
+
+const TYPE_WORDS = ["Programmer", "Web Developer", "Designer"];
+
+    achievements: [
+    ],
+  },
+  {
+    id: 2,
+    institution: "HSC",
+    degree: "Maths With Computer",
+    start: "2020",
+    end: "2022",
+    description:
+      "Daniel Matriculation Higher Secondary School",
+    achievements: [
+    ],
+  },
+  {
+    id: 3,
+    institution: "Bachelor Of Technology",
+    degree: "Artificial Intelligence & Data Science",
+    start: "2022",
+    end: "2026",
+    description:
+      "Dhaanish Ahmed College Of Engineering, Anna University",
+    achievements: [
+    ],
+  },
+ 
+];
 
 /* =========================================================
-   SKILLS APIs
+   EDUCATION AUTO-LAYOUT
+   Positions each node automatically from its index and the
+   total count, so the curve always fits however many
+   education entries exist — no manual x/y needed.
    ========================================================= */
 
-const SKILLS_GET_API =
-  "https://personal-zld4pieb.outsystemscloud.com/SadiqPortfolio/rest/Skillsget/Skillsget";
+function layoutEduNodes(nodes) {
+  const n = nodes.length;
 
-const SKILLS_CREATE_API =
-  "https://personal-zld4pieb.outsystemscloud.com/SadiqPortfolio/rest/Skillsget/SkillsCreate";
+  return nodes.map((node, i) => {
+    const x =
+      n > 1
+        ? 8 + (84 * i) / (n - 1)
+        : 50;
 
-const SKILLS_UPDATE_API =
-  "https://personal-zld4pieb.outsystemscloud.com/SadiqPortfolio/rest/Skillsget/SkillsUpdate";
+    const y =
+      i % 2 === 0 ? 68 : 26;
 
-const SKILLS_DELETE_API =
-  "https://personal-zld4pieb.outsystemscloud.com/SadiqPortfolio/rest/Skillsget/SkillDelete";
-
+    return { ...node, x, y };
+  });
+}
 
 /* =========================================================
-   PROJECT APIs
+   EXPERIENCE
    ========================================================= */
 
-const PROJECT_GET_API =
-  "https://personal-zld4pieb.outsystemscloud.com/SadiqPortfolio/rest/ProjectsAPI/getProject";
+const EXPERIENCE = [
+  {
+    id: 1,
+    company: "Fieldwork Studio",
+    position: "Lead Product Engineer",
+    type: "Full-time",
+    start: "2023",
+    end: "Present",
+    current: true,
+    photo:
+      "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=700&q=80",
+    description:
+      "Building the product and design practice from the ground up — from early prototypes through to a production platform now used by thousands of teams. I own the architecture end to end, from the interface down to the database, and work closely with design on everything that ships.",
+    tech: ["React", "Supabase", "Tailwind", "Node.js"],
+    achievements: [
+      "Shipped a 0→1 product now used by 12k teams",
+      "Built the design system the whole product runs on",
+      "Reduced infra costs by 40% through a platform migration",
+    ],
+  },
 
-const PROJECT_CREATE_API =
-  "https://personal-zld4pieb.outsystemscloud.com/SadiqPortfolio/rest/ProjectsAPI/CreateProject";
+  {
+    id: 2,
+    company: "Previous Company",
+    position: "Software Developer",
+    type: "Full-time",
+    start: "2021",
+    end: "2023",
+    current: false,
+    description:
+      "Worked on scalable web applications and backend systems, collaborating with designers and engineers to ship reliable products.",
+    tech: ["React", "Node.js", "PostgreSQL"],
+    achievements: [
+      "Developed production web applications",
+      "Improved application performance",
+      "Collaborated with cross-functional teams",
+    ],
+  },
 
-const PROJECT_UPDATE_API =
-  "https://personal-zld4pieb.outsystemscloud.com/SadiqPortfolio/rest/ProjectsAPI/UpdateProject";
+  {
+    id: 3,
+    company: "Earlier Company",
+    position: "Junior Developer",
+    type: "Full-time",
+    start: "2019",
+    end: "2021",
+    current: false,
+    description:
+      "Worked on frontend applications and internal tools while developing strong foundations in modern web development.",
+    tech: ["JavaScript", "React", "Git"],
+    achievements: [
+      "Built internal tools",
+      "Created reusable UI components",
+      "Worked with version control and agile workflows",
+    ],
+  },
 
-const PROJECT_DELETE_API =
-  "https://personal-zld4pieb.outsystemscloud.com/SadiqPortfolio/rest/ProjectsAPI/DeleteProject";
+  {
+    id: 4,
+    company: "First Company",
+    position: "Software Intern",
+    type: "Internship",
+    start: "2018",
+    end: "2019",
+    current: false,
+    description:
+      "Started my professional development journey by working on frontend interfaces and internal software tools.",
+    tech: ["JavaScript", "HTML", "CSS"],
+    achievements: [
+      "Built frontend components",
+      "Learned professional development practices",
+      "Worked with senior developers",
+    ],
+  },
+];
 
+const NAV_LINKS = [
+  "home",
+  "projects",
+  "education",
+  "experience",
+  "skills",
+  "products",
+  "contact",
+];
 
 /* =========================================================
-   ADMIN
+   TYPEWRITER
    ========================================================= */
 
-export default function Admin() {
-
-  /* =======================================================
-     GENERAL
-     ======================================================= */
-
-  const [activeTab, setActiveTab] =
-    useState("dashboard");
-
-  const [darkMode, setDarkMode] =
-    useState(true);
-
-
-  /* =======================================================
-     SKILLS
-     ======================================================= */
-
-  const [skills, setSkills] =
-    useState([]);
-
-  const [skillsLoading, setSkillsLoading] =
-    useState(false);
-
-  const [skillsError, setSkillsError] =
-    useState("");
-
-
-  /* =======================================================
-     ADD SKILL
-     ======================================================= */
-
-  const [showAddSkill, setShowAddSkill] =
-    useState(false);
-
-  const [newSkillName, setNewSkillName] =
-    useState("");
-
-  const [newSkillImage, setNewSkillImage] =
-    useState("");
-
-  const [addingSkill, setAddingSkill] =
-    useState(false);
-
-
-  /* =======================================================
-     EDIT SKILL
-     ======================================================= */
-
-  const [selectedSkill, setSelectedSkill] =
-    useState(null);
-
-  const [editSkillName, setEditSkillName] =
-    useState("");
-
-  const [editSkillImage, setEditSkillImage] =
-    useState("");
-
-  const [updatingSkill, setUpdatingSkill] =
-    useState(false);
-
-  const [deletingSkill, setDeletingSkill] =
-    useState(false);
-
-
-  /* =======================================================
-     PROJECTS
-     ======================================================= */
-
-  const [projects, setProjects] =
-    useState([]);
-
-  const [projectsLoading, setProjectsLoading] =
-    useState(false);
-
-  const [projectsError, setProjectsError] =
-    useState("");
-
-
-  /* =======================================================
-     ADD PROJECT
-     ======================================================= */
-
-  const [showAddProject, setShowAddProject] =
-    useState(false);
-
-  const [creatingProject, setCreatingProject] =
-    useState(false);
-
-  const [projectError, setProjectError] =
-    useState("");
-
-
-  /* =======================================================
-     CREATE PROJECT FORM
-     ======================================================= */
-
-  const [projectName, setProjectName] =
-    useState("");
-
-  const [projectDescription, setProjectDescription] =
-    useState("");
-
-  const [projectImage, setProjectImage] =
-    useState(null);
-
-  const [projectImagePreview, setProjectImagePreview] =
-    useState("");
-
-  const [projectGithubURL, setProjectGithubURL] =
-    useState("");
-
-  const [projectURL, setProjectURL] =
-    useState("");
-
-  const [projectYear, setProjectYear] =
-    useState("");
-
-  const [selectedSkillIds, setSelectedSkillIds] =
-    useState([]);
-
-
-  /* =======================================================
-     EDIT PROJECT
-     ======================================================= */
-
-  const [selectedProject, setSelectedProject] =
-    useState(null);
-
-  const [editProjectName, setEditProjectName] =
-    useState("");
-
-  const [editProjectDescription, setEditProjectDescription] =
-    useState("");
-
-  const [editProjectGithubURL, setEditProjectGithubURL] =
-    useState("");
-
-  const [editProjectURL, setEditProjectURL] =
-    useState("");
-
-  const [editProjectYear, setEditProjectYear] =
-    useState("");
-
-  const [updatingProject, setUpdatingProject] =
-    useState(false);
-
-  const [deletingProject, setDeletingProject] =
-    useState(false);
-
-
-  /* =======================================================
-     GET SKILLS
-     ======================================================= */
-
-  const fetchSkills = async () => {
-
-    try {
-
-      setSkillsLoading(true);
-      setSkillsError("");
-
-      const response =
-        await fetch(
-          SKILLS_GET_API,
-          {
-            method: "GET"
-          }
-        );
-
-      if (!response.ok) {
-
-        throw new Error(
-          `HTTP ${response.status}`
-        );
-
-      }
-
-      const data =
-        await response.json();
-
-      console.log(
-        "Skills Response:",
-        data
-      );
-
-
-      const formattedSkills =
-        Array.isArray(data)
-          ? data.map((item) => {
-
-              const skill =
-                item.Skills ||
-                item;
-
-              return {
-
-                id:
-                  skill.Id,
-
-                name:
-                  skill.skillname ||
-                  skill.Name ||
-                  "",
-
-                icon:
-                  skill.imagelink ||
-                  skill.ImageURL ||
-                  ""
-
-              };
-
-            })
-          : [];
-
-
-      setSkills(
-        formattedSkills
-      );
-
-    } catch (error) {
-
-      console.error(
-        "Skills GET Error:",
-        error
-      );
-
-      setSkillsError(
-        "Unable to load skills."
-      );
-
-    } finally {
-
-      setSkillsLoading(false);
-
-    }
-
-  };
-
-
-  /* =======================================================
-     GET PROJECTS
-     ======================================================= */
-
-  const fetchProjects = async () => {
-
-    try {
-
-      setProjectsLoading(true);
-      setProjectsError("");
-
-      const response =
-        await fetch(
-          PROJECT_GET_API,
-          {
-            method: "GET"
-          }
-        );
-
-
-      if (!response.ok) {
-
-        throw new Error(
-          `HTTP ${response.status}`
-        );
-
-      }
-
-
-      /*
-       Your API is expected to
-       return JSON.
-      */
-
-      const data =
-        await response.json();
-
-
-      console.log(
-        "Projects Response:",
-        data
-      );
-
-
-      /*
-       Handle different possible
-       OutSystems response structures.
-      */
-
-      let projectList = [];
-
-      if (Array.isArray(data)) {
-
-        projectList =
-          data;
-
-      } else if (
-        Array.isArray(
-          data.Projects
-        )
-      ) {
-
-        projectList =
-          data.Projects;
-
-      } else if (
-        Array.isArray(
-          data.List
-        )
-      ) {
-
-        projectList =
-          data.List;
-
-      } else if (
-        Array.isArray(
-          data.Data
-        )
-      ) {
-
-        projectList =
-          data.Data;
-
-      }
-
-
-      const formattedProjects =
-        projectList.map(
-          (item) => {
-
-            const project =
-              item.Projects ||
-              item.Project ||
-              item;
-
-
-            return {
-
-              id:
-                project.Id ||
-                project.ID ||
-                project.projectID,
-
-              name:
-                project.Name ||
-                project.name ||
-                "",
-
-              description:
-                project.Description ||
-                project.description ||
-                "",
-
- image: project.ImageLink
-  ? `data:image/png;base64,${project.ImageLink}`
-  : "",
-
-              githubURL:
-                project.GithubURL ||
-                project.GithubLink ||
-                project.githubURL ||
-                project.githubLink ||
-                "",
-
-              projectURL:
-                project.ProjectURL ||
-                project.ProjectLink ||
-                project.projectURL ||
-                project.projectLink ||
-                "",
-
-              year:
-                project.Year ||
-                project.year ||
-                "",
-
-              skillIds:
-                project.SkillIds ||
-                project.SkillIDs ||
-                project.skillIds ||
-                []
-
-            };
-
-          }
-        );
-
-
-      setProjects(
-        formattedProjects
-      );
-
-    } catch (error) {
-
-      console.error(
-        "Projects GET Error:",
-        error
-      );
-
-      setProjectsError(
-        "Unable to load projects."
-      );
-
-    } finally {
-
-      setProjectsLoading(false);
-
-    }
-     console.log(
-  "Projects Response:",
-  data
-);
-
-  };
-
-
-  /* =======================================================
-     INITIAL LOAD
-     ======================================================= */
+function useTypewriter(
+  words,
+  typingSpeed = 90,
+  deletingSpeed = 45,
+  pause = 1400
+) {
+  const [index, setIndex] = useState(0);
+  const [subIndex, setSubIndex] = useState(0);
+  const [deleting, setDeleting] = useState(false);
+  const [blink, setBlink] = useState(true);
 
   useEffect(() => {
-
-    fetchSkills();
-
-    fetchProjects();
-
-  }, []);
-
-
-  /* =======================================================
-     ADD SKILL
-     ======================================================= */
-
-  const openAddSkill = () => {
-
-    setNewSkillName("");
-    setNewSkillImage("");
-
-    setShowAddSkill(true);
-
-  };
-
-
-  const closeAddSkill = () => {
-
-    if (addingSkill) {
-      return;
-    }
-
-    setShowAddSkill(false);
-
-  };
-
-
-  /* =======================================================
-     CREATE SKILL
-     ======================================================= */
-
-  const handleCreateSkill =
-    async (e) => {
-
-      e.preventDefault();
-
-
-      if (!newSkillName.trim()) {
-
-        alert(
-          "Please enter a skill name."
-        );
-
-        return;
-
-      }
-
-
-      if (!newSkillImage.trim()) {
-
-        alert(
-          "Please enter an image URL."
-        );
-
-        return;
-
-      }
-
-
-      try {
-
-        setAddingSkill(true);
-
-
-        const url =
-          `${SKILLS_CREATE_API}` +
-          `?Name=${encodeURIComponent(
-            newSkillName.trim()
-          )}` +
-          `&InputURL=${encodeURIComponent(
-            newSkillImage.trim()
-          )}`;
-
-
-        const response =
-          await fetch(
-            url,
-            {
-              method: "POST"
-            }
-          );
-
-
-        if (!response.ok) {
-
-          throw new Error(
-            `HTTP ${response.status}`
-          );
-
-        }
-
-
-        alert(
-          "Skill created successfully!"
-        );
-
-
-        closeAddSkill();
-
-        await fetchSkills();
-
-      } catch (error) {
-
-        console.error(
-          "Create Skill Error:",
-          error
-        );
-
-        alert(
-          "Failed to create skill."
-        );
-
-      } finally {
-
-        setAddingSkill(false);
-
-      }
-
-    };
-
-
-  /* =======================================================
-     EDIT SKILL
-     ======================================================= */
-
-  const openEditSkill =
-    (skill) => {
-
-      setSelectedSkill(
-        skill
-      );
-
-      setEditSkillName(
-        skill.name
-      );
-
-      setEditSkillImage(
-        skill.icon
-      );
-
-    };
-
-
-  const closeEditSkill = () => {
-
     if (
-      updatingSkill ||
-      deletingSkill
+      subIndex === words[index].length + 1 &&
+      !deleting
     ) {
+      const t = setTimeout(
+        () => setDeleting(true),
+        pause
+      );
 
-      return;
-
+      return () => clearTimeout(t);
     }
 
-    setSelectedSkill(null);
-
-  };
-
-
-  /* =======================================================
-     UPDATE SKILL
-     ======================================================= */
-
-  const handleUpdateSkill =
-    async (e) => {
-
-      e.preventDefault();
-
-
-      if (!selectedSkill) {
-        return;
-      }
-
-
-      if (!editSkillName.trim()) {
-
-        alert(
-          "Please enter a skill name."
-        );
-
-        return;
-
-      }
-
-
-      if (!editSkillImage.trim()) {
-
-        alert(
-          "Please enter an image URL."
-        );
-
-        return;
-
-      }
-
-
-      try {
-
-        setUpdatingSkill(true);
-
-
-        const url =
-          `${SKILLS_UPDATE_API}` +
-          `?SkillId=${encodeURIComponent(
-            selectedSkill.id
-          )}` +
-          `&Name=${encodeURIComponent(
-            editSkillName.trim()
-          )}` +
-          `&InputURL=${encodeURIComponent(
-            editSkillImage.trim()
-          )}`;
-
-
-        const response =
-          await fetch(
-            url,
-            {
-              method: "PUT"
-            }
-          );
-
-
-        if (!response.ok) {
-
-          throw new Error(
-            `HTTP ${response.status}`
-          );
-
-        }
-
-
-        alert(
-          "Skill updated successfully!"
-        );
-
-
-        closeEditSkill();
-
-        await fetchSkills();
-
-      } catch (error) {
-
-        console.error(
-          "Update Skill Error:",
-          error
-        );
-
-        alert(
-          "Failed to update skill."
-        );
-
-      } finally {
-
-        setUpdatingSkill(false);
-
-      }
-
-    };
-
-
-  /* =======================================================
-     DELETE SKILL
-     ======================================================= */
-
-  const handleDeleteSkill =
-    async () => {
-
-      if (!selectedSkill) {
-        return;
-      }
-
-
-      const confirmed =
-        window.confirm(
-          `Delete "${selectedSkill.name}"?`
-        );
-
-
-      if (!confirmed) {
-        return;
-      }
-
-
-      try {
-
-        setDeletingSkill(true);
-
-
-        const url =
-          `${SKILLS_DELETE_API}` +
-          `?SkillId=${encodeURIComponent(
-            selectedSkill.id
-          )}`;
-
-
-        const response =
-          await fetch(
-            url,
-            {
-              method: "DELETE"
-            }
-          );
-
-
-        if (!response.ok) {
-
-          throw new Error(
-            `HTTP ${response.status}`
-          );
-
-        }
-
-
-        alert(
-          "Skill deleted successfully!"
-        );
-
-
-        closeEditSkill();
-
-        await fetchSkills();
-
-      } catch (error) {
-
-        console.error(
-          "Delete Skill Error:",
-          error
-        );
-
-        alert(
-          "Failed to delete skill."
-        );
-
-      } finally {
-
-        setDeletingSkill(false);
-
-      }
-
-    };
-
-
-  /* =======================================================
-     PROJECT IMAGE
-     ======================================================= */
-
-  const handleProjectImageChange =
-    (e) => {
-
-      const file =
-        e.target.files?.[0];
-
-
-      if (!file) {
-
-        setProjectImage(null);
-        setProjectImagePreview("");
-
-        return;
-
-      }
-
-
-      const allowedTypes = [
-
-        "image/png",
-        "image/jpeg",
-        "image/jpg",
-        "image/webp"
-
-      ];
-
-
-      if (
-        !allowedTypes.includes(
-          file.type
-        )
-      ) {
-
-        alert(
-          "Please upload PNG, JPG, JPEG or WEBP."
-        );
-
-        e.target.value = "";
-
-        setProjectImage(null);
-        setProjectImagePreview("");
-
-        return;
-
-      }
-
-
-      const maxSize =
-        10 * 1024 * 1024;
-
-
-      if (
-        file.size >
-        maxSize
-      ) {
-
-        alert(
-          "Image must be smaller than 10 MB."
-        );
-
-        e.target.value = "";
-
-        setProjectImage(null);
-        setProjectImagePreview("");
-
-        return;
-
-      }
-
-
-      setProjectImage(
-        file
+    if (subIndex === 0 && deleting) {
+      setDeleting(false);
+
+      setIndex(
+        (prev) => (prev + 1) % words.length
       );
 
-
-      const previewURL =
-        URL.createObjectURL(
-          file
-        );
-
-
-      setProjectImagePreview(
-        previewURL
-      );
-
-    };
-
-
-  /* =======================================================
-     OPEN ADD PROJECT
-     ======================================================= */
-
-  const openAddProject = () => {
-
-    setProjectName("");
-    setProjectDescription("");
-
-    setProjectImage(null);
-    setProjectImagePreview("");
-
-    setProjectGithubURL("");
-    setProjectURL("");
-    setProjectYear("");
-
-    setSelectedSkillIds([]);
-
-    setProjectError("");
-
-    setShowAddProject(true);
-
-  };
-
-
-  /* =======================================================
-     CLOSE ADD PROJECT
-     ======================================================= */
-
-  const closeAddProject = () => {
-
-    if (creatingProject) {
       return;
     }
 
-    setShowAddProject(false);
-
-    setProjectName("");
-    setProjectDescription("");
-
-    setProjectImage(null);
-    setProjectImagePreview("");
-
-    setProjectGithubURL("");
-    setProjectURL("");
-    setProjectYear("");
-
-    setSelectedSkillIds([]);
-
-    setProjectError("");
-
-  };
-
-
-  /* =======================================================
-     SELECT TECHNOLOGIES
-     ======================================================= */
-
-  const toggleProjectSkill =
-    (skillId) => {
-
-      setSelectedSkillIds(
-        (previous) => {
-
-          if (
-            previous.includes(
-              skillId
-            )
-          ) {
-
-            return previous.filter(
-              (id) =>
-                id !== skillId
-            );
-
-          }
-
-
-          return [
-            ...previous,
-            skillId
-          ];
-
-        }
-      );
-
-    };
-
-
-  /* =======================================================
-     CREATE PROJECT
-     ======================================================= */
-
-  const handleCreateProject =
-    async (e) => {
-
-      e.preventDefault();
-
-      setProjectError("");
-
-
-      if (!projectName.trim()) {
-
-        setProjectError(
-          "Please enter the project name."
+    const t = setTimeout(
+      () => {
+        setSubIndex(
+          (prev) =>
+            prev + (deleting ? -1 : 1)
         );
-
-        return;
-
-      }
-
-
-      if (!projectDescription.trim()) {
-
-        setProjectError(
-          "Please enter the project description."
-        );
-
-        return;
-
-      }
-
-
-      if (!projectImage) {
-
-        setProjectError(
-          "Please select a project image."
-        );
-
-        return;
-
-      }
-
-
-      if (!projectGithubURL.trim()) {
-
-        setProjectError(
-          "Please enter the GitHub URL."
-        );
-
-        return;
-
-      }
-
-
-      if (!projectYear) {
-
-        setProjectError(
-          "Please enter the year."
-        );
-
-        return;
-
-      }
-
-
-      try {
-
-        setCreatingProject(
-          true
-        );
-
-
-        /*
-         IMPORTANT:
-
-         These parameters match
-         your OutSystems API.
-
-         Name
-         Description
-         GithubURL
-         ProjectURL
-         Year
-
-         ImageLink = BINARY BODY
-        */
-
-
-        const url =
-          `${PROJECT_CREATE_API}` +
-          `?Name=${encodeURIComponent(
-            projectName.trim()
-          )}` +
-          `&Description=${encodeURIComponent(
-            projectDescription.trim()
-          )}` +
-          `&GithubURL=${encodeURIComponent(
-            projectGithubURL.trim()
-          )}` +
-          `&ProjectURL=${encodeURIComponent(
-            projectURL.trim()
-          )}` +
-          `&Year=${encodeURIComponent(
-            projectYear
-          )}`;
-
-
-        const response =
-          await fetch(
-            url,
-            {
-              method: "POST",
-
-              headers: {
-
-                "Content-Type":
-                  projectImage.type ||
-                  "application/octet-stream"
-
-              },
-
-              body:
-                projectImage
-
-            }
-          );
-
-
-        if (!response.ok) {
-
-          const errorText =
-            await response.text();
-
-          console.error(
-            "OutSystems response:",
-            errorText
-          );
-
-          throw new Error(
-            `HTTP ${response.status}`
-          );
-
-        }
-
-
-        alert(
-          "Project created successfully!"
-        );
-
-
-        closeAddProject();
-
-
-        /*
-         Get the actual data from
-         OutSystems after creation.
-        */
-
-        await fetchProjects();
-
-      } catch (error) {
-
-        console.error(
-          "Create Project Error:",
-          error
-        );
-
-        setProjectError(
-          "Failed to create project."
-        );
-
-      } finally {
-
-        setCreatingProject(
-          false
-        );
-
-      }
-
-    };
-
-
-  /* =======================================================
-     OPEN EDIT PROJECT
-     ======================================================= */
-
-  const openEditProject =
-    (project) => {
-
-      setSelectedProject(
-        project
-      );
-
-
-      setEditProjectName(
-        project.name
-      );
-
-
-      setEditProjectDescription(
-        project.description
-      );
-
-
-      setEditProjectGithubURL(
-        project.githubURL
-      );
-
-
-      setEditProjectURL(
-        project.projectURL
-      );
-
-
-      setEditProjectYear(
-        project.year
-      );
-
-    };
-
-
-  /* =======================================================
-     CLOSE EDIT PROJECT
-     ======================================================= */
-
-  const closeEditProject = () => {
-
-    if (
-      updatingProject ||
-      deletingProject
-    ) {
-
-      return;
-
-    }
-
-    setSelectedProject(
-      null
+      },
+      deleting
+        ? deletingSpeed
+        : typingSpeed
     );
 
+    return () => clearTimeout(t);
+  }, [
+    subIndex,
+    deleting,
+    index,
+    words,
+    typingSpeed,
+    deletingSpeed,
+    pause,
+  ]);
+
+  useEffect(() => {
+    const b = setInterval(
+      () => setBlink((v) => !v),
+      500
+    );
+
+    return () => clearInterval(b);
+  }, []);
+
+  return {
+    text: words[index].substring(
+      0,
+      subIndex
+    ),
+    blink,
   };
-
-
-  /* =======================================================
-     UPDATE PROJECT
-     ======================================================= */
-
-  const handleUpdateProject =
-    async (e) => {
-
-      e.preventDefault();
-
-
-      if (!selectedProject) {
-        return;
-      }
-
-
-      if (!editProjectName.trim()) {
-
-        alert(
-          "Please enter the project name."
-        );
-
-        return;
-
-      }
-
-
-      if (!editProjectDescription.trim()) {
-
-        alert(
-          "Please enter the description."
-        );
-
-        return;
-
-      }
-
-
-      if (!editProjectYear) {
-
-        alert(
-          "Please enter the year."
-        );
-
-        return;
-
-      }
-
-
-      try {
-
-        setUpdatingProject(
-          true
-        );
-
-
-        /*
-         EXACT API PARAMETER NAMES:
-
-         projectID
-         Name
-         description
-         year
-         GithubLink
-         ProjectLink
-        */
-
-
-        const url =
-          `${PROJECT_UPDATE_API}` +
-          `?projectID=${encodeURIComponent(
-            selectedProject.id
-          )}` +
-          `&Name=${encodeURIComponent(
-            editProjectName.trim()
-          )}` +
-          `&description=${encodeURIComponent(
-            editProjectDescription.trim()
-          )}` +
-          `&year=${encodeURIComponent(
-            editProjectYear
-          )}` +
-          `&GithubLink=${encodeURIComponent(
-            editProjectGithubURL.trim()
-          )}` +
-          `&ProjectLink=${encodeURIComponent(
-            editProjectURL.trim()
-          )}`;
-
-
-        console.log(
-          "Update Project URL:",
-          url
-        );
-
-
-        const response =
-          await fetch(
-            url,
-            {
-              method: "PUT"
-            }
-          );
-
-
-        if (!response.ok) {
-
-          const errorText =
-            await response.text();
-
-          console.error(
-            "Update response:",
-            errorText
-          );
-
-          throw new Error(
-            `HTTP ${response.status}`
-          );
-
-        }
-
-
-        alert(
-          "Project updated successfully!"
-        );
-
-
-        closeEditProject();
-
-        await fetchProjects();
-
-      } catch (error) {
-
-        console.error(
-          "Update Project Error:",
-          error
-        );
-
-        alert(
-          "Failed to update project."
-        );
-
-      } finally {
-
-        setUpdatingProject(
-          false
-        );
-
-      }
-
-    };
-
-
-  /* =======================================================
-     DELETE PROJECT
-     ======================================================= */
-
-  const handleDeleteProject =
-    async () => {
-
-      if (!selectedProject) {
-        return;
-      }
-
-
-      const confirmed =
-        window.confirm(
-          `Are you sure you want to delete "${selectedProject.name}"?`
-        );
-
-
-      if (!confirmed) {
-        return;
-      }
-
-
-      try {
-
-        setDeletingProject(
-          true
-        );
-
-
-        /*
-         EXACT DELETE API:
-
-         DeleteProject?projectId={projectId}
-        */
-
-
-        const url =
-          `${PROJECT_DELETE_API}` +
-          `?projectId=${encodeURIComponent(
-            selectedProject.id
-          )}`;
-
-
-        console.log(
-          "Delete Project URL:",
-          url
-        );
-
-
-        const response =
-          await fetch(
-            url,
-            {
-              method: "DELETE"
-            }
-          );
-
-
-        if (!response.ok) {
-
-          const errorText =
-            await response.text();
-
-          console.error(
-            "Delete response:",
-            errorText
-          );
-
-          throw new Error(
-            `HTTP ${response.status}`
-          );
-
-        }
-
-
-        alert(
-          "Project deleted successfully!"
-        );
-
-
-        closeEditProject();
-
-        await fetchProjects();
-
-      } catch (error) {
-
-        console.error(
-          "Delete Project Error:",
-          error
-        );
-
-        alert(
-          "Failed to delete project."
-        );
-
-      } finally {
-
-        setDeletingProject(
-          false
-        );
-
-      }
-
-    };
-
-
-  /* =======================================================
-     PROJECT SKILLS
-     ======================================================= */
-
-  const getProjectSkills =
-    (project) => {
-
-      if (
-        !project.skillIds ||
-        !Array.isArray(
-          project.skillIds
-        )
-      ) {
-
-        return [];
-
-      }
-
-
-      return skills.filter(
-        (skill) =>
-          project.skillIds.includes(
-            skill.id
-          )
+}
+
+/* =========================================================
+   INTERSECTION OBSERVER
+   ========================================================= */
+
+function useInView(threshold = 0.25) {
+  const ref = useRef(null);
+
+  const [inView, setInView] =
+    useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+
+    if (!el) return;
+
+    const obs =
+      new IntersectionObserver(
+        ([entry]) => {
+          if (entry.isIntersecting) {
+            setInView(true);
+            obs.disconnect();
+          }
+        },
+        { threshold }
       );
 
-    };
+    obs.observe(el);
 
+    return () => obs.disconnect();
+  }, [threshold]);
 
-  /* =======================================================
-     RETURN
-     ======================================================= */
+  return [ref, inView];
+}
+
+/* =========================================================
+   EDUCATION PATH
+   ========================================================= */
+
+function pathFromNodes(nodes) {
+  const pts = nodes.map((n) => ({
+    x: n.x * 10,
+    y: n.y * 3.2,
+  }));
+
+  if (pts.length < 2) return "";
+
+  let d = `M ${pts[0].x},${pts[0].y} `;
+
+  for (
+    let i = 0;
+    i < pts.length - 1;
+    i++
+  ) {
+    const p0 = pts[i - 1] || pts[i];
+    const p1 = pts[i];
+    const p2 = pts[i + 1];
+    const p3 = pts[i + 2] || p2;
+
+    const cp1x =
+      p1.x + (p2.x - p0.x) / 6;
+
+    const cp1y =
+      p1.y + (p2.y - p0.y) / 6;
+
+    const cp2x =
+      p2.x - (p3.x - p1.x) / 6;
+
+    const cp2y =
+      p2.y - (p3.y - p1.y) / 6;
+
+    d +=
+      `C ${cp1x},${cp1y} ` +
+      `${cp2x},${cp2y} ` +
+      `${p2.x},${p2.y} `;
+  }
+
+  return d;
+}
+
+/* =========================================================
+   SKILLS DOCK
+   ========================================================= */
+
+function SkillsDock({ skills }) {
+  const wrapRef = useRef(null);
+  const tileRefs = useRef([]);
+
+  const handleMouseMove = (e) => {
+    const wrap = wrapRef.current;
+
+    if (!wrap) return;
+
+    const mouseX = e.clientX;
+    const mouseY = e.clientY;
+
+    tileRefs.current.forEach(
+      (tile) => {
+        if (!tile) return;
+
+        const rect =
+          tile.getBoundingClientRect();
+
+        const cx =
+          rect.left +
+          rect.width / 2;
+
+        const cy =
+          rect.top +
+          rect.height / 2;
+
+        const dist = Math.hypot(
+          mouseX - cx,
+          mouseY - cy
+        );
+
+        const radius = 140;
+        const maxScale = 1.6;
+        const maxLift = -14;
+
+        if (dist < radius) {
+          const strength =
+            1 - dist / radius;
+
+          const scale =
+            1 +
+            strength *
+              (maxScale - 1);
+
+          const lift =
+            strength * maxLift;
+
+          tile.style.transform =
+            `translateY(${lift}px) scale(${scale})`;
+
+          tile.classList.add(
+            "magnified"
+          );
+        } else {
+          tile.style.transform =
+            "translateY(0px) scale(1)";
+
+          tile.classList.remove(
+            "magnified"
+          );
+        }
+      }
+    );
+  };
+
+  const handleMouseLeave = () => {
+    tileRefs.current.forEach(
+      (tile) => {
+        if (!tile) return;
+
+        tile.style.transform =
+          "translateY(0px) scale(1)";
+
+        tile.classList.remove(
+          "magnified"
+        );
+      }
+    );
+  };
 
   return (
+    <div
+      className="skills-wrap"
+      ref={wrapRef}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+    >
+      {skills.map((s, i) => (
+        <div
+          key={s.name}
+          className="skill-tile"
+          ref={(el) =>
+            (tileRefs.current[i] = el)
+          }
+        >
+          <img
+            src={s.icon}
+            alt={s.name}
+            loading="lazy"
+          />
 
+          <span className="skill-tile-label">
+            {s.name}
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/* =========================================================
+   MAIN APP
+   ========================================================= */
+
+export default function App() {
+  const [loading, setLoading] = useState(true);
+
+useEffect(() => {
+  const timer = setTimeout(() => {
+    setLoading(false);
+  }, 4000);
+
+  return () => clearTimeout(timer);
+}, []);
+  const [theme, setTheme] =
+    useState("dark");
+  const [skills, setSkills] = useState([]);
+  const [projects, setProjects] = useState([]);
+  const [projectsLoading, setProjectsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const response = await fetch(
+          "https://personal-zld4pieb.outsystemscloud.com/SadiqPortfolio/rest/ProjectsAPI/getProject"
+        );
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        console.log("Projects API response:", data);
+
+        const formattedProjects = data.map((item) => {
+          const project = item.Projects || item;
+
+          return {
+            id: project.Id,
+            title: project.ProjectName || project.projectname || "Untitled Project",
+            image: project.ImageLink || project.imagelink || "",
+            description: project.Description || project.description || "",
+            longDescription:
+              project.LongDescription ||
+              project.longdescription ||
+              project.Description ||
+              project.description ||
+              "",
+            tech: project.Technology
+              ? project.Technology.split(",").map((t) => t.trim()).filter(Boolean)
+              : project.Technologies
+                ? project.Technologies.split(",").map((t) => t.trim()).filter(Boolean)
+                : [],
+            github: project.GithubLink || project.GitHubLink || project.github || "#",
+            live: project.LiveLink || project.live || "#",
+          };
+        });
+
+        setProjects(formattedProjects);
+      } catch (error) {
+        console.error("Failed to fetch projects:", error);
+      } finally {
+        setProjectsLoading(false);
+      }
+    };
+
+    fetchProjects();
+  }, []);
+const [skillsLoading, setSkillsLoading] = useState(true);
+  useEffect(() => {
+  const fetchSkills = async () => {
+    try {
+      const response = await fetch(
+        "https://personal-zld4pieb.outsystemscloud.com/SadiqPortfolio/rest/Skillsget/Skillsget"
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      const formattedSkills = data.map((item) => ({
+        id: item.Skills.Id,
+        name: item.Skills.skillname,
+        icon: item.Skills.imagelink,
+      }));
+
+      setSkills(formattedSkills);
+    } catch (error) {
+      console.error("Failed to fetch skills:", error);
+    } finally {
+      setSkillsLoading(false);
+    }
+  };
+
+  fetchSkills();
+}, []);
+
+  const [menuOpen, setMenuOpen] =
+    useState(false);
+
+  const [scrolled, setScrolled] =
+    useState(false);
+
+  const [activeProject, setActiveProject] =
+    useState(null);
+
+  const [activeSection, setActiveSection] =
+    useState("home");
+
+  const [activeEduNode, setActiveEduNode] =
+    useState(null);
+
+  const [hoveredExperience, setHoveredExperience] =
+    useState(null);
+
+  const typed =
+    useTypewriter(TYPE_WORDS);
+
+  const [eduRef, eduInView] =
+    useInView(0.2);
+
+  const [
+    experienceRef,
+    experienceInView,
+  ] = useInView(0.2);
+
+  useEffect(() => {
+    const onScroll = () => {
+      setScrolled(
+        window.scrollY > 20
+      );
+    };
+
+    window.addEventListener(
+      "scroll",
+      onScroll
+    );
+
+    return () =>
+      window.removeEventListener(
+        "scroll",
+        onScroll
+      );
+  }, []);
+
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key === "Escape") {
+        setActiveProject(null);
+        setActiveEduNode(null);
+      }
+    };
+
+    window.addEventListener(
+      "keydown",
+      onKey
+    );
+
+    return () =>
+      window.removeEventListener(
+        "keydown",
+        onKey
+      );
+  }, []);
+
+  useEffect(() => {
+    const sections = NAV_LINKS
+      .map((id) =>
+        document.getElementById(id)
+      )
+      .filter(Boolean);
+
+    if (!sections.length) return;
+
+    const obs =
+      new IntersectionObserver(
+        (entries) => {
+          entries.forEach(
+            (entry) => {
+              if (
+                entry.isIntersecting
+              ) {
+                setActiveSection(
+                  entry.target.id
+                );
+              }
+            }
+          );
+        },
+        {
+          rootMargin:
+            "-40% 0px -50% 0px",
+          threshold: 0,
+        }
+      );
+
+    sections.forEach((s) =>
+      obs.observe(s)
+    );
+
+    return () =>
+      obs.disconnect();
+  }, []);
+
+  const scrollTo = (id) => {
+    setMenuOpen(false);
+
+    document
+      .getElementById(id)
+      ?.scrollIntoView({
+        behavior: "smooth",
+      });
+  };
+
+  const isDark =
+    theme === "dark";
+
+  const eduLayout =
+    layoutEduNodes(EDUCATION);
+
+  const eduPath =
+    pathFromNodes(eduLayout);
+
+  const currentExperience =
+    EXPERIENCE.find(
+      (e) => e.current
+    );
+
+  const previousExperience =
+    EXPERIENCE.filter(
+      (e) => !e.current
+    );
+
+  return (
+      <>
+    {loading && (
+      <div className="page-loader">
+        <div className="loader-circle-wrap">
+          <svg className="loader-ring-svg" viewBox="0 0 120 120">
+            <defs>
+              <linearGradient id="loaderGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#3B5FE0" stopOpacity="0" />
+                <stop offset="100%" stopColor="#3B5FE0" stopOpacity="1" />
+              </linearGradient>
+            </defs>
+            <circle className="loader-ring-track" cx="60" cy="60" r="52" />
+            <circle className="loader-ring-arc" cx="60" cy="60" r="52" />
+          </svg>
+
+          <div className="loader-orbit-dot"></div>
+          <div className="loader-center-dot"></div>
+        </div>
+      </div>
+    )}
     <div
       className={
-        darkMode
-          ? "admin dark"
-          : "admin light"
+        isDark
+          ? "theme-dark"
+          : "theme-light"
       }
+      style={{
+        fontFamily:
+          "'Inter', sans-serif",
+        minHeight: "100vh",
+      }}
     >
 
       <style>{`
@@ -1541,968 +692,2519 @@ export default function Admin() {
           box-sizing: border-box;
         }
 
-        body {
-          margin: 0;
-          font-family: Inter, Arial, sans-serif;
+        html {
+          scroll-behavior: smooth;
         }
 
-        .admin {
+        body {
+          margin: 0;
+          padding: 0;
+        }
 
-          min-height: 100vh;
+        button,
+        input,
+        textarea {
+          font-family: inherit;
+        }
 
-          --bg: #0d1117;
-          --surface: #161b22;
-          --surface2: #1c222b;
-          --border: #30363d;
-          --text: #f0f3f6;
-          --muted: #8b949e;
-          --accent: #5865f2;
+        /* =================================================
+           THEMES
+           ================================================= */
+
+        .theme-dark {
+          --bg: #0C0F15;
+          --surface: #171C27;
+          --surface-2: #1D2330;
+          --border: #262C3A;
+          --text: #E8EAF0;
+          --text-muted: #8D93A3;
+          --accent: #3B5FE0;
+          --warm: #C1793F;
 
           background: var(--bg);
           color: var(--text);
 
+          transition:
+            background-color .35s ease,
+            color .35s ease;
         }
 
-        .admin.light {
+        .theme-light {
+          --bg: #F1F2F5;
+          --surface: #FFFFFF;
+          --surface-2: #FAFAFC;
+          --border: #DFE2E8;
+          --text: #14171F;
+          --text-muted: #62687A;
+          --accent: #3B5FE0;
+          --warm: #C1793F;
 
-          --bg: #f5f6f8;
-          --surface: #ffffff;
-          --surface2: #f0f1f4;
-          --border: #d8dbe2;
-          --text: #17191d;
-          --muted: #686e79;
-          --accent: #4f46e5;
+          background: var(--bg);
+          color: var(--text);
 
+          transition:
+            background-color .35s ease,
+            color .35s ease;
         }
 
-        /* NAVBAR */
+        /* =================================================
+           NAV
+           ================================================= */
 
-        .navbar {
+        .nav {
+          position: sticky;
+          top: 0;
+          z-index: 50;
 
-          height: 64px;
+          padding: 18px 24px;
 
           display: flex;
           align-items: center;
           justify-content: space-between;
 
-          padding: 0 25px;
+          border-bottom:
+            1px solid transparent;
+
+          transition: all .3s ease;
+
+          backdrop-filter:
+            blur(10px);
+        }
+
+        .nav.scrolled {
+          background:
+            color-mix(
+              in srgb,
+              var(--bg) 88%,
+              transparent
+            );
 
           border-bottom:
             1px solid var(--border);
-
-          background: var(--bg);
-
-          position: sticky;
-          top: 0;
-
-          z-index: 20;
-
         }
 
-        .brand {
-
-          font-size: 18px;
+        .logo {
+          font-size: 20px;
           font-weight: 700;
-
         }
 
-        .nav-actions {
-
+        .nav-links {
           display: flex;
-          align-items: center;
-          gap: 10px;
+          gap: 28px;
 
+          list-style: none;
+
+          margin: 0;
+          padding: 0;
         }
 
-        .theme-button {
-
-          width: 40px;
-          height: 40px;
-
-          border:
-            1px solid var(--border);
-
-          border-radius: 50%;
-
-          background: var(--surface);
-
-          cursor: pointer;
-
-          font-size: 16px;
-
-        }
-
-        .logout {
-
-          padding: 9px 14px;
-
-          border:
-            1px solid var(--border);
-
-          border-radius: 8px;
-
-          background: var(--surface);
-
-          color: var(--muted);
-
-          cursor: pointer;
-
-        }
-
-        /* LAYOUT */
-
-        .layout {
-
-          display: flex;
-
-          min-height:
-            calc(100vh - 64px);
-
-        }
-
-        .sidebar {
-
-          width: 220px;
-
-          flex-shrink: 0;
-
-          padding: 20px 12px;
-
-          border-right:
-            1px solid var(--border);
-
-          background: var(--bg);
-
-        }
-
-        .nav-item {
-
-          width: 100%;
-
-          padding: 12px 14px;
-
-          margin-bottom: 5px;
-
+        .nav-links button {
+          background: none;
           border: none;
-
-          border-radius: 8px;
-
-          background: transparent;
-
-          color: var(--muted);
-
-          text-align: left;
 
           cursor: pointer;
 
           font-size: 14px;
 
+          color: var(--text-muted);
+
+          text-transform: capitalize;
+
+          transition:
+            color .2s ease;
+
+          padding: 4px 0;
+
+          position: relative;
         }
 
-        .nav-item:hover {
+        .nav-links button:hover {
+          color: var(--text);
+        }
 
-          background: var(--surface);
+        .nav-links button.active {
+          color: var(--text);
+        }
+
+        .nav-links button.active::after {
+          content: '';
+
+          position: absolute;
+
+          left: 0;
+          right: 0;
+
+          bottom: -6px;
+
+          height: 2px;
+
+          background: var(--accent);
+
+          border-radius: 2px;
+        }
+
+        .nav-right {
+          display: flex;
+
+          align-items: center;
+
+          gap: 14px;
+        }
+
+        .theme-toggle {
+          width: 44px;
+          height: 24px;
+
+          border-radius: 999px;
+
+          border:
+            1px solid var(--border);
+
+          background:
+            var(--surface);
+
+          position: relative;
+
+          cursor: pointer;
+
+          padding: 0;
+        }
+
+        .theme-toggle-knob {
+          position: absolute;
+
+          top: 2px;
+          left: 2px;
+
+          width: 18px;
+          height: 18px;
+
+          border-radius: 50%;
+
+          background:
+            var(--accent);
+
+          display: flex;
+
+          align-items: center;
+          justify-content: center;
+
+          transition:
+            transform .3s ease;
+
+          font-size: 11px;
+        }
+
+        .theme-dark
+        .theme-toggle-knob {
+          transform:
+            translateX(0);
+        }
+
+        .theme-light
+        .theme-toggle-knob {
+          transform:
+            translateX(20px);
+        }
+
+        /* =================================================
+           HAMBURGER
+           ================================================= */
+
+        .hamburger {
+          display: none;
+
+          flex-direction: column;
+
+          justify-content: center;
+
+          gap: 5px;
+
+          width: 32px;
+          height: 32px;
+
+          background: none;
+          border: none;
+
+          cursor: pointer;
+
+          z-index: 100;
+
+          padding: 0;
+        }
+
+        .bar {
+          width: 100%;
+          height: 2px;
+
+          background:
+            var(--text);
+
+          border-radius: 2px;
+
+          transition:
+            transform .3s ease,
+            opacity .3s ease;
+        }
+
+        .hamburger.open
+        .bar:nth-child(1) {
+          transform:
+            translateY(7px)
+            rotate(45deg);
+        }
+
+        .hamburger.open
+        .bar:nth-child(2) {
+          opacity: 0;
+        }
+
+        .hamburger.open
+        .bar:nth-child(3) {
+          transform:
+            translateY(-7px)
+            rotate(-45deg);
+        }
+
+        .mobile-menu {
+          position: fixed;
+
+          inset: 0;
+
+          background:
+            var(--bg);
+
+          display: flex;
+
+          flex-direction: column;
+
+          align-items: center;
+          justify-content: center;
+
+          gap: 26px;
+
+          transform:
+            translateX(100%);
+
+          transition:
+            transform .35s ease;
+
+          z-index: 90;
+        }
+
+        .mobile-menu.open {
+          transform:
+            translateX(0);
+        }
+
+        .mobile-menu button {
+          font-size: 26px;
 
           color: var(--text);
 
+          cursor: pointer;
+
+          background: none;
+
+          border: none;
+
+          text-transform:
+            capitalize;
         }
 
-        .nav-item.active {
+        /* =================================================
+           HERO
+           ================================================= */
 
-          background: var(--surface);
-
-          color: var(--text);
-
-          border-left:
-            3px solid var(--accent);
-
-        }
-
-        .content {
-
-          flex: 1;
-
-          padding: 32px;
-
-          min-width: 0;
-
-        }
-
-        /* HEADER */
-
-        .page-header {
-
+        .hero {
           display: flex;
 
           align-items: center;
 
           justify-content: space-between;
 
-          margin-bottom: 25px;
+          gap: 60px;
 
-          gap: 20px;
+          padding: 100px 60px;
 
+          max-width: 1200px;
+
+          margin: 0 auto;
         }
 
-        .title {
+        .hero-circle-wrap {
+          position: relative;
 
-          margin: 0 0 6px;
+          flex-shrink: 0;
 
-          font-size: 27px;
+          width: 380px;
+          height: 380px;
 
+          display: flex;
+
+          align-items: center;
+          justify-content: center;
         }
 
-        .subtitle {
+        .hero-circle {
+          width: 100%;
+          height: 100%;
+
+          border-radius: 50%;
+
+          background:
+            linear-gradient(
+              155deg,
+              var(--surface),
+              var(--bg)
+            );
+
+          border:
+            1px solid var(--border);
+
+          box-shadow:
+            0 30px 60px -20px
+            rgba(0,0,0,.5);
+        }
+
+        .hero-text {
+          flex: 1;
+        }
+
+        .hero-text h1 {
+          font-size:
+            clamp(
+              34px,
+              4.5vw,
+              54px
+            );
+
+          font-weight: 700;
+
+          line-height: 1.1;
+
+          margin: 0 0 20px;
+        }
+
+        .hero-typed {
+          color:
+            var(--accent);
+        }
+
+        .cursor {
+          color:
+            var(--accent);
+        }
+
+        .hero-text p {
+          color:
+            var(--text-muted);
+
+          font-size: 16px;
+
+          line-height: 1.7;
+
+          max-width: 460px;
+
+          margin-bottom: 28px;
+        }
+
+        /* =================================================
+           GENERAL SECTIONS
+           ================================================= */
+
+        section {
+          padding: 80px 60px;
+
+          max-width: 1200px;
+
+          margin: 0 auto;
+
+          border-top:
+            1px solid var(--border);
+        }
+
+        .section-head {
+          margin-bottom: 40px;
+        }
+
+        .section-head h2 {
+          font-size:
+            clamp(
+              26px,
+              3vw,
+              36px
+            );
+
+          margin:
+            0 0 10px;
+        }
+
+        .section-head p {
+          color:
+            var(--text-muted);
 
           margin: 0;
-
-          color: var(--muted);
-
-          font-size: 13px;
-
         }
 
-        /* BUTTON */
-
-        .primary {
-
-          padding: 11px 17px;
-
-          border: none;
-
-          border-radius: 8px;
-
-          background: var(--accent);
-
-          color: white;
-
-          cursor: pointer;
-
-          font-weight: 600;
-
-        }
-
-        .primary:hover {
-
-          opacity: .9;
-
-        }
-
-        .primary:disabled {
-
-          opacity: .5;
-
-          cursor: not-allowed;
-
-        }
-
-        .secondary {
-
-          width: 100%;
-
-          padding: 11px;
-
-          margin-top: 9px;
-
-          border:
-            1px solid var(--border);
-
-          border-radius: 8px;
-
-          background: transparent;
-
-          color: var(--muted);
-
-          cursor: pointer;
-
-        }
-
-        /* EMPTY */
-
-        .empty {
-
-          padding: 60px 20px;
-
-          border:
-            1px dashed var(--border);
-
-          border-radius: 12px;
-
-          background: var(--surface);
-
-          text-align: center;
-
-          color: var(--muted);
-
-        }
-
-        .empty h3 {
-
-          margin: 0 0 7px;
-
-          color: var(--text);
-
-        }
-
-        /* SKILLS */
-
-        .skill-grid {
-
-          display: grid;
-
-          grid-template-columns:
-            repeat(
-              auto-fill,
-              minmax(150px, 1fr)
-            );
-
-          gap: 16px;
-
-        }
-
-        .skill-card {
-
-          padding: 20px;
-
-          border:
-            1px solid var(--border);
-
-          border-radius: 12px;
-
-          background: var(--surface);
-
-          cursor: pointer;
-
-          text-align: center;
-
-          transition:
-            transform .2s,
-            border-color .2s;
-
-        }
-
-        .skill-card:hover {
-
-          transform: translateY(-3px);
-
-          border-color: var(--accent);
-
-        }
-
-        .skill-logo {
-
-          width: 65px;
-          height: 65px;
-
-          object-fit: contain;
-
-          margin-bottom: 12px;
-
-        }
-
-        .skill-name {
-
-          font-size: 14px;
-          font-weight: 600;
-
-        }
-
-        .skill-id {
-
-          margin-top: 5px;
-
-          color: var(--muted);
-
-          font-size: 11px;
-
-        }
-
-        /* PROJECTS */
+        /* =================================================
+           PROJECTS
+           ================================================= */
 
         .project-grid {
-
           display: grid;
 
           grid-template-columns:
-            repeat(
-              auto-fill,
-              minmax(280px, 1fr)
-            );
+            repeat(2, 1fr);
 
-          gap: 18px;
-
+          gap: 20px;
         }
 
         .project-card {
-
-          overflow: hidden;
+          background:
+            var(--surface);
 
           border:
             1px solid var(--border);
 
-          border-radius: 13px;
+          border-radius: 16px;
 
-          background: var(--surface);
+          overflow: hidden;
 
           cursor: pointer;
 
           transition:
-            transform .2s,
-            border-color .2s;
+            transform .25s ease,
+            border-color .25s ease,
+            box-shadow .25s ease;
 
+          text-align: left;
+
+          padding: 0;
         }
 
         .project-card:hover {
+          transform:
+            translateY(-4px);
 
-          transform: translateY(-3px);
+          border-color:
+            var(--accent);
 
-          border-color: var(--accent);
-
+          box-shadow:
+            0 20px 40px -24px
+            rgba(0,0,0,.4);
         }
 
-        .project-image {
-
+        .project-card-img {
           width: 100%;
-          height: 165px;
+
+          height: 170px;
 
           object-fit: cover;
 
           display: block;
 
-          background: var(--surface2);
-
+          transition:
+            transform .35s ease;
         }
 
-        .project-body {
-
-          padding: 17px;
-
+        .project-card:hover
+        .project-card-img {
+          transform:
+            scale(1.04);
         }
 
-        .project-name {
-
-          margin: 0 0 7px;
-
-          font-size: 17px;
-
+        .project-card-body {
+          padding:
+            22px 26px 26px;
         }
 
-        .project-description {
+        .project-card h3 {
+          font-size: 20px;
 
-          margin: 0 0 12px;
-
-          color: var(--muted);
-
-          font-size: 13px;
-
-          line-height: 1.5;
-
+          margin:
+            0 0 10px;
         }
 
-        .project-year {
+        .project-card p {
+          color:
+            var(--text-muted);
 
-          color: var(--muted);
+          font-size: 14.5px;
 
-          font-size: 12px;
+          line-height: 1.6;
 
+          margin:
+            0 0 16px;
         }
 
-        .project-links {
-
-          display: flex;
-
-          gap: 8px;
-
-          margin-top: 13px;
-
-        }
-
-        .project-link {
-
-          padding: 6px 9px;
-
-          border:
-            1px solid var(--border);
-
-          border-radius: 7px;
-
-          color: var(--muted);
-
-          text-decoration: none;
-
-          font-size: 11px;
-
-        }
-
-        /* TECHNOLOGIES */
-
-        .technology-list {
-
+        .project-tech {
           display: flex;
 
           flex-wrap: wrap;
 
-          gap: 7px;
-
-          margin-top: 14px;
-
+          gap: 6px;
         }
 
-        .technology {
+        .tag {
+          font-size: 12px;
 
-          display: flex;
+          padding:
+            5px 10px;
 
-          align-items: center;
+          border-radius: 8px;
 
-          gap: 5px;
-
-          padding: 5px 8px;
+          background:
+            var(--surface-2);
 
           border:
             1px solid var(--border);
 
-          border-radius: 999px;
-
-          background: var(--surface2);
-
-          font-size: 11px;
-
+          color:
+            var(--text-muted);
         }
 
-        .technology img {
+        /* =================================================
+           MODAL
+           ================================================= */
 
-          width: 18px;
-          height: 18px;
-
-          object-fit: contain;
-
-        }
-
-        /* MODAL */
-
-        .overlay {
-
+        .modal-backdrop {
           position: fixed;
 
           inset: 0;
 
           z-index: 100;
 
+          background:
+            rgba(0,0,0,.55);
+
           display: flex;
 
           align-items: center;
           justify-content: center;
 
-          padding: 20px;
+          padding: 24px;
 
-          background:
-            rgba(0, 0, 0, .72);
-
-          backdrop-filter: blur(7px);
-
+          animation:
+            fadeIn .2s ease;
         }
 
-        .modal {
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+          }
 
-          width: 100%;
+          to {
+            opacity: 1;
+          }
+        }
 
-          max-width: 600px;
-
-          max-height: 92vh;
-
-          overflow-y: auto;
-
-          padding: 27px;
+        .modal-card {
+          background:
+            var(--surface);
 
           border:
             1px solid var(--border);
 
-          border-radius: 15px;
+          border-radius: 20px;
 
-          background: var(--surface);
+          max-width: 580px;
 
+          width: 100%;
+
+          max-height: 88vh;
+
+          overflow-y: auto;
+
+          position: relative;
+
+          animation:
+            popIn .25s ease;
         }
 
-        .modal-header {
+        @keyframes popIn {
+          from {
+            opacity: 0;
 
-          display: flex;
+            transform:
+              scale(.94)
+              translateY(10px);
+          }
 
-          align-items: center;
-          justify-content: space-between;
+          to {
+            opacity: 1;
 
-          margin-bottom: 22px;
-
+            transform:
+              scale(1)
+              translateY(0);
+          }
         }
 
-        .modal-header h2 {
+        .modal-img {
+          width: 100%;
 
-          margin: 0;
+          height: 240px;
 
-          font-size: 21px;
+          object-fit: cover;
 
+          display: block;
         }
 
-        .close {
+        .modal-body {
+          padding:
+            34px 40px 40px;
+        }
+
+        .modal-close {
+          position: absolute;
+
+          top: 16px;
+          right: 16px;
 
           width: 34px;
           height: 34px;
 
-          border:
-            1px solid var(--border);
-
           border-radius: 50%;
 
-          background: var(--surface2);
+          background:
+            rgba(0,0,0,.5);
 
-          color: var(--text);
+          border:
+            1px solid
+            rgba(255,255,255,.2);
+
+          color: #fff;
 
           cursor: pointer;
 
-          font-size: 19px;
+          display: flex;
 
+          align-items: center;
+          justify-content: center;
         }
 
-        /* FORM */
+        .modal-card h3 {
+          font-size: 28px;
 
-        .field {
-
-          margin-bottom: 17px;
-
+          margin:
+            0 0 14px;
         }
 
-        .field label {
+        .modal-card p.long {
+          color:
+            var(--text-muted);
+
+          font-size: 15px;
+
+          line-height: 1.8;
+
+          margin:
+            0 0 20px;
+        }
+
+        .modal-tech {
+          display: flex;
+
+          flex-wrap: wrap;
+
+          gap: 8px;
+
+          margin-bottom: 26px;
+        }
+
+        .modal-links {
+          display: flex;
+
+          gap: 14px;
+        }
+
+        .modal-links a {
+          padding:
+            10px 18px;
+
+          border-radius: 10px;
+
+          font-size: 14px;
+
+          font-weight: 600;
+
+          text-decoration: none;
+        }
+
+        .modal-links a.primary {
+          background:
+            var(--accent);
+
+          color: white;
+        }
+
+        .modal-links a.ghost {
+          border:
+            1px solid var(--border);
+
+          color:
+            var(--text);
+        }
+
+        /* =================================================
+           EDUCATION
+           ================================================= */
+
+        .edu-map-wrap {
+          position: relative;
+
+          height: 340px;
+        }
+
+        .edu-map-svg {
+          position: absolute;
+
+          inset: 0;
+
+          width: 100%;
+          height: 100%;
+        }
+
+        .edu-path {
+          fill: none;
+
+          stroke:
+            var(--border);
+
+          stroke-width: 2;
+
+          stroke-dasharray:
+            4 7;
+
+          stroke-linecap: round;
+        }
+
+        .edu-path-draw {
+          fill: none;
+
+          stroke:
+            var(--accent);
+
+          stroke-width: 2;
+
+          stroke-dasharray: 1000;
+
+          stroke-dashoffset: 1000;
+
+          stroke-linecap: round;
+
+          transition:
+            stroke-dashoffset
+            1.8s ease;
+        }
+
+        .edu-path-draw.in-view {
+          stroke-dashoffset: 0;
+        }
+
+        .edu-node {
+          position: absolute;
+
+          transform:
+            translate(-50%, -50%);
+
+          width: 18px;
+          height: 18px;
+
+          border-radius: 50%;
+
+          background:
+            var(--surface);
+
+          border:
+            2px solid
+            var(--border);
+
+          cursor: pointer;
+
+          opacity: 0;
+
+          transition:
+            opacity .4s ease,
+            transform .2s ease,
+            border-color .2s ease;
+        }
+
+        .edu-node.in-view {
+          opacity: 1;
+        }
+
+        .edu-node:hover,
+        .edu-node.active {
+          border-color:
+            var(--accent);
+
+          transform:
+            translate(-50%, -50%)
+            scale(1.3);
+        }
+
+        .edu-node.current {
+          border-color:
+            var(--warm);
+
+          background:
+            var(--warm);
+        }
+
+        .edu-node.current::after {
+          content: '';
+
+          position: absolute;
+
+          inset: -6px;
+
+          border-radius: 50%;
+
+          border:
+            1.5px solid
+            var(--warm);
+
+          animation:
+            pulse 2.2s
+            ease-out infinite;
+        }
+
+        @keyframes pulse {
+          0% {
+            transform: scale(.8);
+            opacity: .8;
+          }
+
+          100% {
+            transform: scale(1.8);
+            opacity: 0;
+          }
+        }
+
+        .edu-node-label {
+          position: absolute;
+
+          transform:
+            translate(-50%, 16px);
+
+          white-space: nowrap;
+
+          font-size: 12px;
+
+          color:
+            var(--text-muted);
+
+          opacity: 0;
+
+          transition:
+            opacity .4s ease .2s;
+
+          pointer-events: none;
+
+          text-align: center;
+        }
+
+        .edu-node-label.in-view {
+          opacity: 1;
+        }
+
+        .edu-card {
+          position: absolute;
+
+          width: 280px;
+
+          background:
+            var(--surface);
+
+          border:
+            1px solid var(--border);
+
+          border-radius: 14px;
+
+          padding: 18px;
+
+          z-index: 20;
+
+          box-shadow:
+            0 24px 50px -20px
+            rgba(0,0,0,.5);
+
+          animation:
+            popIn .18s ease;
+        }
+
+        .edu-card-badge {
+          display: inline-block;
+
+          font-size: 10px;
+
+          letter-spacing: .06em;
+
+          color:
+            var(--warm);
+
+          border:
+            1px solid var(--warm);
+
+          border-radius: 999px;
+
+          padding:
+            2px 8px;
+
+          margin-bottom: 10px;
+        }
+
+        .edu-card h4 {
+          font-size: 17px;
+
+          margin:
+            0 0 2px;
+        }
+
+        .edu-card .degree {
+          font-size: 13px;
+
+          color:
+            var(--accent);
+
+          font-weight: 600;
+        }
+
+        .edu-card .years {
+          font-size: 12px;
+
+          color:
+            var(--text-muted);
+
+          margin-bottom: 12px;
+        }
+
+        .edu-card p.desc {
+          font-size: 13px;
+
+          line-height: 1.6;
+
+          color:
+            var(--text-muted);
+
+          margin:
+            0 0 12px;
+        }
+
+        .edu-card ul {
+          list-style: none;
+
+          padding: 0;
+
+          margin: 0;
+        }
+
+        .edu-card ul li {
+          font-size: 12.5px;
+
+          color:
+            var(--text-muted);
+
+          padding-left: 14px;
+
+          position: relative;
+
+          margin-bottom: 5px;
+        }
+
+        .edu-card ul li::before {
+          content: '—';
+
+          position: absolute;
+
+          left: 0;
+
+          color:
+            var(--accent);
+        }
+
+        .edu-map-mobile {
+          display: none;
+        }
+
+        .edu-mobile-item {
+          display: flex;
+
+          gap: 16px;
+
+          margin-bottom: 24px;
+        }
+
+        .edu-mobile-rail {
+          display: flex;
+
+          flex-direction: column;
+
+          align-items: center;
+
+          flex-shrink: 0;
+        }
+
+        .edu-mobile-dot {
+          width: 14px;
+          height: 14px;
+
+          border-radius: 50%;
+
+          background: var(--surface);
+
+          border: 2px solid var(--border);
+
+          flex-shrink: 0;
+        }
+
+        .edu-mobile-dot.current {
+          background: var(--warm);
+          border-color: var(--warm);
+        }
+
+        .edu-mobile-line {
+          flex: 1;
+
+          width: 2px;
+
+          background: var(--border);
+
+          margin: 6px 0;
+        }
+
+        .edu-mobile-btn {
+          width: 100%;
+
+          text-align: left;
+
+          background: var(--surface);
+
+          border: 1px solid var(--border);
+
+          border-radius: 12px;
+
+          padding: 14px 16px;
+
+          cursor: pointer;
+        }
+
+        .edu-mobile-btn h4 {
+          margin: 0 0 2px;
+
+          font-size: 15px;
+
+          color: var(--text);
+        }
+
+        .edu-mobile-btn .degree {
+          font-size: 13px;
+
+          color: var(--accent);
+
+          font-weight: 600;
+        }
+
+        .edu-mobile-btn .years {
+          font-size: 12px;
+
+          color: var(--text-muted);
+        }
+
+        .edu-mobile-card {
+          margin-top: 8px;
+
+          padding: 14px 16px;
+
+          background: var(--surface-2);
+
+          border: 1px solid var(--border);
+
+          border-radius: 12px;
+        }
+
+        /* =================================================
+           EXPERIENCE
+           ================================================= */
+
+        .experience-current {
+          margin-bottom: 70px;
+        }
+
+        .experience-current-label {
+          display: flex;
+
+          align-items: center;
+
+          gap: 10px;
+
+          margin-bottom: 16px;
+
+          font-size: 12px;
+
+          font-weight: 700;
+
+          letter-spacing: .08em;
+
+          text-transform: uppercase;
+
+          color:
+            var(--warm);
+        }
+
+        .experience-current-label::before {
+          content: '';
+
+          width: 8px;
+          height: 8px;
+
+          border-radius: 50%;
+
+          background:
+            var(--warm);
+
+          box-shadow:
+            0 0 0 5px
+            color-mix(
+              in srgb,
+              var(--warm) 15%,
+              transparent
+            );
+        }
+
+        .exp-card {
+          display: grid;
+
+          grid-template-columns:
+            340px 1fr;
+
+          gap: 44px;
+
+          background:
+            var(--surface);
+
+          border:
+            1px solid var(--border);
+
+          border-radius: 20px;
+
+          padding: 32px;
+
+          align-items: center;
+
+          transition:
+            border-color .3s ease,
+            box-shadow .3s ease,
+            transform .3s ease;
+        }
+
+        .exp-card:hover {
+          border-color:
+            color-mix(
+              in srgb,
+              var(--accent) 55%,
+              var(--border)
+            );
+
+          box-shadow:
+            0 30px 60px -35px
+            rgba(0,0,0,.55);
+        }
+
+        .exp-photo-wrap {
+          position: relative;
+        }
+
+        .exp-photo {
+          width: 100%;
+
+          aspect-ratio: 4/5;
+
+          object-fit: cover;
+
+          border-radius: 14px;
+
+          border:
+            1px solid var(--border);
 
           display: block;
+        }
 
-          margin-bottom: 7px;
+        .exp-badge {
+          position: absolute;
+
+          top: 14px;
+          left: 14px;
+
+          display: inline-flex;
+
+          align-items: center;
+
+          gap: 6px;
+
+          background:
+            var(--warm);
+
+          color: #fff;
+
+          font-size: 11px;
+
+          font-weight: 700;
+
+          letter-spacing: .05em;
+
+          padding:
+            5px 10px;
+
+          border-radius: 999px;
+        }
+
+        .exp-badge::before {
+          content: '';
+
+          width: 6px;
+          height: 6px;
+
+          border-radius: 50%;
+
+          background: #fff;
+        }
+
+        .exp-details h3 {
+          font-size: 26px;
+
+          margin:
+            0 0 4px;
+        }
+
+        .exp-details .role {
+          font-size: 15px;
+
+          color:
+            var(--accent);
+
+          font-weight: 600;
+
+          margin-bottom: 4px;
+        }
+
+        .exp-details .meta {
+          font-size: 13px;
+
+          color:
+            var(--text-muted);
+
+          margin-bottom: 18px;
+        }
+
+        .exp-details p.desc {
+          font-size: 14.5px;
+
+          line-height: 1.75;
+
+          color:
+            var(--text-muted);
+
+          margin:
+            0 0 20px;
+        }
+
+        .exp-tech {
+          display: flex;
+
+          flex-wrap: wrap;
+
+          gap: 8px;
+
+          margin-bottom: 22px;
+        }
+
+        .exp-details ul {
+          list-style: none;
+
+          padding: 0;
+
+          margin: 0;
+        }
+
+        .exp-details ul li {
+          font-size: 14px;
+
+          color:
+            var(--text-muted);
+
+          padding-left: 16px;
+
+          position: relative;
+
+          margin-bottom: 8px;
+        }
+
+        .exp-details ul li::before {
+          content: '—';
+
+          position: absolute;
+
+          left: 0;
+
+          color:
+            var(--accent);
+        }
+
+        /* -------------------------------------------------
+           CAREER TIMELINE
+           ------------------------------------------------- */
+
+        .career-timeline {
+          position: relative;
+
+          margin-top: 30px;
+
+          padding:
+            15px 0 15px;
+        }
+
+        .career-timeline-title {
+          margin-bottom: 35px;
+
+          font-size: 14px;
+
+          font-weight: 700;
+
+          text-transform: uppercase;
+
+          letter-spacing: .12em;
+
+          color:
+            var(--text-muted);
+        }
+
+        .career-timeline-content {
+          position: relative;
+
+          display: grid;
+
+          grid-template-columns:
+            90px 1fr;
+
+          column-gap: 35px;
+        }
+
+        /* Vertical line */
+
+        .career-line {
+          position: absolute;
+
+          left: 34px;
+
+          top: 20px;
+
+          bottom: 20px;
+
+          width: 2px;
+
+          background:
+            var(--border);
+
+          overflow: hidden;
+
+          border-radius: 10px;
+        }
+
+        .career-line-progress {
+          position: absolute;
+
+          left: 0;
+
+          top: 0;
+
+          width: 100%;
+
+          height: 100%;
+
+          background:
+            linear-gradient(
+              to bottom,
+              var(--warm),
+              var(--accent)
+            );
+
+          transform-origin:
+            top center;
+
+          transform:
+            scaleY(0);
+
+          transition:
+            transform
+            1.8s
+            cubic-bezier(
+              .22,
+              1,
+              .36,
+              1
+            );
+        }
+
+        .career-line-progress.in-view {
+          transform:
+            scaleY(1);
+        }
+
+        .career-nodes {
+          position: relative;
+
+          display: flex;
+
+          flex-direction: column;
+
+          gap: 36px;
+
+          z-index: 2;
+        }
+
+        .career-node {
+          width: 70px;
+
+          min-height: 110px;
+
+          display: flex;
+
+          align-items: flex-start;
+
+          justify-content: center;
+
+          position: relative;
+        }
+
+        .career-dot {
+          width: 18px;
+          height: 18px;
+
+          border-radius: 50%;
+
+          background:
+            var(--bg);
+
+          border:
+            2px solid
+            var(--border);
+
+          position: relative;
+
+          margin-top: 5px;
+
+          transition:
+            all .3s ease;
+        }
+
+        .career-dot.current {
+          background:
+            var(--warm);
+
+          border-color:
+            var(--warm);
+
+          box-shadow:
+            0 0 0 6px
+            color-mix(
+              in srgb,
+              var(--warm) 12%,
+              transparent
+            );
+        }
+
+        .career-dot.current::after {
+          content: '';
+
+          position: absolute;
+
+          inset: -5px;
+
+          border-radius: 50%;
+
+          border:
+            1px solid
+            var(--warm);
+
+          animation:
+            careerPulse
+            2s
+            ease-out
+            infinite;
+        }
+
+        @keyframes careerPulse {
+          0% {
+            transform: scale(.8);
+
+            opacity: .8;
+          }
+
+          100% {
+            transform: scale(1.9);
+
+            opacity: 0;
+          }
+        }
+
+        .career-dot.completed {
+          border-color:
+            var(--accent);
+
+          background:
+            var(--surface);
+        }
+
+        .career-node.active
+        .career-dot.completed {
+          background:
+            var(--accent);
+
+          box-shadow:
+            0 0 0 6px
+            color-mix(
+              in srgb,
+              var(--accent) 12%,
+              transparent
+            );
+        }
+
+        .career-node-year {
+    position: absolute;
+    top: 31px;
+
+    /* Move year to the LEFT of the timeline */
+    right: calc(50% + 25px);
+
+    /* Prevent it from being centered on the line */
+    left: auto;
+    transform: none;
+
+    font-size: 10px;
+    white-space: nowrap;
+    text-align: right;
+
+    color: var(--text-muted);
+    opacity: .8;
+}
+
+        /* Previous cards */
+
+        .career-cards {
+          display: flex;
+
+          flex-direction: column;
+
+          gap: 36px;
+        }
+
+        .previous-company-card {
+          min-height: 110px;
+
+          background:
+            var(--surface);
+
+          border:
+            1px solid var(--border);
+
+          border-radius: 16px;
+
+          padding:
+            22px 24px;
+
+          position: relative;
+
+          cursor: default;
+
+          transition:
+            transform .3s ease,
+            border-color .3s ease,
+            box-shadow .3s ease,
+            background .3s ease;
+
+          opacity: 0;
+
+          transform:
+            translateX(30px);
+        }
+
+        .previous-company-card.in-view {
+          opacity: 1;
+
+          transform:
+            translateX(0);
+        }
+
+        .previous-company-card:hover,
+        .previous-company-card.active {
+          transform:
+            translateX(6px);
+
+          border-color:
+            var(--accent);
+
+          background:
+            color-mix(
+              in srgb,
+              var(--surface) 94%,
+              var(--accent)
+            );
+
+          box-shadow:
+            0 18px 40px -28px
+            var(--accent);
+        }
+
+        .previous-company-card.in-view:hover,
+        .previous-company-card.in-view.active {
+          transform:
+            translateX(6px);
+        }
+
+        .previous-company-top {
+          display: flex;
+
+          align-items: flex-start;
+
+          justify-content: space-between;
+
+          gap: 20px;
+
+          margin-bottom: 5px;
+        }
+
+        .previous-company-name {
+          font-size: 18px;
+
+          font-weight: 700;
+
+          color:
+            var(--text);
+
+          margin: 0;
+        }
+
+        .previous-company-years {
+          flex-shrink: 0;
+
+          font-size: 11px;
+
+          padding:
+            4px 8px;
+
+          border-radius: 999px;
+
+          background:
+            var(--surface-2);
+
+          border:
+            1px solid var(--border);
+
+          color:
+            var(--text-muted);
+        }
+
+        .previous-company-role {
+          color:
+            var(--accent);
 
           font-size: 13px;
 
           font-weight: 600;
 
+          margin-bottom: 10px;
         }
 
-        .field input,
-        .field textarea {
-
-          width: 100%;
-
-          padding: 11px 13px;
-
-          border:
-            1px solid var(--border);
-
-          border-radius: 8px;
-
-          outline: none;
-
-          background: var(--surface2);
-
-          color: var(--text);
+        .previous-company-description {
+          color:
+            var(--text-muted);
 
           font-size: 13px;
 
+          line-height: 1.6;
+
+          margin:
+            0 0 13px;
+
+          max-width: 700px;
         }
 
-        .field input:focus,
-        .field textarea:focus {
+        .previous-company-tech {
+          display: flex;
 
-          border-color: var(--accent);
+          flex-wrap: wrap;
 
+          gap: 6px;
         }
 
-        .field textarea {
+        .previous-company-tech
+        .tag {
+          font-size: 10px;
 
-          min-height: 105px;
-
-          resize: vertical;
-
+          padding:
+            4px 8px;
         }
 
-        .help {
-
-          margin-top: 6px;
-
-          color: var(--muted);
-
-          font-size: 11px;
-
+        .previous-company-achievements {
+          display: none;
         }
 
-        .file-input {
+        /* =================================================
+           SKILLS
+           ================================================= */
 
-          padding: 12px !important;
+        .skills-wrap {
+          display: flex;
 
-          cursor: pointer;
+          flex-wrap: wrap;
 
+          justify-content: center;
+
+          align-items: flex-end;
+
+          gap: 22px;
+
+          padding:
+            40px 0 20px;
+
+          min-height: 200px;
         }
 
-        /* PREVIEW */
+        .skill-tile {
+          width: 74px;
+          height: 74px;
 
-        .preview {
+          border-radius: 20px;
 
-          margin-top: 10px;
+          background:
+            var(--surface);
 
-          min-height: 120px;
-
-          padding: 10px;
+          border:
+            1px solid var(--border);
 
           display: flex;
 
           align-items: center;
           justify-content: center;
 
-          border:
-            1px solid var(--border);
+          position: relative;
 
-          border-radius: 8px;
+          cursor: pointer;
 
-          background: var(--surface2);
+          transition:
+            transform .18s
+              cubic-bezier(
+                .34,
+                1.56,
+                .64,
+                1
+              ),
+            box-shadow .18s ease,
+            border-color .18s ease;
 
+          will-change:
+            transform;
         }
 
-        .preview img {
-
-          max-width: 100%;
-
-          max-height: 160px;
+        .skill-tile img {
+          width: 38px;
+          height: 38px;
 
           object-fit: contain;
-
         }
 
-        /* SELECTOR */
+        .skill-tile:hover,
+        .skill-tile.magnified {
+          border-color:
+            var(--accent);
 
-        .selector {
+          box-shadow:
+            0 18px 34px -14px
+            rgba(59,95,224,.45);
+        }
 
+        .skill-tile-label {
+          position: absolute;
+
+          bottom: -26px;
+
+          left: 50%;
+
+          transform:
+            translateX(-50%);
+
+          font-size: 11px;
+
+          color:
+            var(--text-muted);
+
+          white-space: nowrap;
+
+          opacity: 0;
+
+          transition:
+            opacity .15s ease;
+
+          pointer-events: none;
+        }
+
+        .skill-tile:hover
+        .skill-tile-label {
+          opacity: 1;
+        }
+
+        /* =================================================
+           FOOTER
+           ================================================= */
+
+        .footer {
+          max-width: 1200px;
+
+          margin: 0 auto;
+
+          padding:
+            80px 60px 30px;
+
+          border-top:
+            1px solid var(--border);
+        }
+
+        .footer-main {
           display: grid;
 
           grid-template-columns:
-            repeat(
-              auto-fill,
-              minmax(150px, 1fr)
-            );
+            1.5fr 1fr 1fr;
 
-          gap: 8px;
+          gap: 60px;
 
-          max-height: 220px;
+          padding-bottom: 55px;
+        }
 
-          overflow-y: auto;
+        .footer-brand h2 {
+          font-size: 30px;
 
-          padding: 9px;
+          margin:
+            0 0 14px;
+        }
+
+        .footer-brand p {
+          color:
+            var(--text-muted);
+
+          max-width: 380px;
+
+          line-height: 1.7;
+
+          font-size: 14px;
+
+          margin-bottom: 25px;
+        }
+
+        .footer-title {
+          font-size: 13px;
+
+          text-transform: uppercase;
+
+          letter-spacing: .08em;
+
+          color:
+            var(--text-muted);
+
+          margin-bottom: 18px;
+        }
+
+        .footer-links {
+          display: flex;
+
+          flex-direction: column;
+
+          gap: 12px;
+        }
+
+        .footer-links a {
+          color:
+            var(--text);
+
+          text-decoration: none;
+
+          font-size: 14px;
+
+          transition:
+            color .2s ease,
+            transform .2s ease;
+
+          width: fit-content;
+        }
+
+        .footer-links a:hover {
+          color:
+            var(--accent);
+
+          transform:
+            translateX(4px);
+        }
+
+        .footer-socials {
+          display: flex;
+
+          gap: 10px;
+
+          flex-wrap: wrap;
+        }
+
+        .footer-social {
+          width: 42px;
+          height: 42px;
+
+          border-radius: 12px;
 
           border:
             1px solid var(--border);
 
-          border-radius: 9px;
-
-          background: var(--surface2);
-
-        }
-
-        .selector-item {
+          background:
+            var(--surface);
 
           display: flex;
 
           align-items: center;
+          justify-content: center;
 
-          gap: 7px;
+          text-decoration: none;
 
-          padding: 8px;
+          color:
+            var(--text);
 
-          border:
+          font-size: 14px;
+
+          font-weight: 700;
+
+          transition:
+            all .25s ease;
+        }
+
+        .footer-social:hover {
+          border-color:
+            var(--accent);
+
+          color:
+            var(--accent);
+
+          transform:
+            translateY(-4px);
+
+          box-shadow:
+            0 12px 25px -15px
+            var(--accent);
+        }
+
+        .footer-bottom {
+          border-top:
             1px solid var(--border);
 
-          border-radius: 8px;
-
-          background: var(--surface);
-
-          cursor: pointer;
-
-        }
-
-        .selector-item.selected {
-
-          border-color: var(--accent);
-
-        }
-
-        .selector-item input {
-
-          width: 15px;
-          height: 15px;
-
-          accent-color: var(--accent);
-
-        }
-
-        .selector-item img {
-
-          width: 25px;
-          height: 25px;
-
-          object-fit: contain;
-
-        }
-
-        .selector-name {
-
-          font-size: 12px;
-
-          white-space: nowrap;
-
-          overflow: hidden;
-
-          text-overflow: ellipsis;
-
-        }
-
-        /* ERROR */
-
-        .error {
-
-          margin-bottom: 15px;
-
-          padding: 11px;
-
-          border:
-            1px solid #ef4444;
-
-          border-radius: 8px;
-
-          color: #ef4444;
-
-          background:
-            rgba(239, 68, 68, .08);
-
-          font-size: 12px;
-
-        }
-
-        /* EDIT BUTTONS */
-
-        .edit-buttons {
+          padding-top: 22px;
 
           display: flex;
 
-          gap: 9px;
+          justify-content:
+            space-between;
 
-          margin-top: 20px;
+          align-items: center;
 
+          gap: 20px;
+
+          color:
+            var(--text-muted);
+
+          font-size: 12px;
         }
 
-        .update-button {
+        .footer-bottom a {
+          color:
+            var(--text-muted);
 
-          flex: 1;
-
-          padding: 11px;
-
-          border: none;
-
-          border-radius: 8px;
-
-          background: var(--accent);
-
-          color: white;
-
-          cursor: pointer;
-
-          font-weight: 600;
-
+          text-decoration: none;
         }
 
-        .delete-button {
-
-          flex: 1;
-
-          padding: 11px;
-
-          border:
-            1px solid #ef4444;
-
-          border-radius: 8px;
-
-          background: transparent;
-
-          color: #ef4444;
-
-          cursor: pointer;
-
-          font-weight: 600;
-
+        .footer-bottom a:hover {
+          color:
+            var(--accent);
         }
 
-        .update-button:disabled,
-        .delete-button:disabled {
+        /* =================================================
+           RESPONSIVE
+           ================================================= */
 
-          opacity: .5;
+        @media (max-width: 900px) {
 
-          cursor: not-allowed;
+          .hero {
+            flex-direction:
+              column-reverse;
 
+            text-align: center;
+
+            padding:
+              60px 24px;
+          }
+
+          .hero-circle-wrap {
+            width: 240px;
+            height: 240px;
+          }
+
+          .hero-text p {
+            margin-left: auto;
+            margin-right: auto;
+          }
+        }
+
+        @media (max-width: 850px) {
+
+          .exp-card {
+            grid-template-columns:
+              1fr;
+
+            gap: 28px;
+          }
+
+          .exp-photo {
+            aspect-ratio:
+              16 / 9;
+          }
+
+          .career-timeline-content {
+            grid-template-columns:
+              70px 1fr;
+
+            column-gap: 25px;
+          }
+
+          .career-line {
+            left: 26px;
+          }
+
+          .career-node {
+            width: 55px;
+          }
+        }
+
+        @media (max-width: 800px) {
+
+          .nav-links {
+            display: none;
+          }
+
+          .hamburger {
+            display: flex;
+          }
+
+          .edu-map-wrap {
+            display: none;
+          }
+
+          .edu-map-mobile {
+            display: block;
+          }
+
+          .footer-main {
+            grid-template-columns:
+              1fr;
+
+            gap: 40px;
+          }
         }
 
         @media (max-width: 700px) {
 
-          .sidebar {
-
-            width: 70px;
-
+          section {
+            padding:
+              60px 24px;
           }
 
-          .content {
-
-            padding: 20px 15px;
-
+          .project-grid {
+            grid-template-columns:
+              1fr;
           }
 
-          .page-header {
-
-            align-items: flex-start;
-
-            flex-direction: column;
-
+          .career-timeline {
+            margin-top: 15px;
           }
 
-          .primary {
+          .career-timeline-content {
+            grid-template-columns:
+              42px 1fr;
 
-            width: 100%;
-
+            column-gap: 18px;
           }
 
+          .career-line {
+            left: 18px;
+
+            top: 15px;
+
+            bottom: 15px;
+          }
+
+          .career-nodes {
+            gap: 22px;
+          }
+
+          .career-node {
+            width: 38px;
+
+            min-height: 140px;
+          }
+
+          .career-dot {
+            width: 15px;
+            height: 15px;
+
+            margin-top: 7px;
+          }
+
+          .career-node-year {
+            top: 30px;
+
+            font-size: 9px;
+
+            transform:
+              translateX(-50%)
+              rotate(-90deg);
+
+            display: none;
+          }
+
+          .career-cards {
+            gap: 22px;
+          }
+
+          .previous-company-card {
+            min-height: 140px;
+
+            padding:
+              18px 18px;
+          }
+
+          .previous-company-card:hover,
+          .previous-company-card.active {
+            transform:
+              translateX(3px);
+          }
+
+          .previous-company-card.in-view:hover,
+          .previous-company-card.in-view.active {
+            transform:
+              translateX(3px);
+          }
+
+          .previous-company-top {
+            flex-direction:
+              column;
+
+            gap: 8px;
+          }
+
+          .previous-company-years {
+            align-self:
+              flex-start;
+          }
+
+          .footer {
+            padding:
+              60px 24px 25px;
+          }
+
+          .footer-bottom {
+            flex-direction:
+              column;
+
+            align-items:
+              flex-start;
+          }
+        }
+
+        @media (max-width: 500px) {
+
+          .hero-circle-wrap {
+            width: 200px;
+            height: 200px;
+          }
+
+          .hero {
+            padding-top: 45px;
+          }
+
+          .modal-body {
+            padding:
+              28px 22px 30px;
+          }
+
+          .modal-links {
+            flex-direction:
+              column;
+          }
+
+          .modal-links a {
+            text-align:
+              center;
+          }
+
+          .footer-brand h2 {
+            font-size: 26px;
+          }
+
+          .career-timeline-content {
+            grid-template-columns:
+              30px 1fr;
+
+            column-gap: 14px;
+          }
+
+          .career-line {
+            left: 14px;
+          }
+
+          .career-node {
+            width: 30px;
+          }
+
+          .career-dot {
+            width: 13px;
+            height: 13px;
+          }
+        }
+
+        /* =========================================================
+           INITIAL PAGE LOADER
+           ========================================================= */
+
+        .page-loader {
+          position: fixed;
+          inset: 0;
+
+          z-index: 999999;
+
+          display: flex;
+          align-items: center;
+          justify-content: center;
+
+          background:
+            radial-gradient(
+              circle at 50% 40%,
+              #10131b,
+              #050505
+            );
+
+          color: #ffffff;
+
+          animation: loaderFadeOut 0.6s ease 3.4s forwards;
+        }
+
+        .loader-circle-wrap {
+          position: relative;
+
+          width: 130px;
+          height: 130px;
+
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .loader-ring-svg {
+          width: 100%;
+          height: 100%;
+
+          animation: loaderSpin 1.4s linear infinite;
+
+          filter: drop-shadow(0 0 16px rgba(59,95,224,.55));
+        }
+
+        .loader-ring-track {
+          fill: none;
+
+          stroke: rgba(255,255,255,.08);
+
+          stroke-width: 3;
+        }
+
+        .loader-ring-arc {
+          fill: none;
+
+          stroke: url(#loaderGradient);
+
+          stroke-width: 3;
+
+          stroke-linecap: round;
+
+          stroke-dasharray: 105 240;
+
+          transform-origin: 60px 60px;
+        }
+
+        .loader-center-dot {
+          position: absolute;
+
+          width: 14px;
+          height: 14px;
+
+          border-radius: 50%;
+
+          background: linear-gradient(135deg, #3B5FE0, #C1793F);
+
+          animation: loaderPulseDot 1.4s ease-in-out infinite;
+        }
+
+        .loader-orbit-dot {
+          position: absolute;
+
+          width: 8px;
+          height: 8px;
+
+          border-radius: 50%;
+
+          background: #C1793F;
+
+          box-shadow: 0 0 10px 2px rgba(193,121,63,.7);
+
+          top: 50%;
+          left: 50%;
+
+          transform-origin: -1px 65px;
+
+          animation: loaderOrbit 2.1s linear infinite reverse;
+        }
+
+        @keyframes loaderSpin {
+          to { transform: rotate(360deg); }
+        }
+
+        @keyframes loaderPulseDot {
+          0%, 100% {
+            transform: scale(.7);
+            opacity: .6;
+          }
+
+          50% {
+            transform: scale(1.2);
+            opacity: 1;
+          }
+        }
+
+        @keyframes loaderOrbit {
+          from { transform: translate(-50%, -50%) rotate(0deg); }
+          to { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        /* Remove loader */
+
+        @keyframes loaderFadeOut {
+          from {
+            opacity: 1;
+            visibility: visible;
+          }
+
+          to {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+          }
         }
 
       `}</style>
 
 
-      {/* ===================================================
-          NAVBAR
-          =================================================== */}
+      {/* =================================================
+          NAVIGATION
+          ================================================= */}
 
-      <nav className="navbar">
+      <nav
+        className={`nav ${
+          scrolled
+            ? "scrolled"
+            : ""
+        }`}
+      >
 
-        <div className="brand">
-          Sadiq Portfolio Admin
+        <div className="logo">
+          Mohammed Sadiq K
         </div>
 
 
-        <div className="nav-actions">
+        <ul className="nav-links">
+
+          {NAV_LINKS.map(
+            (id) => (
+
+              <li key={id}>
+
+                <button
+                  className={
+                    activeSection === id
+                      ? "active"
+                      : ""
+                  }
+                  onClick={() =>
+                    scrollTo(id)
+                  }
+                >
+                  {id}
+                </button>
+
+              </li>
+
+            )
+          )}
+
+        </ul>
+
+
+        <div className="nav-right">
 
           <button
-            className="theme-button"
+            className="theme-toggle"
             onClick={() =>
-              setDarkMode(
-                !darkMode
+              setTheme(
+                isDark
+                  ? "light"
+                  : "dark"
               )
             }
+            aria-label=
+              "Toggle day and night mode"
           >
-            {darkMode
-              ? "🌙"
-              : "☀️"}
+
+            <span className=
+              "theme-toggle-knob"
+            >
+              {isDark
+                ? "🌙"
+                : "☀️"}
+            </span>
+
           </button>
 
 
-          <button className="logout">
-            Logout
+          <button
+            className={`hamburger ${
+              menuOpen
+                ? "open"
+                : ""
+            }`}
+            onClick={() =>
+              setMenuOpen(
+                !menuOpen
+              )
+            }
+            aria-label=
+              "Toggle menu"
+          >
+
+            <span className="bar" />
+            <span className="bar" />
+            <span className="bar" />
+
           </button>
 
         </div>
@@ -2510,1293 +3212,1420 @@ export default function Admin() {
       </nav>
 
 
-      {/* ===================================================
-          LAYOUT
-          =================================================== */}
-
-      <div className="layout">
-
-
-        {/* SIDEBAR */}
-
-        <aside className="sidebar">
-
-          <button
-            className={
-              `nav-item ${
-                activeTab ===
-                "dashboard"
-                  ? "active"
-                  : ""
-              }`
-            }
-            onClick={() =>
-              setActiveTab(
-                "dashboard"
-              )
-            }
-          >
-            Dashboard
-          </button>
-
-
-          <button
-            className={
-              `nav-item ${
-                activeTab ===
-                "skills"
-                  ? "active"
-                  : ""
-              }`
-            }
-            onClick={() =>
-              setActiveTab(
-                "skills"
-              )
-            }
-          >
-            Skills
-          </button>
-
-
-          <button
-            className={
-              `nav-item ${
-                activeTab ===
-                "projects"
-                  ? "active"
-                  : ""
-              }`
-            }
-            onClick={() =>
-              setActiveTab(
-                "projects"
-              )
-            }
-          >
-            Projects
-          </button>
-
-        </aside>
-
-
-        {/* =================================================
-            CONTENT
-            ================================================= */}
-
-        <main className="content">
-
-
-          {/* =================================================
-              DASHBOARD
-              ================================================= */}
-
-          {activeTab ===
-            "dashboard" && (
-
-            <>
-
-              <h1 className="title">
-                Dashboard
-              </h1>
-
-              <p className="subtitle">
-                Manage your portfolio.
-              </p>
-
-            </>
-
-          )}
-
-
-          {/* =================================================
-              SKILLS
-              ================================================= */}
-
-          {activeTab ===
-            "skills" && (
-
-            <>
-
-              <div className="page-header">
-
-                <div>
-
-                  <h1 className="title">
-                    Skills
-                  </h1>
-
-                  <p className="subtitle">
-                    Click a skill to edit
-                    or delete.
-                  </p>
-
-                </div>
-
-
-                <button
-                  className="primary"
-                  onClick={
-                    openAddSkill
-                  }
-                >
-                  + Add Skill
-                </button>
-
-              </div>
-
-
-              {skillsError && (
-
-                <div className="error">
-                  {skillsError}
-                </div>
-
-              )}
-
-
-              {skillsLoading ? (
-
-                <div className="empty">
-                  Loading skills...
-                </div>
-
-              ) : (
-
-                <div className="skill-grid">
-
-                  {skills.map(
-                    (skill) => (
-
-                      <div
-                        key={
-                          skill.id
-                        }
-                        className="skill-card"
-                        onClick={() =>
-                          openEditSkill(
-                            skill
-                          )
-                        }
-                      >
-
-                        <img
-                          className="skill-logo"
-                          src={
-                            skill.icon
-                          }
-                          alt={
-                            skill.name
-                          }
-                        />
-
-
-                        <div className="skill-name">
-                          {
-                            skill.name
-                          }
-                        </div>
-
-
-                        <div className="skill-id">
-                          ID:{" "}
-                          {
-                            skill.id
-                          }
-                        </div>
-
-                      </div>
-
-                    )
-                  )}
-
-                </div>
-
-              )}
-
-            </>
-
-          )}
-
-
-          {/* =================================================
-              PROJECTS
-              ================================================= */}
-
-          {activeTab ===
-            "projects" && (
-
-            <>
-
-              <div className="page-header">
-
-                <div>
-
-                  <h1 className="title">
-                    Projects
-                  </h1>
-
-                  <p className="subtitle">
-                    Click a project to
-                    edit or delete.
-                  </p>
-
-                </div>
-
-
-                <button
-                  className="primary"
-                  onClick={
-                    openAddProject
-                  }
-                >
-                  + Add Project
-                </button>
-
-              </div>
-
-
-              {projectsError && (
-
-                <div className="error">
-                  {projectsError}
-                </div>
-
-              )}
-
-
-              {projectsLoading ? (
-
-                <div className="empty">
-                  Loading projects...
-                </div>
-
-              ) : projects.length ===
-                0 ? (
-
-                <div className="empty">
-
-                  <h3>
-                    No projects yet
-                  </h3>
-
-                  <p>
-                    Click "+ Add Project"
-                    to create one.
-                  </p>
-
-                </div>
-
-              ) : (
-
-                <div className="project-grid">
-
-                  {projects.map(
-                    (project) => {
-
-                      const projectSkills =
-                        getProjectSkills(
-                          project
-                        );
-
-
-                      return (
-
-                        <div
-                          className="project-card"
-                          key={
-                            project.id
-                          }
-                          onClick={() =>
-                            openEditProject(
-                              project
-                            )
-                          }
-                        >
-
-
-                          {project.image ? (
-
-                            <img
-                              className="project-image"
-                              src={
-                                project.image
-                              }
-                              alt={
-                                project.name
-                              }
-                            />
-
-                          ) : (
-
-                            <div
-                              className="project-image"
-                              style={{
-                                display:
-                                  "flex",
-                                alignItems:
-                                  "center",
-                                justifyContent:
-                                  "center",
-                                color:
-                                  "var(--muted)"
-                              }}
-                            >
-                              No Image
-                            </div>
-
-                          )}
-
-
-                          <div className="project-body">
-
-                            <h3 className="project-name">
-                              {
-                                project.name
-                              }
-                            </h3>
-
-
-                            <p className="project-description">
-                              {
-                                project.description
-                              }
-                            </p>
-
-
-                            <div className="project-year">
-                              Year:{" "}
-                              {
-                                project.year
-                              }
-                            </div>
-
-
-                            {projectSkills.length >
-                              0 && (
-
-                              <div className="technology-list">
-
-                                {projectSkills.map(
-                                  (skill) => (
-
-                                    <div
-                                      className="technology"
-                                      key={
-                                        skill.id
-                                      }
-                                    >
-
-                                      <img
-                                        src={
-                                          skill.icon
-                                        }
-                                        alt=""
-                                      />
-
-                                      <span>
-                                        {
-                                          skill.name
-                                        }
-                                      </span>
-
-                                    </div>
-
-                                  )
-                                )}
-
-                              </div>
-
-                            )}
-
-
-                            <div className="project-links">
-
-                              {project.githubURL && (
-
-                                <a
-                                  className="project-link"
-                                  href={
-                                    project.githubURL
-                                  }
-                                  target="_blank"
-                                  rel="noreferrer"
-                                  onClick={(e) =>
-                                    e.stopPropagation()
-                                  }
-                                >
-                                  GitHub
-                                </a>
-
-                              )}
-
-
-                              {project.projectURL && (
-
-                                <a
-                                  className="project-link"
-                                  href={
-                                    project.projectURL
-                                  }
-                                  target="_blank"
-                                  rel="noreferrer"
-                                  onClick={(e) =>
-                                    e.stopPropagation()
-                                  }
-                                >
-                                  Project
-                                </a>
-
-                              )}
-
-                            </div>
-
-                          </div>
-
-                        </div>
-
-                      );
-
-                    }
-                  )}
-
-                </div>
-
-              )}
-
-            </>
-
-          )}
-
-        </main>
+      {/* =================================================
+          MOBILE MENU
+          ================================================= */}
+
+      <div
+        className={`mobile-menu ${
+          menuOpen
+            ? "open"
+            : ""
+        }`}
+      >
+
+        {NAV_LINKS.map(
+          (id) => (
+
+            <button
+              key={id}
+              onClick={() =>
+                scrollTo(id)
+              }
+            >
+              {id}
+            </button>
+
+          )
+        )}
 
       </div>
 
 
-      {/* ===================================================
-          ADD SKILL MODAL
-          =================================================== */}
+      {/* =================================================
+          HERO
+          ================================================= */}
 
-      {showAddSkill && (
+      <header
+        id="home"
+        className="hero"
+        style={{
+          borderTop:
+            "none",
+        }}
+      >
 
         <div
-          className="overlay"
-          onClick={
-            closeAddSkill
-          }
+          className=
+            "hero-circle-wrap"
         >
 
           <div
-            className="modal"
-            onClick={(e) =>
-              e.stopPropagation()
-            }
-          >
-
-            <div className="modal-header">
-
-              <h2>
-                Add Skill
-              </h2>
-
-              <button
-                className="close"
-                onClick={
-                  closeAddSkill
-                }
-              >
-                ×
-              </button>
-
-            </div>
-
-
-            <form
-              onSubmit={
-                handleCreateSkill
-              }
-            >
-
-              <div className="field">
-
-                <label>
-                  Skill Name
-                </label>
-
-                <input
-                  type="text"
-                  value={
-                    newSkillName
-                  }
-                  onChange={(e) =>
-                    setNewSkillName(
-                      e.target.value
-                    )
-                  }
-                  placeholder="React"
-                />
-
-              </div>
-
-
-              <div className="field">
-
-                <label>
-                  Image URL
-                </label>
-
-                <input
-                  type="url"
-                  value={
-                    newSkillImage
-                  }
-                  onChange={(e) =>
-                    setNewSkillImage(
-                      e.target.value
-                    )
-                  }
-                  placeholder="https://example.com/react.png"
-                />
-
-              </div>
-
-
-              <button
-                className="primary"
-                type="submit"
-                disabled={
-                  addingSkill
-                }
-                style={{
-                  width:
-                    "100%"
-                }}
-              >
-                {addingSkill
-                  ? "Creating..."
-                  : "Create Skill"}
-              </button>
-
-
-              <button
-                className="secondary"
-                type="button"
-                onClick={
-                  closeAddSkill
-                }
-              >
-                Cancel
-              </button>
-
-            </form>
-
-          </div>
+            className=
+              "hero-circle"
+          />
 
         </div>
 
-      )}
-
-
-      {/* ===================================================
-          EDIT SKILL MODAL
-          =================================================== */}
-
-      {selectedSkill && (
 
         <div
-          className="overlay"
-          onClick={
-            closeEditSkill
-          }
+          className=
+            "hero-text"
         >
 
-          <div
-            className="modal"
-            onClick={(e) =>
-              e.stopPropagation()
-            }
-          >
+          <h1>
 
-            <div className="modal-header">
+            I am a
+            <br />
 
-              <h2>
-                Edit Skill
-              </h2>
-
-              <button
-                className="close"
-                onClick={
-                  closeEditSkill
-                }
-              >
-                ×
-              </button>
-
-            </div>
-
-
-            <form
-              onSubmit={
-                handleUpdateSkill
-              }
+            <span
+              className=
+                "hero-typed"
             >
+              {typed.text}
+            </span>
 
-              <div className="field">
+            <span
+              className="cursor"
+              style={{
+                opacity:
+                  typed.blink
+                    ? 1
+                    : 0,
+              }}
+            >
+              |
+            </span>
 
-                <label>
-                  Skill Name
-                </label>
-
-                <input
-                  type="text"
-                  value={
-                    editSkillName
-                  }
-                  onChange={(e) =>
-                    setEditSkillName(
-                      e.target.value
-                    )
-                  }
-                />
-
-              </div>
+          </h1>
 
 
-              <div className="field">
-
-                <label>
-                  Image URL
-                </label>
-
-                <input
-                  type="url"
-                  value={
-                    editSkillImage
-                  }
-                  onChange={(e) =>
-                    setEditSkillImage(
-                      e.target.value
-                    )
-                  }
-                />
-
-              </div>
-
-
-              <div className="edit-buttons">
-
-                <button
-                  className="update-button"
-                  type="submit"
-                  disabled={
-                    updatingSkill ||
-                    deletingSkill
-                  }
-                >
-                  {updatingSkill
-                    ? "Updating..."
-                    : "Update"}
-                </button>
-
-
-                <button
-                  className="delete-button"
-                  type="button"
-                  onClick={
-                    handleDeleteSkill
-                  }
-                  disabled={
-                    updatingSkill ||
-                    deletingSkill
-                  }
-                >
-                  {deletingSkill
-                    ? "Deleting..."
-                    : "Delete"}
-                </button>
-
-              </div>
-
-            </form>
-
-          </div>
+          <p>
+            I build software and
+            the systems around it —
+            from interface to
+            infrastructure. Ten years
+            designing and shipping
+            products that stay legible
+            as they grow.
+          </p>
 
         </div>
 
-      )}
+      </header>
 
 
-      {/* ===================================================
-          ADD PROJECT MODAL
-          =================================================== */}
+      {/* =================================================
+          PROJECTS
+          ================================================= */}
 
-      {showAddProject && (
+      <section id="projects">
 
-        <div
-          className="overlay"
-          onClick={
-            closeAddProject
-          }
+        <div className=
+          "section-head"
         >
 
-          <div
-            className="modal"
-            onClick={(e) =>
-              e.stopPropagation()
-            }
-          >
+          <h2>
+            Selected Projects
+          </h2>
 
-            <div className="modal-header">
+          <p>
+            Click a card to see
+            the full details.
+          </p>
 
-              <h2>
-                Add Project
-              </h2>
+        </div>
 
-              <button
-                className="close"
-                onClick={
-                  closeAddProject
+
+        <div
+          className=
+            "project-grid"
+        >
+
+          {projectsLoading ? (
+            <div style={{ gridColumn: "1 / -1", textAlign: "center", padding: "40px", color: "var(--text-muted)" }}>
+              Loading projects...
+            </div>
+          ) : projects.length === 0 ? (
+            <div style={{ gridColumn: "1 / -1", textAlign: "center", padding: "40px", color: "var(--text-muted)" }}>
+              No projects available.
+            </div>
+          ) : (
+            projects.map(
+              (p) => (
+
+                <button
+                className=
+                  "project-card"
+                key={p.id}
+                onClick={() =>
+                  setActiveProject(p)
                 }
               >
-                ×
-              </button>
 
-            </div>
-
-
-            <form
-              onSubmit={
-                handleCreateProject
-              }
-            >
-
-
-              {/* PROJECT NAME */}
-
-              <div className="field">
-
-                <label>
-                  Project Name
-                </label>
-
-                <input
-                  type="text"
-                  value={
-                    projectName
-                  }
-                  onChange={(e) =>
-                    setProjectName(
-                      e.target.value
-                    )
-                  }
-                  placeholder="Nombre Akuma"
+                <img
+                  className=
+                    "project-card-img"
+                  src={p.image}
+                  alt={p.title}
                 />
 
-              </div>
+
+                <div
+                  className=
+                    "project-card-body"
+                >
+
+                  <h3>
+                    {p.title}
+                  </h3>
+
+                  <p>
+                    {p.description}
+                  </p>
 
 
-              {/* DESCRIPTION */}
+                  <div
+                    className=
+                      "project-tech"
+                  >
 
-              <div className="field">
+                    {p.tech.map(
+                      (t) => (
 
-                <label>
-                  Description
-                </label>
+                        <span
+                          key={t}
+                          className=
+                            "tag"
+                        >
+                          {t}
+                        </span>
 
-                <textarea
-                  value={
-                    projectDescription
-                  }
-                  onChange={(e) =>
-                    setProjectDescription(
-                      e.target.value
-                    )
-                  }
-                  placeholder="Describe your project..."
-                />
+                      )
+                    )}
 
-              </div>
+                  </div>
 
-
-              {/* IMAGE */}
-
-              <div className="field">
-
-                <label>
-                  Project Image
-                </label>
-
-                <input
-                  className="file-input"
-                  type="file"
-                  accept="
-                    image/png,
-                    image/jpeg,
-                    image/jpg,
-                    image/webp
-                  "
-                  onChange={
-                    handleProjectImageChange
-                  }
-                />
-
-                <div className="help">
-                  PNG, JPG, JPEG or
-                  WEBP. Maximum 10 MB.
                 </div>
 
-              </div>
+                </button>
+
+              )
+            )
+          )}
+
+        </div>
+
+      </section>
 
 
-              {projectImagePreview && (
+      {/* =================================================
+          EDUCATION
+          ================================================= */}
 
-                <div className="preview">
+      <section
+        id="education"
+        ref={eduRef}
+      >
 
-                  <img
-                    src={
-                      projectImagePreview
+        <div
+          className=
+            "section-head"
+        >
+
+          <h2>
+            Education
+          </h2>
+
+          <p>
+            Hover a point on desktop,
+            or tap it on mobile,
+            for the full story.
+          </p>
+
+        </div>
+
+
+        <div
+          className=
+            "edu-map-wrap"
+        >
+
+          <svg
+            className=
+              "edu-map-svg"
+            viewBox=
+              "0 0 1000 320"
+            preserveAspectRatio=
+              "none"
+          >
+
+            <path
+              className=
+                "edu-path"
+              d={eduPath}
+            />
+
+            <path
+              className={`
+                edu-path-draw
+                ${
+                  eduInView
+                    ? "in-view"
+                    : ""
+                }
+              `}
+              d={eduPath}
+            />
+
+          </svg>
+
+
+          {eduLayout.map(
+            (n, i) => {
+
+              const isCurrent =
+                n.end ===
+                "Present";
+
+              return (
+                <React.Fragment
+                  key={n.id}
+                >
+
+                  <button
+                    className={`
+                      edu-node
+                      ${
+                        isCurrent
+                          ? "current"
+                          : ""
+                      }
+                      ${
+                        activeEduNode ===
+                        n.id
+                          ? "active"
+                          : ""
+                      }
+                      ${
+                        eduInView
+                          ? "in-view"
+                          : ""
+                      }
+                    `}
+                    style={{
+                      left:
+                        `${n.x}%`,
+                      top:
+                        `${n.y}%`,
+                      transitionDelay:
+                        `${
+                          .3 +
+                          i *
+                            .25
+                        }s`,
+                    }}
+                    onMouseEnter={() =>
+                      setActiveEduNode(
+                        n.id
+                      )
                     }
-                    alt="Preview"
+                    onMouseLeave={() =>
+                      setActiveEduNode(
+                        null
+                      )
+                    }
+                    onFocus={() =>
+                      setActiveEduNode(
+                        n.id
+                      )
+                    }
+                    onBlur={() =>
+                      setActiveEduNode(
+                        null
+                      )
+                    }
                   />
 
-                </div>
 
-              )}
-
-
-              {/* GITHUB */}
-
-              <div className="field">
-
-                <label>
-                  GitHub URL
-                </label>
-
-                <input
-                  type="url"
-                  value={
-                    projectGithubURL
-                  }
-                  onChange={(e) =>
-                    setProjectGithubURL(
-                      e.target.value
-                    )
-                  }
-                  placeholder="https://github.com/username/project"
-                />
-
-              </div>
+                  <div
+                    className={`
+                      edu-node-label
+                      ${
+                        eduInView
+                          ? "in-view"
+                          : ""
+                      }
+                    `}
+                    style={{
+                      left:
+                        `${n.x}%`,
+                      top:
+                        `${n.y}%`,
+                    }}
+                  >
+                    {n.institution}
+                  </div>
 
 
-              {/* PROJECT URL - OPTIONAL */}
+                  {activeEduNode ===
+                    n.id && (
 
-              <div className="field">
+                    <div
+                      className=
+                        "edu-card"
+                      style={{
+                        left:
+                          `${n.x}%`,
+                        top:
+                          `${
+                            n.y > 50
+                              ? n.y -
+                                8
+                              : n.y +
+                                8
+                          }%`,
+                        transform:
+                          `translate(
+                            ${
+                              n.x >
+                              65
+                                ? "-100%"
+                                : n.x <
+                                  15
+                                ? "0%"
+                                : "-50%"
+                            },
+                            ${
+                              n.y >
+                              50
+                                ? "-100%"
+                                : "0%"
+                            }
+                          )`,
+                      }}
+                      onMouseEnter={() =>
+                        setActiveEduNode(
+                          n.id
+                        )
+                      }
+                      onMouseLeave={() =>
+                        setActiveEduNode(
+                          null
+                        )
+                      }
+                    >
 
-                <label>
-                  Project URL
-                </label>
-
-                <input
-                  type="url"
-                  value={
-                    projectURL
-                  }
-                  onChange={(e) =>
-                    setProjectURL(
-                      e.target.value
-                    )
-                  }
-                  placeholder="https://myproject.vercel.app"
-                />
-
-              </div>
-
-
-              {/* YEAR */}
-
-              <div className="field">
-
-                <label>
-                  Year
-                </label>
-
-                <input
-                  type="number"
-                  value={
-                    projectYear
-                  }
-                  onChange={(e) =>
-                    setProjectYear(
-                      e.target.value
-                    )
-                  }
-                  placeholder="2026"
-                />
-
-              </div>
-
-
-              {/* TECHNOLOGIES */}
-
-              <div className="field">
-
-                <label>
-                  Technologies
-                </label>
-
-
-                <div className="selector">
-
-                  {skills.map(
-                    (skill) => {
-
-                      const selected =
-                        selectedSkillIds.includes(
-                          skill.id
-                        );
-
-
-                      return (
-
-                        <label
-                          key={
-                            skill.id
-                          }
-                          className={
-                            `selector-item ${
-                              selected
-                                ? "selected"
-                                : ""
-                            }`
-                          }
+                      {isCurrent && (
+                        <span
+                          className=
+                            "edu-card-badge"
                         >
+                          CURRENT
+                        </span>
+                      )}
 
-                          <input
-                            type="checkbox"
-                            checked={
-                              selected
-                            }
-                            onChange={() =>
-                              toggleProjectSkill(
-                                skill.id
-                              )
-                            }
-                          />
+                      <h4>
+                        {n.institution}
+                      </h4>
 
+                      <div
+                        className=
+                          "degree"
+                      >
+                        {n.degree}
+                      </div>
 
-                          <img
-                            src={
-                              skill.icon
-                            }
-                            alt=""
-                          />
+                      <div
+                        className=
+                          "years"
+                      >
+                        {n.start}—
+                        {n.end}
+                      </div>
 
+                      <p
+                        className=
+                          "desc"
+                      >
+                        {n.description}
+                      </p>
 
-                          <span className="selector-name">
-                            {
-                              skill.name
-                            }
-                          </span>
+                      <ul>
 
-                        </label>
+                        {n.achievements.map(
+                          (a, i2) => (
+                            <li
+                              key={i2}
+                            >
+                              {a}
+                            </li>
+                          )
+                        )}
 
-                      );
+                      </ul>
 
-                    }
+                    </div>
                   )}
 
+                </React.Fragment>
+              );
+            }
+          )}
+
+        </div>
+
+
+        {/* MOBILE EDUCATION */}
+
+        <div
+          className=
+            "edu-map-mobile"
+        >
+
+          {EDUCATION.map(
+            (n, i) => {
+
+              const isCurrent =
+                n.end ===
+                "Present";
+
+              return (
+                <div
+                  className=
+                    "edu-mobile-item"
+                  key={n.id}
+                >
+
+                  <div
+                    className=
+                      "edu-mobile-rail"
+                  >
+
+                    <div
+                      className={`
+                        edu-mobile-dot
+                        ${
+                          isCurrent
+                            ? "current"
+                            : ""
+                        }
+                      `}
+                    />
+
+                    {i <
+                      EDUCATION.length -
+                        1 && (
+                      <div
+                        className=
+                          "edu-mobile-line"
+                      />
+                    )}
+
+                  </div>
+
+
+                  <div
+                    style={{
+                      flex: 1,
+                    }}
+                  >
+
+                    <button
+                      className=
+                        "edu-mobile-btn"
+                      onClick={() =>
+                        setActiveEduNode(
+                          activeEduNode ===
+                            n.id
+                            ? null
+                            : n.id
+                        )
+                      }
+                    >
+
+                      <h4>
+                        {n.institution}
+                      </h4>
+
+                      <div
+                        className=
+                          "degree"
+                      >
+                        {n.degree}
+                      </div>
+
+                      <div
+                        className=
+                          "years"
+                      >
+                        {n.start}—
+                        {n.end}
+                      </div>
+
+                    </button>
+
+
+                    {activeEduNode ===
+                      n.id && (
+
+                      <div
+                        className=
+                          "edu-mobile-card"
+                      >
+
+                        <p
+                          className=
+                            "desc"
+                        >
+                          {n.description}
+                        </p>
+
+                        <ul>
+
+                          {n.achievements.map(
+                            (a, i2) => (
+                              <li
+                                key={i2}
+                              >
+                                {a}
+                              </li>
+                            )
+                          )}
+
+                        </ul>
+
+                      </div>
+                    )}
+
+                  </div>
+
                 </div>
+              );
+            }
+          )}
+
+        </div>
+
+      </section>
+
+
+      {/* =================================================
+          EXPERIENCE
+          ================================================= */}
+
+      <section
+        id="experience"
+        ref={experienceRef}
+      >
+
+        <div
+          className=
+            "section-head"
+        >
+
+          <h2>
+            Experience
+          </h2>
+
+          <p>
+            My professional journey,
+            from where I started to
+            where I am today.
+          </p>
+
+        </div>
+
+
+        {/* CURRENT COMPANY */}
+
+        {currentExperience && (
+
+          <div
+            className=
+              "experience-current"
+          >
+
+            <div
+              className=
+                "experience-current-label"
+            >
+              Currently working at
+            </div>
+
+
+            <div
+              className=
+                "exp-card"
+            >
+
+              <div
+                className=
+                  "exp-photo-wrap"
+              >
+
+                <img
+                  className=
+                    "exp-photo"
+                  src={
+                    currentExperience.photo
+                  }
+                  alt={
+                    currentExperience.company
+                  }
+                />
+
+
+                <span
+                  className=
+                    "exp-badge"
+                >
+                  CURRENT
+                </span>
 
               </div>
 
 
-              {projectError && (
+              <div
+                className=
+                  "exp-details"
+              >
 
-                <div className="error">
+                <h3>
                   {
-                    projectError
+                    currentExperience.company
+                  }
+                </h3>
+
+                <div
+                  className=
+                    "role"
+                >
+                  {
+                    currentExperience.position
                   }
                 </div>
 
+                <div
+                  className=
+                    "meta"
+                >
+                  {
+                    currentExperience.type
+                  }
+                  {" · "}
+                  {
+                    currentExperience.start
+                  }
+                  —
+                  {
+                    currentExperience.end
+                  }
+                </div>
+
+
+                <p
+                  className=
+                    "desc"
+                >
+                  {
+                    currentExperience.description
+                  }
+                </p>
+
+
+                <div
+                  className=
+                    "exp-tech"
+                >
+
+                  {
+                    currentExperience.tech.map(
+                      (t) => (
+                        <span
+                          key={t}
+                          className=
+                            "tag"
+                        >
+                          {t}
+                        </span>
+                      )
+                    )
+                  }
+
+                </div>
+
+
+                <ul>
+
+                  {
+                    currentExperience.achievements.map(
+                      (a, i) => (
+                        <li key={i}>
+                          {a}
+                        </li>
+                      )
+                    )
+                  }
+
+                </ul>
+
+              </div>
+
+            </div>
+
+          </div>
+        )}
+
+
+        {/* CAREER TIMELINE */}
+
+        <div
+          className=
+            "career-timeline"
+        >
+
+          <div
+            className=
+              "career-timeline-title"
+          >
+            Career Journey
+          </div>
+
+
+          <div
+            className=
+              "career-timeline-content"
+          >
+
+            {/* TIMELINE LINE */}
+
+            <div
+              className=
+                "career-line"
+            >
+
+              <div
+                className={`
+                  career-line-progress
+                  ${
+                    experienceInView
+                      ? "in-view"
+                      : ""
+                  }
+                `}
+              />
+
+            </div>
+
+
+            {/* TIMELINE NODES */}
+
+            <div
+              className=
+                "career-nodes"
+            >
+
+              {/* CURRENT NODE */}
+
+              <div
+                className=
+                  "career-node"
+              >
+
+                <div
+                  className=
+                    "career-dot current"
+                />
+
+                <span
+                  className=
+                    "career-node-year"
+                >
+                  Present
+                </span>
+
+              </div>
+
+
+              {/* PREVIOUS NODES */}
+
+              {previousExperience.map(
+                (company) => (
+
+                  <div
+                    key={company.id}
+                    className={`
+                      career-node
+                      ${
+                        hoveredExperience ===
+                        company.id
+                          ? "active"
+                          : ""
+                      }
+                    `}
+                  >
+
+                    <div
+                      className=
+                        "career-dot completed"
+                    />
+
+                    <span
+                      className=
+                        "career-node-year"
+                    >
+                      {
+                        company.start
+                      }
+                    </span>
+
+                  </div>
+
+                )
               )}
 
-
-              <button
-                className="primary"
-                type="submit"
-                disabled={
-                  creatingProject
-                }
-                style={{
-                  width:
-                    "100%"
-                }}
-              >
-
-                {creatingProject
-                  ? "Uploading..."
-                  : "Create Project"}
-
-              </button>
+            </div>
 
 
-              <button
-                className="secondary"
-                type="button"
-                onClick={
-                  closeAddProject
-                }
-              >
-                Cancel
-              </button>
+            {/* PREVIOUS COMPANY CARDS */}
 
-            </form>
+            <div
+              className=
+                "career-cards"
+            >
+
+              {previousExperience.map(
+                (company, index) => (
+
+                  /*
+                    IMPORTANT:
+                    These are deliberately
+                    DIV elements, NOT buttons.
+                    They cannot be opened.
+                  */
+
+                  <div
+                    key={company.id}
+                    className={`
+                      previous-company-card
+                      ${
+                        experienceInView
+                          ? "in-view"
+                          : ""
+                      }
+                      ${
+                        hoveredExperience ===
+                        company.id
+                          ? "active"
+                          : ""
+                      }
+                    `}
+                    style={{
+                      transitionDelay:
+                        experienceInView
+                          ? `${
+                              .25 +
+                              index *
+                                .2
+                            }s`
+                          : "0s",
+                    }}
+                    onMouseEnter={() =>
+                      setHoveredExperience(
+                        company.id
+                      )
+                    }
+                    onMouseLeave={() =>
+                      setHoveredExperience(
+                        null
+                      )
+                    }
+                  >
+
+                    <div
+                      className=
+                        "previous-company-top"
+                    >
+
+                      <h3
+                        className=
+                          "previous-company-name"
+                      >
+                        {
+                          company.company
+                        }
+                      </h3>
+
+
+                      <span
+                        className=
+                          "previous-company-years"
+                      >
+                        {
+                          company.start
+                        }
+                        {" — "}
+                        {
+                          company.end
+                        }
+                      </span>
+
+                    </div>
+
+
+                    <div
+                      className=
+                        "previous-company-role"
+                    >
+                      {
+                        company.position
+                      }
+                      {" · "}
+                      {
+                        company.type
+                      }
+                    </div>
+
+
+                    <p
+                      className=
+                        "previous-company-description"
+                    >
+                      {
+                        company.description
+                      }
+                    </p>
+
+
+                    <div
+                      className=
+                        "previous-company-tech"
+                    >
+
+                      {
+                        company.tech.map(
+                          (tech) => (
+                            <span
+                              key={tech}
+                              className=
+                                "tag"
+                            >
+                              {tech}
+                            </span>
+                          )
+                        )
+                      }
+
+                    </div>
+
+                  </div>
+
+                )
+              )}
+
+            </div>
 
           </div>
 
         </div>
 
-      )}
+      </section>
 
 
-      {/* ===================================================
-          EDIT PROJECT MODAL
-          =================================================== */}
+      {/* =================================================
+          SKILLS
+          ================================================= */}
 
-      {selectedProject && (
+      <section id="skills">
 
         <div
-          className="overlay"
-          onClick={
-            closeEditProject
+          className=
+            "section-head"
+        >
+
+          <h2>
+            Skills
+          </h2>
+
+          <p>
+            Move your cursor across
+            the icons.
+          </p>
+
+        </div>
+
+
+        {skillsLoading ? (
+  <div className="skills-wrap">
+    Loading skills...
+  </div>
+) : (
+  <SkillsDock
+    skills={skills}
+  />
+)}
+
+      </section>
+
+
+      {/* =================================================
+          PROJECT MODAL
+          ================================================= */}
+
+      {activeProject && (
+
+        <div
+          className=
+            "modal-backdrop"
+          onClick={() =>
+            setActiveProject(null)
           }
         >
 
           <div
-            className="modal"
+            className=
+              "modal-card"
             onClick={(e) =>
               e.stopPropagation()
             }
           >
 
-            <div className="modal-header">
+            <button
+              className=
+                "modal-close"
+              onClick={() =>
+                setActiveProject(null)
+              }
+            >
+              ✕
+            </button>
 
-              <h2>
-                Edit Project
-              </h2>
+
+            <img
+              className=
+                "modal-img"
+              src={
+                activeProject.image
+              }
+              alt={
+                activeProject.title
+              }
+            />
 
 
-              <button
-                className="close"
-                onClick={
-                  closeEditProject
+            <div
+              className=
+                "modal-body"
+            >
+
+              <h3>
+                {
+                  activeProject.title
                 }
+              </h3>
+
+
+              <p
+                className=
+                  "long"
               >
-                ×
-              </button>
+                {
+                  activeProject.longDescription
+                }
+              </p>
+
+
+              <div
+                className=
+                  "modal-tech"
+              >
+
+                {
+                  activeProject.tech.map(
+                    (t) => (
+                      <span
+                        key={t}
+                        className=
+                          "tag"
+                      >
+                        {t}
+                      </span>
+                    )
+                  )
+                }
+
+              </div>
+
+
+              <div
+                className=
+                  "modal-links"
+              >
+
+                <a
+                  className=
+                    "primary"
+                  href={
+                    activeProject.live
+                  }
+                  target="_blank"
+                  rel=
+                    "noopener noreferrer"
+                >
+                  Live Demo
+                </a>
+
+
+                <a
+                  className=
+                    "ghost"
+                  href={
+                    activeProject.github
+                  }
+                  target="_blank"
+                  rel=
+                    "noopener noreferrer"
+                >
+                  View Code
+                </a>
+
+              </div>
 
             </div>
 
+          </div>
 
-            <form
-              onSubmit={
-                handleUpdateProject
-              }
+        </div>
+      )}
+
+
+      {/* =================================================
+          FOOTER
+          ================================================= */}
+
+      <footer
+        className=
+          "footer"
+        id="contact"
+      >
+
+        <div
+          className=
+            "footer-main"
+        >
+
+          {/* BRAND */}
+
+          <div
+            className=
+              "footer-brand"
+          >
+
+            <h2>
+              Let's build something.
+            </h2>
+
+
+            <p>
+              Have a project, idea,
+              or opportunity in mind?
+              Feel free to reach out.
+              I'm always open to
+              interesting conversations
+              and collaborations.
+            </p>
+
+
+            <div
+              className=
+                "footer-socials"
             >
 
-
-              {/* CURRENT IMAGE */}
-
-              {selectedProject.image && (
-
-                <div className="preview">
-
-                  <img
-                    src={
-                      selectedProject.image
-                    }
-                    alt={
-                      selectedProject.name
-                    }
-                  />
-
-                </div>
-
-              )}
-
-
-              <div className="help">
-                Project ID:{" "}
-                {
-                  selectedProject.id
-                }
-              </div>
+<a
+  className="footer-social"
+  href="https://github.com/MohammedSadiq555"
+  target="_blank"
+  rel="noopener noreferrer"
+>
+  <img 
+    src="https://www.svgrepo.com/show/516640/github.svg" 
+    alt="GitHub icon" 
+    width="40" 
+    height="40" 
+    style={{
+      backgroundColor: '#ffffff',
+      borderRadius: '25%',
+      border: '2px solid #000000',
+      padding: '4px'
+    }}
+  />
+</a>
 
 
-              {/* NAME */}
-
-              <div className="field">
-
-                <label>
-                  Project Name
-                </label>
-
-                <input
-                  type="text"
-                  value={
-                    editProjectName
-                  }
-                  onChange={(e) =>
-                    setEditProjectName(
-                      e.target.value
-                    )
-                  }
-                />
-
-              </div>
-
-
-              {/* DESCRIPTION */}
-
-              <div className="field">
-
-                <label>
-                  Description
-                </label>
-
-                <textarea
-                  value={
-                    editProjectDescription
-                  }
-                  onChange={(e) =>
-                    setEditProjectDescription(
-                      e.target.value
-                    )
-                  }
-                />
-
-              </div>
+<a
+      className="footer-social"
+      href="https://www.linkedin.com/in/mohammed-sadiq-81382b221?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app"
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="LinkedIn Profile"
+    >
+      <img 
+        src="https://www.svgrepo.com/show/25824/linked-in-logo-of-two-letters.svg" 
+        alt="LinkedIn logo" 
+        width="40" 
+        height="40" 
+        style={{
+      backgroundColor: '#ffffff',
+      borderRadius: '25%',
+      border: '2px solid #000000',
+      padding: '4px'
+    }}
+      />
+    </a>
 
 
-              {/* GITHUB */}
-
-              <div className="field">
-
-                <label>
-                  GitHub URL
-                </label>
-
-                <input
-                  type="url"
-                  value={
-                    editProjectGithubURL
-                  }
-                  onChange={(e) =>
-                    setEditProjectGithubURL(
-                      e.target.value
-                    )
-                  }
-                />
-
-              </div>
-
-
-              {/* PROJECT URL */}
-
-              <div className="field">
-
-                <label>
-                  Project URL
-                </label>
-
-                <input
-                  type="url"
-                  value={
-                    editProjectURL
-                  }
-                  onChange={(e) =>
-                    setEditProjectURL(
-                      e.target.value
-                    )
-                  }
-                />
-
-              </div>
+              <a
+                className=
+                  "footer-social"
+                href=
+                  "https://www.instagram.com/sad.iq_555?igsi=MTNjcWZ2ZmQxMmJwZA=="
+                target="_blank"
+                rel=
+                  "noopener noreferrer"
+              >
+                <img 
+        src="https://www.svgrepo.com/show/521711/instagram.svg" 
+        alt="LinkedIn logo" 
+        width="40" 
+        height="40" 
+        style={{
+      backgroundColor: '#ffffff',
+      borderRadius: '25%',
+      border: '2px solid #000000',
+      padding: '4px'
+    }}
+      />
+              </a>
 
 
-              {/* YEAR */}
+            </div>
 
-              <div className="field">
-
-                <label>
-                  Year
-                </label>
-
-                <input
-                  type="number"
-                  value={
-                    editProjectYear
-                  }
-                  onChange={(e) =>
-                    setEditProjectYear(
-                      e.target.value
-                    )
-                  }
-                />
-
-              </div>
+          </div>
 
 
-              {/* BUTTONS */}
+          {/* CONTACT */}
 
-              <div className="edit-buttons">
+          <div>
 
-                <button
-                  className="update-button"
-                  type="submit"
-                  disabled={
-                    updatingProject ||
-                    deletingProject
-                  }
-                >
-
-                  {updatingProject
-                    ? "Updating..."
-                    : "Update"}
-
-                </button>
+            <div
+              className=
+                "footer-title"
+            >
+              Contact
+            </div>
 
 
-                <button
-                  className="delete-button"
-                  type="button"
-                  onClick={
-                    handleDeleteProject
-                  }
-                  disabled={
-                    updatingProject ||
-                    deletingProject
-                  }
-                >
+            <div
+              className=
+                "footer-links"
+            >
 
-                  {deletingProject
-                    ? "Deleting..."
-                    : "Delete"}
+              <a
+                href=
+                  "mailto:sadiq.mohammed.dev@gmail.com"
+              >
+                ✉
+                {" "}
+                sadiq.mohammed.dev@gmail.com
+              </a>
 
-                </button>
 
-              </div>
+              <a
+                href=
+                  "tel:+919789935475"
+              >
+                ☎
+                {" "}
+                +91 97899 35475
+              </a>
 
-            </form>
+            </div>
+
+          </div>
+
+
+          {/* NAVIGATION */}
+
+          <div>
+
+            <div
+              className=
+                "footer-title"
+            >
+              Explore
+            </div>
+
+
+            <div
+              className=
+                "footer-links"
+            >
+
+              <a href="#home">
+                Home
+              </a>
+
+              <a href="#projects">
+                Projects
+              </a>
+
+              <a href="#education">
+                Education
+              </a>
+
+              <a href="#experience">
+                Experience
+              </a>
+
+              <a href="#skills">
+                Skills
+              </a>
+
+              <a href="#contact">
+                Contact
+              </a>
+
+            </div>
 
           </div>
 
         </div>
 
-      )}
+
+        <div
+          className=
+            "footer-bottom"
+        >
+
+          <span>
+            ©{" "}
+            {new Date().getFullYear()}
+            {" "}
+            A. Rivera.
+            All rights reserved.
+          </span>
+
+
+          <a href="#home">
+            Back to top ↑
+          </a>
+
+        </div>
+
+      </footer>
 
     </div>
-
+        </>
   );
-
 }
