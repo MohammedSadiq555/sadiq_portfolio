@@ -190,69 +190,6 @@ const NAV_LINKS = [
   "contact",
 ];
 
-// const SKILLS = [
-//   {
-//     name: "React",
-//     icon:
-//       "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg",
-//   },
-//   {
-//     name: "TypeScript",
-//     icon:
-//       "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg",
-//   },
-//   {
-//     name: "JavaScript",
-//     icon:
-//       "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg",
-//   },
-//   {
-//     name: "Node.js",
-//     icon:
-//       "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg",
-//   },
-//   {
-//     name: "Next.js",
-//     icon:
-//       "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nextjs/nextjs-original.svg",
-//   },
-//   {
-//     name: "Tailwind CSS",
-//     icon:
-//       "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwindcss/tailwindcss-original.svg",
-//   },
-//   {
-//     name: "PostgreSQL",
-//     icon:
-//       "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg",
-//   },
-//   {
-//     name: "Figma",
-//     icon:
-//       "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/figma/figma-original.svg",
-//   },
-//   {
-//     name: "Git",
-//     icon:
-//       "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/git/git-original.svg",
-//   },
-//   {
-//     name: "Docker",
-//     icon:
-//       "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-original.svg",
-//   },
-//   {
-//     name: "Rust",
-//     icon:
-//       "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/rust/rust-original.svg",
-//   },
-//   {
-//     name: "Python",
-//     icon:
-//       "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg",
-//   },
-// ];
-
 /* =========================================================
    TYPEWRITER
    ========================================================= */
@@ -531,6 +468,15 @@ function SkillsDock({ skills }) {
    ========================================================= */
 
 export default function App() {
+  const [loading, setLoading] = useState(true);
+
+useEffect(() => {
+  const timer = setTimeout(() => {
+    setLoading(false);
+  }, 2000);
+
+  return () => clearTimeout(timer);
+}, []);
   const [theme, setTheme] =
     useState("dark");
   const [skills, setSkills] = useState([]);
@@ -699,6 +645,18 @@ const [skillsLoading, setSkillsLoading] = useState(true);
     );
 
   return (
+      <>
+    {loading && (
+      <div className="page-loader">
+        <div className="loader-circle">
+          <div className="loader-inner"></div>
+        </div>
+
+        <div className="loader-text">
+          LOADING
+        </div>
+      </div>
+    )}
     <div
       className={
         isDark
@@ -1752,6 +1710,102 @@ const [skillsLoading, setSkillsLoading] = useState(true);
 
         .edu-map-mobile {
           display: none;
+        }
+
+        .edu-mobile-item {
+          display: flex;
+
+          gap: 16px;
+
+          margin-bottom: 24px;
+        }
+
+        .edu-mobile-rail {
+          display: flex;
+
+          flex-direction: column;
+
+          align-items: center;
+
+          flex-shrink: 0;
+        }
+
+        .edu-mobile-dot {
+          width: 14px;
+          height: 14px;
+
+          border-radius: 50%;
+
+          background: var(--surface);
+
+          border: 2px solid var(--border);
+
+          flex-shrink: 0;
+        }
+
+        .edu-mobile-dot.current {
+          background: var(--warm);
+          border-color: var(--warm);
+        }
+
+        .edu-mobile-line {
+          flex: 1;
+
+          width: 2px;
+
+          background: var(--border);
+
+          margin: 6px 0;
+        }
+
+        .edu-mobile-btn {
+          width: 100%;
+
+          text-align: left;
+
+          background: var(--surface);
+
+          border: 1px solid var(--border);
+
+          border-radius: 12px;
+
+          padding: 14px 16px;
+
+          cursor: pointer;
+        }
+
+        .edu-mobile-btn h4 {
+          margin: 0 0 2px;
+
+          font-size: 15px;
+
+          color: var(--text);
+        }
+
+        .edu-mobile-btn .degree {
+          font-size: 13px;
+
+          color: var(--accent);
+
+          font-weight: 600;
+        }
+
+        .edu-mobile-btn .years {
+          font-size: 12px;
+
+          color: var(--text-muted);
+        }
+
+        .edu-mobile-card {
+          margin-top: 8px;
+
+          padding: 14px 16px;
+
+          background: var(--surface-2);
+
+          border: 1px solid var(--border);
+
+          border-radius: 12px;
         }
 
         /* =================================================
@@ -2905,6 +2959,143 @@ const [skillsLoading, setSkillsLoading] = useState(true);
           }
         }
 
+        /* =========================================================
+           INITIAL PAGE LOADER
+           ========================================================= */
+
+        .page-loader {
+          position: fixed;
+          inset: 0;
+
+          z-index: 999999;
+
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+
+          background: #050505;
+          color: #ffffff;
+
+          animation: loaderFadeOut 0.6s ease 1.4s forwards;
+        }
+
+        /* Circle */
+
+        .loader-circle {
+          position: relative;
+
+          width: 90px;
+          height: 90px;
+
+          border-radius: 50%;
+
+          border: 1px solid rgba(255,255,255,0.15);
+
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        /* Animated ring */
+
+        .loader-circle::before {
+          content: "";
+
+          position: absolute;
+          inset: -1px;
+
+          border-radius: 50%;
+
+          border: 2px solid transparent;
+
+          border-top-color: #ffffff;
+
+          animation: loaderSpin 0.9s linear infinite;
+        }
+
+        /* Inner circle */
+
+        .loader-inner {
+          width: 12px;
+          height: 12px;
+
+          border-radius: 50%;
+
+          background: #ffffff;
+
+          animation: loaderPulse 1s ease-in-out infinite;
+        }
+
+        /* Text */
+
+        .loader-text {
+          margin-top: 22px;
+
+          font-size: 10px;
+
+          letter-spacing: 0.35em;
+
+          color: rgba(255,255,255,0.5);
+
+          animation: loaderTextPulse 1s ease-in-out infinite;
+        }
+
+        /* Spin */
+
+        @keyframes loaderSpin {
+          from {
+            transform: rotate(0deg);
+          }
+
+          to {
+            transform: rotate(360deg);
+          }
+        }
+
+        /* Pulse */
+
+        @keyframes loaderPulse {
+          0%,
+          100% {
+            transform: scale(0.7);
+            opacity: 0.5;
+          }
+
+          50% {
+            transform: scale(1.2);
+            opacity: 1;
+          }
+        }
+
+        /* Text pulse */
+
+        @keyframes loaderTextPulse {
+          0%,
+          100% {
+            opacity: 0.35;
+          }
+
+          50% {
+            opacity: 1;
+          }
+        }
+
+        /* Remove loader */
+
+        @keyframes loaderFadeOut {
+          from {
+            opacity: 1;
+            visibility: visible;
+          }
+
+          to {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+          }
+        }
+
       `}</style>
 
 
@@ -4039,10 +4230,6 @@ const [skillsLoading, setSkillsLoading] = useState(true);
         </div>
 
 
-        {/* <SkillsDock
-          skills={SKILLS}
-        /> */}
-
         {skillsLoading ? (
   <div className="skills-wrap">
     Loading skills...
@@ -4413,5 +4600,6 @@ const [skillsLoading, setSkillsLoading] = useState(true);
       </footer>
 
     </div>
+        </>
   );
 }
