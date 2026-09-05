@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from "react";
 
 const TYPE_WORDS = ["Programmer", "Web Developer", "Designer"];
 
+const PROJECT_GET_API =
+  "https://personal-zld4pieb.outsystemscloud.com/SadiqPortfolio/rest/ProjectsAPI/getProject";
 
 const EDUCATION = [
   {
@@ -444,9 +446,6 @@ useEffect(() => {
     useState("dark");
   const [skills, setSkills] = useState([]);
 const [skillsLoading, setSkillsLoading] = useState(true);
-
-  const [projects, setProjects] = useState([]);
-const [projectsLoading, setProjectsLoading] = useState(true);
   useEffect(() => {
   const fetchSkills = async () => {
     try {
@@ -477,82 +476,114 @@ const [projectsLoading, setProjectsLoading] = useState(true);
   fetchSkills();
 }, []);
 
+  /* =======================================================
+     PROJECTS (fetched from the live API)
+     ======================================================= */
+
+  const [projects, setProjects] = useState([]);
+  const [projectsLoading, setProjectsLoading] = useState(true);
+  const [projectsError, setProjectsError] = useState("");
+
   useEffect(() => {
-  const fetchProjects = async () => {
-    try {
-      const response = await fetch(
-        "https://personal-zld4pieb.outsystemscloud.com/SadiqPortfolio/rest/ProjectsAPI/getProject"
-      );
+    const fetchProjects = async () => {
+      try {
+        setProjectsLoading(true);
+        setProjectsError("");
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
+        const response = await fetch(PROJECT_GET_API, {
+          method: "GET",
+        });
 
-      const data = await response.json();
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
 
-      console.log("Projects API response:", data);
+        const data = await response.json();
 
-      const formattedProjects = data.map((item) => {
-        const project = item.Projects || item.Project || item;
+        let projectList = [];
 
-        return {
-          id: project.Id,
+        if (Array.isArray(data)) {
+          projectList = data;
+        } else if (Array.isArray(data.Projects)) {
+          projectList = data.Projects;
+        } else if (Array.isArray(data.List)) {
+          projectList = data.List;
+        } else if (Array.isArray(data.Data)) {
+          projectList = data.Data;
+        }
 
-          title:
-            project.ProjectName ||
-            project.Name ||
-            project.projectname ||
-            "Untitled Project",
+        const formattedProjects = projectList.map((item) => {
+          const project =
+            item.Projects || item.Project || item;
 
- image: project.ImageLink
-  ? `data:image/png;base64,${project.ImageLink}`
-  : "",
+          const skillIds =
+            project.SkillIds ||
+            project.SkillIDs ||
+            project.skillIds ||
+            [];
 
-          description:
+          const description =
             project.Description ||
             project.description ||
-            "",
+            "";
 
-          longDescription:
-            project.LongDescription ||
-            project.longdescription ||
-            project.Description ||
-            "",
+          return {
+            id:
+              project.Id ||
+              project.ID ||
+              project.projectID,
 
-          tech:
-            project.Technology
-              ? project.Technology
-                  .split(",")
-                  .map((t) => t.trim())
-              : project.Tech
-              ? project.Tech
-                  .split(",")
-                  .map((t) => t.trim())
-              : [],
+            title:
+              project.Name ||
+              project.name ||
+              "",
 
-          github:
-            project.GithubLink ||
-            project.GitHubLink ||
-            project.github ||
-            "#",
+            image: project.ImageLink
+              ? `data:image/png;base64,${project.ImageLink}`
+              : "",
 
-          live:
-            project.LiveLink ||
-            project.live ||
-            "#",
-        };
-      });
+            description,
+            longDescription: description,
 
-      setProjects(formattedProjects);
-    } catch (error) {
-      console.error("Failed to fetch projects:", error);
-    } finally {
-      setProjectsLoading(false);
-    }
+            skillIds,
+
+            github:
+              project.GithubURL ||
+              project.GithubLink ||
+              project.githubURL ||
+              project.githubLink ||
+              "#",
+
+            live:
+              project.ProjectURL ||
+              project.ProjectLink ||
+              project.projectURL ||
+              project.projectLink ||
+              "#",
+          };
+        });
+
+        setProjects(formattedProjects);
+      } catch (error) {
+        console.error("Projects GET Error:", error);
+        setProjectsError("Unable to load projects.");
+      } finally {
+        setProjectsLoading(false);
+      }
+    };
+
+    fetchProjects();
+  }, []);
+
+  /* Map a project's stored skill ids to skill names/icons
+     using the skills already fetched above. */
+  const getProjectTech = (skillIds) => {
+    if (!Array.isArray(skillIds)) return [];
+
+    return skills.filter((s) =>
+      skillIds.includes(s.id)
+    );
   };
-
-  fetchProjects();
-}, []);
 
   const [menuOpen, setMenuOpen] =
     useState(false);
@@ -1198,6 +1229,18 @@ const [projectsLoading, setProjectsLoading] = useState(true);
           gap: 20px;
         }
 
+        .project-status {
+          padding: 40px 20px;
+
+          text-align: center;
+
+          color: var(--text-muted);
+
+          border: 1px dashed var(--border);
+
+          border-radius: 16px;
+        }
+
         .project-card {
           background:
             var(--surface);
@@ -1242,6 +1285,8 @@ const [projectsLoading, setProjectsLoading] = useState(true);
 
           display: block;
 
+          background: var(--surface-2);
+
           transition:
             transform .35s ease;
         }
@@ -1255,12 +1300,10 @@ const [projectsLoading, setProjectsLoading] = useState(true);
         .project-card-body {
           padding:
             22px 26px 26px;
-            
         }
 
         .project-card h3 {
           font-size: 20px;
-          color: #ffffff;
 
           margin:
             0 0 10px;
@@ -3377,78 +3420,96 @@ const [projectsLoading, setProjectsLoading] = useState(true);
         </div>
 
 
-        <div
-          className=
-            "project-grid"
-        >
+        {projectsLoading ? (
 
-{projectsLoading ? (
-  <p>Loading projects...</p>
-) : projects.length === 0 ? (
-  <p>No projects found.</p>
-) : (
-  projects.map((p) => (
+          <div className="project-status">
+            Loading projects...
+          </div>
 
-              <button
-                className=
-                  "project-card"
-                key={p.id}
-                onClick={() =>
-                  setActiveProject(p)
-                }
-              >
+        ) : projectsError ? (
 
-                <img
+          <div className="project-status">
+            {projectsError}
+          </div>
+
+        ) : projects.length === 0 ? (
+
+          <div className="project-status">
+            No projects yet.
+          </div>
+
+        ) : (
+
+          <div
+            className=
+              "project-grid"
+          >
+
+            {projects.map(
+              (p) => (
+
+                <button
                   className=
-                    "project-card-img"
-                  src={p.image}
-                  alt={p.title}
-                />
-
-
-                <div
-                  className=
-                    "project-card-body"
+                    "project-card"
+                  key={p.id}
+                  onClick={() =>
+                    setActiveProject(p)
+                  }
                 >
 
-                  <h3>
-                    {p.title}
-                  </h3>
-
-                  <p>
-                    {p.description}
-                  </p>
+                  <img
+                    className=
+                      "project-card-img"
+                    src={p.image}
+                    alt={p.title}
+                  />
 
 
                   <div
                     className=
-                      "project-tech"
+                      "project-card-body"
                   >
 
-                    {p.tech.map(
-                      (t) => (
+                    <h3>
+                      {p.title}
+                    </h3>
 
-                        <span
-                          key={t}
-                          className=
-                            "tag"
-                        >
-                          {t}
-                        </span>
+                    <p>
+                      {p.description}
+                    </p>
 
-                      )
-                    )}
+
+                    <div
+                      className=
+                        "project-tech"
+                    >
+
+                      {getProjectTech(p.skillIds).map(
+                        (t) => (
+
+                          <span
+                            key={t.id}
+                            className=
+                              "tag"
+                          >
+                            {t.name}
+                          </span>
+
+                        )
+                      )}
+
+                    </div>
 
                   </div>
 
-                </div>
+                </button>
 
-              </button>
+              )
+            )}
 
-            ))
-          )}
+          </div>
 
-        </div>
+        )}
 
       </section>
 
@@ -4375,19 +4436,17 @@ const [projectsLoading, setProjectsLoading] = useState(true);
                   "modal-tech"
               >
 
-                {
-                  activeProject.tech.map(
-                    (t) => (
-                      <span
-                        key={t}
-                        className=
-                          "tag"
-                      >
-                        {t}
-                      </span>
-                    )
+                {getProjectTech(activeProject.skillIds).map(
+                  (t) => (
+                    <span
+                      key={t.id}
+                      className=
+                        "tag"
+                    >
+                      {t.name}
+                    </span>
                   )
-                }
+                )}
 
               </div>
 
