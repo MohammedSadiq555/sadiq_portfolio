@@ -552,42 +552,89 @@ const [skillsLoading, setSkillsLoading] = useState(true);
           const exp =
             item.Experience || item.Experiences || item;
 
-          const isPresentRaw =
-            exp.IsPresent !== undefined
-              ? exp.IsPresent
-              : exp.isPresent;
+          /*
+           Case-insensitive field lookup — OutSystems REST
+           output casing can vary from what the entity's
+           input parameters were named, so match on the
+           field name regardless of case.
+          */
+
+          const getField = (names) => {
+            if (!exp) return "";
+
+            const lowerMap = {};
+
+            Object.keys(exp).forEach((k) => {
+              lowerMap[k.toLowerCase()] = exp[k];
+            });
+
+            for (const name of names) {
+              const val = lowerMap[name.toLowerCase()];
+
+              if (
+                val !== undefined &&
+                val !== null &&
+                val !== ""
+              ) {
+                return val;
+              }
+            }
+
+            return "";
+          };
+
+          const isPresentRaw = getField([
+            "IsPresent",
+            "isPresent",
+            "Present",
+          ]);
 
           const isPresent =
             isPresentRaw === true ||
             isPresentRaw === "true" ||
-            isPresentRaw === 1;
+            isPresentRaw === 1 ||
+            isPresentRaw === "1";
 
-          const startYear =
-            exp.StartYear || exp.startYear || "";
+          const startYear = getField([
+            "StartYear",
+            "startYear",
+            "Start",
+          ]);
 
-          const endYear =
-            exp.EndYear || exp.endYear || "";
+          const endYear = getField([
+            "EndYear",
+            "endYear",
+            "End",
+          ]);
 
           return {
-            id:
-              exp.Id ||
-              exp.ID ||
-              exp.Experienceid ||
-              exp.experienceid ||
-              exp.ExperienceId,
+            id: getField([
+              "Id",
+              "ID",
+              "Experienceid",
+              "ExperienceId",
+            ]),
 
-            company:
-              exp.CompanyName ||
-              exp.Compname ||
-              exp.companyName ||
-              exp.compname ||
-              "",
+            company: getField([
+              "CompanyName",
+              "Compname",
+              "CompName",
+              "Company",
+              "Organization",
+            ]),
 
-            position:
-              exp.JobTitle || exp.jobTitle || "",
+            position: getField([
+              "JobTitle",
+              "JobPosition",
+              "Title",
+            ]),
 
-            type:
-              exp.JobRole || exp.jobRole || "",
+            type: getField([
+              "JobRole",
+              "Role",
+              "EmploymentType",
+              "Type",
+            ]),
 
             start: startYear,
             end: isPresent ? "Present" : endYear,
@@ -1990,12 +2037,11 @@ const [skillsLoading, setSkillsLoading] = useState(true);
         }
 
         .exp-card {
-          display: grid;
+          display: flex;
 
-          grid-template-columns:
-            340px 1fr;
+          align-items: center;
 
-          gap: 44px;
+          gap: 28px;
 
           background:
             var(--surface);
@@ -2003,11 +2049,12 @@ const [skillsLoading, setSkillsLoading] = useState(true);
           border:
             1px solid var(--border);
 
+          border-left:
+            4px solid var(--warm);
+
           border-radius: 20px;
 
-          padding: 32px;
-
-          align-items: center;
+          padding: 32px 36px;
 
           transition:
             border-color .3s ease,
@@ -2016,77 +2063,60 @@ const [skillsLoading, setSkillsLoading] = useState(true);
         }
 
         .exp-card:hover {
-          border-color:
-            color-mix(
-              in srgb,
-              var(--accent) 55%,
-              var(--border)
-            );
-
           box-shadow:
             0 30px 60px -35px
             rgba(0,0,0,.55);
         }
 
-        .exp-photo-wrap {
-          position: relative;
-        }
+        .exp-avatar {
+          flex-shrink: 0;
 
-        .exp-photo {
-          width: 100%;
+          width: 68px;
+          height: 68px;
 
-          aspect-ratio: 4/5;
+          border-radius: 18px;
 
-          object-fit: cover;
+          background:
+            linear-gradient(
+              155deg,
+              var(--warm),
+              var(--accent)
+            );
 
-          border-radius: 14px;
-
-          border:
-            1px solid var(--border);
-
-          display: block;
-        }
-
-        .exp-photo-placeholder {
           display: flex;
 
           align-items: center;
           justify-content: center;
 
-          background:
-            linear-gradient(
-              155deg,
-              var(--surface-2),
-              var(--bg)
-            );
+          color: #fff;
 
-          color:
-            var(--text-muted);
-
-          font-size: 48px;
+          font-size: 26px;
 
           font-weight: 700;
 
           text-transform: uppercase;
         }
 
-        .experience-status {
-          padding: 40px 20px;
+        .exp-top-row {
+          display: flex;
 
-          text-align: center;
+          align-items: flex-start;
 
-          color: var(--text-muted);
+          justify-content: space-between;
 
-          border: 1px dashed var(--border);
+          gap: 16px;
 
-          border-radius: 16px;
+          flex-wrap: wrap;
+
+          margin-bottom: 4px;
         }
 
-        .exp-badge {
-          position: absolute;
+        .exp-top-row h3 {
+          margin: 0;
+        }
 
-          top: 14px;
-          left: 14px;
+        .exp-badge-inline {
+          flex-shrink: 0;
 
           display: inline-flex;
 
@@ -2111,7 +2141,7 @@ const [skillsLoading, setSkillsLoading] = useState(true);
           border-radius: 999px;
         }
 
-        .exp-badge::before {
+        .exp-badge-inline::before {
           content: '';
 
           width: 6px;
@@ -2120,6 +2150,18 @@ const [skillsLoading, setSkillsLoading] = useState(true);
           border-radius: 50%;
 
           background: #fff;
+        }
+
+        .experience-status {
+          padding: 40px 20px;
+
+          text-align: center;
+
+          color: var(--text-muted);
+
+          border: 1px dashed var(--border);
+
+          border-radius: 16px;
         }
 
         .exp-details h3 {
@@ -2913,15 +2955,11 @@ const [skillsLoading, setSkillsLoading] = useState(true);
         @media (max-width: 850px) {
 
           .exp-card {
-            grid-template-columns:
-              1fr;
+            flex-direction: column;
 
-            gap: 28px;
-          }
+            align-items: flex-start;
 
-          .exp-photo {
-            aspect-ratio:
-              16 / 9;
+            gap: 20px;
           }
 
           .career-timeline-content {
@@ -4046,27 +4084,12 @@ const [skillsLoading, setSkillsLoading] = useState(true);
 
               <div
                 className=
-                  "exp-photo-wrap"
+                  "exp-avatar"
               >
-
-                <div
-                  className=
-                    "exp-photo exp-photo-placeholder"
-                >
-                  {
-                    currentExperience.company?.[0] ||
-                    "?"
-                  }
-                </div>
-
-
-                <span
-                  className=
-                    "exp-badge"
-                >
-                  CURRENT
-                </span>
-
+                {
+                  currentExperience.company?.[0] ||
+                  "•"
+                }
               </div>
 
 
@@ -4075,11 +4098,27 @@ const [skillsLoading, setSkillsLoading] = useState(true);
                   "exp-details"
               >
 
-                <h3>
-                  {
-                    currentExperience.company
-                  }
-                </h3>
+                <div
+                  className=
+                    "exp-top-row"
+                >
+
+                  <h3>
+                    {
+                      currentExperience.company
+                    }
+                  </h3>
+
+
+                  <span
+                    className=
+                      "exp-badge-inline"
+                  >
+                    CURRENT
+                  </span>
+
+                </div>
+
 
                 <div
                   className=
