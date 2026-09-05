@@ -4180,10 +4180,8 @@ const [skillsLoading, setSkillsLoading] = useState(true);
 
             {/* TIMELINE NODES */}
 
-            <div
-              className=
-                "career-nodes"
-            >
+            
+
 
             {/* PREVIOUS COMPANY CARDS */}
 
