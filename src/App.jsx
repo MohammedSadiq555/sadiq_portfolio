@@ -4176,28 +4176,35 @@ const [skillsLoading, setSkillsLoading] = useState(true);
 
             {/* TIMELINE LINE */}
 
-            <div
-              className=
-                "career-line"
-            >
-
-              <div
-                className={`
-                  career-line-progress
-                  ${
-                    experienceInView
-                      ? "in-view"
-                      : ""
-                  }
-                `}
-              />
-
-            </div>
 
 
             {/* TIMELINE NODES */}
 
-          
+            <div
+              className=
+                "career-nodes"
+            >
+
+              {/* CURRENT NODE */}
+
+              <div
+                className=
+                  "career-node"
+              >
+
+                <div
+                  className=
+                    "career-dot current"
+                />
+
+                <span
+                  className=
+                    "career-node-year"
+                >
+                  Present
+                </span>
+
+              </div>
 
 
               {/* PREVIOUS NODES */}
