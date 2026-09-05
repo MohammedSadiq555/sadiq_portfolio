@@ -4758,7 +4758,7 @@ const [skillsLoading, setSkillsLoading] = useState(true);
             ©{" "}
             {new Date().getFullYear()}
             {" "}
-            A. Rivera.
+            Mohammed Sadiq K
             All rights reserved.
           </span>
 
