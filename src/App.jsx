@@ -4185,7 +4185,6 @@ const [skillsLoading, setSkillsLoading] = useState(true);
                 "career-nodes"
             >
 
-
             {/* PREVIOUS COMPANY CARDS */}
 
             <div
