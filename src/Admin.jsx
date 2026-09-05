@@ -35,6 +35,23 @@ const PROJECT_DELETE_API =
 
 
 /* =========================================================
+   EXPERIENCE APIs
+   ========================================================= */
+
+const EXPERIENCE_GET_API =
+  "https://personal-zld4pieb.outsystemscloud.com/SadiqPortfolio/rest/ExperienceAPI/getExperience";
+
+const EXPERIENCE_CREATE_API =
+  "https://personal-zld4pieb.outsystemscloud.com/SadiqPortfolio/rest/ExperienceAPI/AddExperience";
+
+const EXPERIENCE_UPDATE_API =
+  "https://personal-zld4pieb.outsystemscloud.com/SadiqPortfolio/rest/ExperienceAPI/UpdateExperience";
+
+const EXPERIENCE_DELETE_API =
+  "https://personal-zld4pieb.outsystemscloud.com/SadiqPortfolio/rest/ExperienceAPI/DeleteExperience";
+
+
+/* =========================================================
    ADMIN
    ========================================================= */
 
@@ -185,6 +202,84 @@ export default function Admin() {
     useState(false);
 
   const [deletingProject, setDeletingProject] =
+    useState(false);
+
+
+  /* =======================================================
+     EXPERIENCE
+     ======================================================= */
+
+  const [experiences, setExperiences] =
+    useState([]);
+
+  const [experiencesLoading, setExperiencesLoading] =
+    useState(false);
+
+  const [experiencesError, setExperiencesError] =
+    useState("");
+
+
+  /* =======================================================
+     ADD EXPERIENCE
+     ======================================================= */
+
+  const [showAddExperience, setShowAddExperience] =
+    useState(false);
+
+  const [addingExperience, setAddingExperience] =
+    useState(false);
+
+  const [experienceError, setExperienceError] =
+    useState("");
+
+  const [newCompanyName, setNewCompanyName] =
+    useState("");
+
+  const [newJobRole, setNewJobRole] =
+    useState("");
+
+  const [newJobTitle, setNewJobTitle] =
+    useState("");
+
+  const [newStartYear, setNewStartYear] =
+    useState("");
+
+  const [newIsPresent, setNewIsPresent] =
+    useState(false);
+
+  const [newEndYear, setNewEndYear] =
+    useState("");
+
+
+  /* =======================================================
+     EDIT EXPERIENCE
+     ======================================================= */
+
+  const [selectedExperience, setSelectedExperience] =
+    useState(null);
+
+  const [editCompanyName, setEditCompanyName] =
+    useState("");
+
+  const [editJobRole, setEditJobRole] =
+    useState("");
+
+  const [editJobTitle, setEditJobTitle] =
+    useState("");
+
+  const [editStartYear, setEditStartYear] =
+    useState("");
+
+  const [editIsPresent, setEditIsPresent] =
+    useState(false);
+
+  const [editEndYear, setEditEndYear] =
+    useState("");
+
+  const [updatingExperience, setUpdatingExperience] =
+    useState(false);
+
+  const [deletingExperience, setDeletingExperience] =
     useState(false);
 
 
@@ -445,10 +540,180 @@ export default function Admin() {
       setProjectsLoading(false);
 
     }
-     console.log(
-  "Projects Response:",
-  data
-);
+
+  };
+
+
+  /* =======================================================
+     GET EXPERIENCE
+     ======================================================= */
+
+  const fetchExperiences = async () => {
+
+    try {
+
+      setExperiencesLoading(true);
+      setExperiencesError("");
+
+      const response =
+        await fetch(
+          EXPERIENCE_GET_API,
+          {
+            method: "GET"
+          }
+        );
+
+      if (!response.ok) {
+
+        throw new Error(
+          `HTTP ${response.status}`
+        );
+
+      }
+
+      const data =
+        await response.json();
+
+      console.log(
+        "Experience Response:",
+        data
+      );
+
+      /*
+       Handle different possible
+       OutSystems response structures.
+      */
+
+      let experienceList = [];
+
+      if (Array.isArray(data)) {
+
+        experienceList =
+          data;
+
+      } else if (
+        Array.isArray(
+          data.Experience
+        )
+      ) {
+
+        experienceList =
+          data.Experience;
+
+      } else if (
+        Array.isArray(
+          data.Experiences
+        )
+      ) {
+
+        experienceList =
+          data.Experiences;
+
+      } else if (
+        Array.isArray(
+          data.List
+        )
+      ) {
+
+        experienceList =
+          data.List;
+
+      } else if (
+        Array.isArray(
+          data.Data
+        )
+      ) {
+
+        experienceList =
+          data.Data;
+
+      }
+
+
+      const formattedExperiences =
+        experienceList.map(
+          (item) => {
+
+            const exp =
+              item.Experience ||
+              item.Experiences ||
+              item;
+
+            const isPresentRaw =
+              exp.IsPresent !==
+                undefined
+                ? exp.IsPresent
+                : exp.isPresent;
+
+            const isPresent =
+              isPresentRaw === true ||
+              isPresentRaw === "true" ||
+              isPresentRaw === 1;
+
+            return {
+
+              id:
+                exp.Id ||
+                exp.ID ||
+                exp.Experienceid ||
+                exp.experienceid ||
+                exp.ExperienceId,
+
+              companyName:
+                exp.CompanyName ||
+                exp.Compname ||
+                exp.companyName ||
+                exp.compname ||
+                "",
+
+              jobRole:
+                exp.JobRole ||
+                exp.jobRole ||
+                "",
+
+              jobTitle:
+                exp.JobTitle ||
+                exp.jobTitle ||
+                "",
+
+              startYear:
+                exp.StartYear ||
+                exp.startYear ||
+                "",
+
+              endYear:
+                exp.EndYear ||
+                exp.endYear ||
+                "",
+
+              isPresent
+
+            };
+
+          }
+        );
+
+
+      setExperiences(
+        formattedExperiences
+      );
+
+    } catch (error) {
+
+      console.error(
+        "Experience GET Error:",
+        error
+      );
+
+      setExperiencesError(
+        "Unable to load experience."
+      );
+
+    } finally {
+
+      setExperiencesLoading(false);
+
+    }
 
   };
 
@@ -462,6 +727,8 @@ export default function Admin() {
     fetchSkills();
 
     fetchProjects();
+
+    fetchExperiences();
 
   }, []);
 
@@ -1522,6 +1789,539 @@ export default function Admin() {
 
 
   /* =======================================================
+     OPEN / CLOSE ADD EXPERIENCE
+     ======================================================= */
+
+  const openAddExperience = () => {
+
+    setNewCompanyName("");
+    setNewJobRole("");
+    setNewJobTitle("");
+    setNewStartYear("");
+    setNewIsPresent(false);
+    setNewEndYear("");
+
+    setExperienceError("");
+
+    setShowAddExperience(true);
+
+  };
+
+
+  const closeAddExperience = () => {
+
+    if (addingExperience) {
+      return;
+    }
+
+    setShowAddExperience(false);
+
+    setExperienceError("");
+
+  };
+
+
+  /* =======================================================
+     CREATE EXPERIENCE
+     ======================================================= */
+
+  const handleCreateExperience =
+    async (e) => {
+
+      e.preventDefault();
+
+      setExperienceError("");
+
+
+      if (!newCompanyName.trim()) {
+
+        setExperienceError(
+          "Please enter the company name."
+        );
+
+        return;
+
+      }
+
+
+      if (!newJobRole.trim()) {
+
+        setExperienceError(
+          "Please enter the job role."
+        );
+
+        return;
+
+      }
+
+
+      if (!newJobTitle.trim()) {
+
+        setExperienceError(
+          "Please enter the job title."
+        );
+
+        return;
+
+      }
+
+
+      if (!newStartYear) {
+
+        setExperienceError(
+          "Please enter the start year."
+        );
+
+        return;
+
+      }
+
+
+      if (!newIsPresent && !newEndYear) {
+
+        setExperienceError(
+          "Please enter the end year, or mark this as your current role."
+        );
+
+        return;
+
+      }
+
+
+      try {
+
+        setAddingExperience(true);
+
+
+        /*
+         IMPORTANT:
+
+         These parameters match
+         your OutSystems AddExperience API.
+
+         CompanyName
+         JobRole
+         JobTitle
+         StartYear
+         IsPresent
+         EndYear
+        */
+
+
+        const url =
+          `${EXPERIENCE_CREATE_API}` +
+          `?CompanyName=${encodeURIComponent(
+            newCompanyName.trim()
+          )}` +
+          `&JobRole=${encodeURIComponent(
+            newJobRole.trim()
+          )}` +
+          `&JobTitle=${encodeURIComponent(
+            newJobTitle.trim()
+          )}` +
+          `&StartYear=${encodeURIComponent(
+            newStartYear
+          )}` +
+          `&IsPresent=${encodeURIComponent(
+            newIsPresent
+          )}` +
+          `&EndYear=${encodeURIComponent(
+            newIsPresent
+              ? ""
+              : newEndYear
+          )}`;
+
+
+        const response =
+          await fetch(
+            url,
+            {
+              method: "POST"
+            }
+          );
+
+
+        if (!response.ok) {
+
+          const errorText =
+            await response.text();
+
+          console.error(
+            "OutSystems response:",
+            errorText
+          );
+
+          throw new Error(
+            `HTTP ${response.status}`
+          );
+
+        }
+
+
+        alert(
+          "Experience added successfully!"
+        );
+
+
+        closeAddExperience();
+
+        await fetchExperiences();
+
+      } catch (error) {
+
+        console.error(
+          "Create Experience Error:",
+          error
+        );
+
+        setExperienceError(
+          "Failed to add experience."
+        );
+
+      } finally {
+
+        setAddingExperience(false);
+
+      }
+
+    };
+
+
+  /* =======================================================
+     OPEN / CLOSE EDIT EXPERIENCE
+     ======================================================= */
+
+  const openEditExperience =
+    (exp) => {
+
+      setSelectedExperience(
+        exp
+      );
+
+      setEditCompanyName(
+        exp.companyName
+      );
+
+      setEditJobRole(
+        exp.jobRole
+      );
+
+      setEditJobTitle(
+        exp.jobTitle
+      );
+
+      setEditStartYear(
+        exp.startYear
+      );
+
+      setEditIsPresent(
+        exp.isPresent
+      );
+
+      setEditEndYear(
+        exp.endYear
+      );
+
+    };
+
+
+  const closeEditExperience = () => {
+
+    if (
+      updatingExperience ||
+      deletingExperience
+    ) {
+
+      return;
+
+    }
+
+    setSelectedExperience(null);
+
+  };
+
+
+  /* =======================================================
+     UPDATE EXPERIENCE
+     ======================================================= */
+
+  const handleUpdateExperience =
+    async (e) => {
+
+      e.preventDefault();
+
+
+      if (!selectedExperience) {
+        return;
+      }
+
+
+      if (!editCompanyName.trim()) {
+
+        alert(
+          "Please enter the company name."
+        );
+
+        return;
+
+      }
+
+
+      if (!editJobRole.trim()) {
+
+        alert(
+          "Please enter the job role."
+        );
+
+        return;
+
+      }
+
+
+      if (!editJobTitle.trim()) {
+
+        alert(
+          "Please enter the job title."
+        );
+
+        return;
+
+      }
+
+
+      if (!editStartYear) {
+
+        alert(
+          "Please enter the start year."
+        );
+
+        return;
+
+      }
+
+
+      if (!editIsPresent && !editEndYear) {
+
+        alert(
+          "Please enter the end year, or mark this as the current role."
+        );
+
+        return;
+
+      }
+
+
+      try {
+
+        setUpdatingExperience(true);
+
+
+        /*
+         EXACT API PARAMETER NAMES
+         (as given for UpdateExperience):
+
+         Compname
+         JobRole
+         JobTitle
+         StartYear
+         IsPresent
+         EndYear
+         experienceid
+        */
+
+
+        const url =
+          `${EXPERIENCE_UPDATE_API}` +
+          `?Compname=${encodeURIComponent(
+            editCompanyName.trim()
+          )}` +
+          `&JobRole=${encodeURIComponent(
+            editJobRole.trim()
+          )}` +
+          `&JobTitle=${encodeURIComponent(
+            editJobTitle.trim()
+          )}` +
+          `&StartYear=${encodeURIComponent(
+            editStartYear
+          )}` +
+          `&IsPresent=${encodeURIComponent(
+            editIsPresent
+          )}` +
+          `&EndYear=${encodeURIComponent(
+            editIsPresent
+              ? ""
+              : editEndYear
+          )}` +
+          `&experienceid=${encodeURIComponent(
+            selectedExperience.id
+          )}`;
+
+
+        console.log(
+          "Update Experience URL:",
+          url
+        );
+
+
+        const response =
+          await fetch(
+            url,
+            {
+              method: "PUT"
+            }
+          );
+
+
+        if (!response.ok) {
+
+          const errorText =
+            await response.text();
+
+          console.error(
+            "Update response:",
+            errorText
+          );
+
+          throw new Error(
+            `HTTP ${response.status}`
+          );
+
+        }
+
+
+        alert(
+          "Experience updated successfully!"
+        );
+
+
+        closeEditExperience();
+
+        await fetchExperiences();
+
+      } catch (error) {
+
+        console.error(
+          "Update Experience Error:",
+          error
+        );
+
+        alert(
+          "Failed to update experience."
+        );
+
+      } finally {
+
+        setUpdatingExperience(false);
+
+      }
+
+    };
+
+
+  /* =======================================================
+     DELETE EXPERIENCE
+     ======================================================= */
+
+  const handleDeleteExperience =
+    async () => {
+
+      if (!selectedExperience) {
+        return;
+      }
+
+
+      const confirmed =
+        window.confirm(
+          `Delete "${selectedExperience.companyName}"?`
+        );
+
+
+      if (!confirmed) {
+        return;
+      }
+
+
+      try {
+
+        setDeletingExperience(true);
+
+
+        /*
+         EXACT DELETE API:
+
+         DeleteExperience?Experienceid={Experienceid}
+        */
+
+
+        const url =
+          `${EXPERIENCE_DELETE_API}` +
+          `?Experienceid=${encodeURIComponent(
+            selectedExperience.id
+          )}`;
+
+
+        console.log(
+          "Delete Experience URL:",
+          url
+        );
+
+
+        const response =
+          await fetch(
+            url,
+            {
+              method: "DELETE"
+            }
+          );
+
+
+        if (!response.ok) {
+
+          const errorText =
+            await response.text();
+
+          console.error(
+            "Delete response:",
+            errorText
+          );
+
+          throw new Error(
+            `HTTP ${response.status}`
+          );
+
+        }
+
+
+        alert(
+          "Experience deleted successfully!"
+        );
+
+
+        closeEditExperience();
+
+        await fetchExperiences();
+
+      } catch (error) {
+
+        console.error(
+          "Delete Experience Error:",
+          error
+        );
+
+        alert(
+          "Failed to delete experience."
+        );
+
+      } finally {
+
+        setDeletingExperience(false);
+
+      }
+
+    };
+
+
+  /* =======================================================
      RETURN
      ======================================================= */
 
@@ -2078,6 +2878,135 @@ export default function Admin() {
 
         }
 
+        /* EXPERIENCE */
+
+        .experience-list {
+
+          display: flex;
+
+          flex-direction: column;
+
+          gap: 14px;
+
+        }
+
+        .experience-card {
+
+          padding: 20px 22px;
+
+          border:
+            1px solid var(--border);
+
+          border-radius: 13px;
+
+          background: var(--surface);
+
+          cursor: pointer;
+
+          transition:
+            transform .2s,
+            border-color .2s;
+
+          display: flex;
+
+          align-items: center;
+
+          justify-content: space-between;
+
+          gap: 20px;
+
+        }
+
+        .experience-card:hover {
+
+          transform: translateY(-2px);
+
+          border-color: var(--accent);
+
+        }
+
+        .experience-company {
+
+          margin: 0 0 4px;
+
+          font-size: 17px;
+
+        }
+
+        .experience-role {
+
+          color: var(--accent);
+
+          font-size: 13px;
+
+          font-weight: 600;
+
+          margin-bottom: 4px;
+
+        }
+
+        .experience-meta {
+
+          color: var(--muted);
+
+          font-size: 12px;
+
+        }
+
+        .experience-badge {
+
+          flex-shrink: 0;
+
+          padding: 5px 10px;
+
+          border-radius: 999px;
+
+          font-size: 11px;
+
+          font-weight: 600;
+
+          background: var(--surface2);
+
+          border:
+            1px solid var(--border);
+
+          color: var(--muted);
+
+        }
+
+        .experience-badge.current {
+
+          color: white;
+
+          background: var(--accent);
+
+          border-color: var(--accent);
+
+        }
+
+        .checkbox-field {
+
+          display: flex;
+
+          align-items: center;
+
+          gap: 8px;
+
+          margin-bottom: 17px;
+
+          font-size: 13px;
+
+        }
+
+        .checkbox-field input {
+
+          width: 16px;
+          height: 16px;
+
+          accent-color: var(--accent);
+
+        }
+
         /* MODAL */
 
         .overlay {
@@ -2208,6 +3137,12 @@ export default function Admin() {
         .field textarea:focus {
 
           border-color: var(--accent);
+
+        }
+
+        .field input:disabled {
+
+          opacity: .5;
 
         }
 
@@ -2469,6 +3404,14 @@ export default function Admin() {
 
           }
 
+          .experience-card {
+
+            flex-direction: column;
+
+            align-items: flex-start;
+
+          }
+
         }
 
       `}</style>
@@ -2575,6 +3518,25 @@ export default function Admin() {
             }
           >
             Projects
+          </button>
+
+
+          <button
+            className={
+              `nav-item ${
+                activeTab ===
+                "experience"
+                  ? "active"
+                  : ""
+              }`
+            }
+            onClick={() =>
+              setActiveTab(
+                "experience"
+              )
+            }
+          >
+            Experience
           </button>
 
         </aside>
@@ -2958,6 +3920,156 @@ export default function Admin() {
                       );
 
                     }
+                  )}
+
+                </div>
+
+              )}
+
+            </>
+
+          )}
+
+
+          {/* =================================================
+              EXPERIENCE
+              ================================================= */}
+
+          {activeTab ===
+            "experience" && (
+
+            <>
+
+              <div className="page-header">
+
+                <div>
+
+                  <h1 className="title">
+                    Experience
+                  </h1>
+
+                  <p className="subtitle">
+                    Click an entry to edit
+                    or delete.
+                  </p>
+
+                </div>
+
+
+                <button
+                  className="primary"
+                  onClick={
+                    openAddExperience
+                  }
+                >
+                  + Add Experience
+                </button>
+
+              </div>
+
+
+              {experiencesError && (
+
+                <div className="error">
+                  {experiencesError}
+                </div>
+
+              )}
+
+
+              {experiencesLoading ? (
+
+                <div className="empty">
+                  Loading experience...
+                </div>
+
+              ) : experiences.length ===
+                0 ? (
+
+                <div className="empty">
+
+                  <h3>
+                    No experience yet
+                  </h3>
+
+                  <p>
+                    Click "+ Add Experience"
+                    to create one.
+                  </p>
+
+                </div>
+
+              ) : (
+
+                <div className="experience-list">
+
+                  {experiences.map(
+                    (exp) => (
+
+                      <div
+                        className="experience-card"
+                        key={
+                          exp.id
+                        }
+                        onClick={() =>
+                          openEditExperience(
+                            exp
+                          )
+                        }
+                      >
+
+                        <div>
+
+                          <h3 className="experience-company">
+                            {
+                              exp.companyName
+                            }
+                          </h3>
+
+
+                          <div className="experience-role">
+                            {
+                              exp.jobTitle
+                            }
+                            {" · "}
+                            {
+                              exp.jobRole
+                            }
+                          </div>
+
+
+                          <div className="experience-meta">
+                            {
+                              exp.startYear
+                            }
+                            {" — "}
+                            {
+                              exp.isPresent
+                                ? "Present"
+                                : exp.endYear
+                            }
+                          </div>
+
+                        </div>
+
+
+                        <span
+                          className={
+                            `experience-badge ${
+                              exp.isPresent
+                                ? "current"
+                                : ""
+                            }`
+                          }
+                        >
+                          {exp.isPresent
+                            ? "CURRENT"
+                            : "PAST"}
+                        </span>
+
+                      </div>
+
+                    )
                   )}
 
                 </div>
@@ -3780,6 +4892,461 @@ export default function Admin() {
                 >
 
                   {deletingProject
+                    ? "Deleting..."
+                    : "Delete"}
+
+                </button>
+
+              </div>
+
+            </form>
+
+          </div>
+
+        </div>
+
+      )}
+
+
+      {/* ===================================================
+          ADD EXPERIENCE MODAL
+          =================================================== */}
+
+      {showAddExperience && (
+
+        <div
+          className="overlay"
+          onClick={
+            closeAddExperience
+          }
+        >
+
+          <div
+            className="modal"
+            onClick={(e) =>
+              e.stopPropagation()
+            }
+          >
+
+            <div className="modal-header">
+
+              <h2>
+                Add Experience
+              </h2>
+
+              <button
+                className="close"
+                onClick={
+                  closeAddExperience
+                }
+              >
+                ×
+              </button>
+
+            </div>
+
+
+            <form
+              onSubmit={
+                handleCreateExperience
+              }
+            >
+
+              <div className="field">
+
+                <label>
+                  Company Name
+                </label>
+
+                <input
+                  type="text"
+                  value={
+                    newCompanyName
+                  }
+                  onChange={(e) =>
+                    setNewCompanyName(
+                      e.target.value
+                    )
+                  }
+                  placeholder="Fieldwork Studio"
+                />
+
+              </div>
+
+
+              <div className="field">
+
+                <label>
+                  Job Title
+                </label>
+
+                <input
+                  type="text"
+                  value={
+                    newJobTitle
+                  }
+                  onChange={(e) =>
+                    setNewJobTitle(
+                      e.target.value
+                    )
+                  }
+                  placeholder="Lead Product Engineer"
+                />
+
+              </div>
+
+
+              <div className="field">
+
+                <label>
+                  Job Role
+                </label>
+
+                <input
+                  type="text"
+                  value={
+                    newJobRole
+                  }
+                  onChange={(e) =>
+                    setNewJobRole(
+                      e.target.value
+                    )
+                  }
+                  placeholder="Full-time"
+                />
+
+              </div>
+
+
+              <div className="field">
+
+                <label>
+                  Start Year
+                </label>
+
+                <input
+                  type="number"
+                  value={
+                    newStartYear
+                  }
+                  onChange={(e) =>
+                    setNewStartYear(
+                      e.target.value
+                    )
+                  }
+                  placeholder="2023"
+                />
+
+              </div>
+
+
+              <div className="checkbox-field">
+
+                <input
+                  type="checkbox"
+                  id="newIsPresent"
+                  checked={
+                    newIsPresent
+                  }
+                  onChange={(e) =>
+                    setNewIsPresent(
+                      e.target.checked
+                    )
+                  }
+                />
+
+                <label htmlFor="newIsPresent">
+                  This is my current role
+                </label>
+
+              </div>
+
+
+              <div className="field">
+
+                <label>
+                  End Year
+                </label>
+
+                <input
+                  type="number"
+                  value={
+                    newEndYear
+                  }
+                  disabled={
+                    newIsPresent
+                  }
+                  onChange={(e) =>
+                    setNewEndYear(
+                      e.target.value
+                    )
+                  }
+                  placeholder="2026"
+                />
+
+              </div>
+
+
+              {experienceError && (
+
+                <div className="error">
+                  {
+                    experienceError
+                  }
+                </div>
+
+              )}
+
+
+              <button
+                className="primary"
+                type="submit"
+                disabled={
+                  addingExperience
+                }
+                style={{
+                  width:
+                    "100%"
+                }}
+              >
+                {addingExperience
+                  ? "Adding..."
+                  : "Add Experience"}
+              </button>
+
+
+              <button
+                className="secondary"
+                type="button"
+                onClick={
+                  closeAddExperience
+                }
+              >
+                Cancel
+              </button>
+
+            </form>
+
+          </div>
+
+        </div>
+
+      )}
+
+
+      {/* ===================================================
+          EDIT EXPERIENCE MODAL
+          =================================================== */}
+
+      {selectedExperience && (
+
+        <div
+          className="overlay"
+          onClick={
+            closeEditExperience
+          }
+        >
+
+          <div
+            className="modal"
+            onClick={(e) =>
+              e.stopPropagation()
+            }
+          >
+
+            <div className="modal-header">
+
+              <h2>
+                Edit Experience
+              </h2>
+
+              <button
+                className="close"
+                onClick={
+                  closeEditExperience
+                }
+              >
+                ×
+              </button>
+
+            </div>
+
+
+            <div className="help">
+              Experience ID:{" "}
+              {
+                selectedExperience.id
+              }
+            </div>
+
+
+            <form
+              onSubmit={
+                handleUpdateExperience
+              }
+            >
+
+              <div className="field">
+
+                <label>
+                  Company Name
+                </label>
+
+                <input
+                  type="text"
+                  value={
+                    editCompanyName
+                  }
+                  onChange={(e) =>
+                    setEditCompanyName(
+                      e.target.value
+                    )
+                  }
+                />
+
+              </div>
+
+
+              <div className="field">
+
+                <label>
+                  Job Title
+                </label>
+
+                <input
+                  type="text"
+                  value={
+                    editJobTitle
+                  }
+                  onChange={(e) =>
+                    setEditJobTitle(
+                      e.target.value
+                    )
+                  }
+                />
+
+              </div>
+
+
+              <div className="field">
+
+                <label>
+                  Job Role
+                </label>
+
+                <input
+                  type="text"
+                  value={
+                    editJobRole
+                  }
+                  onChange={(e) =>
+                    setEditJobRole(
+                      e.target.value
+                    )
+                  }
+                />
+
+              </div>
+
+
+              <div className="field">
+
+                <label>
+                  Start Year
+                </label>
+
+                <input
+                  type="number"
+                  value={
+                    editStartYear
+                  }
+                  onChange={(e) =>
+                    setEditStartYear(
+                      e.target.value
+                    )
+                  }
+                />
+
+              </div>
+
+
+              <div className="checkbox-field">
+
+                <input
+                  type="checkbox"
+                  id="editIsPresent"
+                  checked={
+                    editIsPresent
+                  }
+                  onChange={(e) =>
+                    setEditIsPresent(
+                      e.target.checked
+                    )
+                  }
+                />
+
+                <label htmlFor="editIsPresent">
+                  This is the current role
+                </label>
+
+              </div>
+
+
+              <div className="field">
+
+                <label>
+                  End Year
+                </label>
+
+                <input
+                  type="number"
+                  value={
+                    editEndYear
+                  }
+                  disabled={
+                    editIsPresent
+                  }
+                  onChange={(e) =>
+                    setEditEndYear(
+                      e.target.value
+                    )
+                  }
+                />
+
+              </div>
+
+
+              <div className="edit-buttons">
+
+                <button
+                  className="update-button"
+                  type="submit"
+                  disabled={
+                    updatingExperience ||
+                    deletingExperience
+                  }
+                >
+
+                  {updatingExperience
+                    ? "Updating..."
+                    : "Update"}
+
+                </button>
+
+
+                <button
+                  className="delete-button"
+                  type="button"
+                  onClick={
+                    handleDeleteExperience
+                  }
+                  disabled={
+                    updatingExperience ||
+                    deletingExperience
+                  }
+                >
+
+                  {deletingExperience
                     ? "Deleting..."
                     : "Delete"}
 
