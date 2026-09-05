@@ -4185,67 +4185,6 @@ const [skillsLoading, setSkillsLoading] = useState(true);
                 "career-nodes"
             >
 
-              {/* CURRENT NODE */}
-
-              <div
-                className=
-                  "career-node"
-              >
-
-                <div
-                  className=
-                    "career-dot current"
-                />
-
-                <span
-                  className=
-                    "career-node-year"
-                >
-                  Present
-                </span>
-
-              </div>
-
-
-              {/* PREVIOUS NODES */}
-
-              {previousExperience.map(
-                (company) => (
-
-                  <div
-                    key={company.id}
-                    className={`
-                      career-node
-                      ${
-                        hoveredExperience ===
-                        company.id
-                          ? "active"
-                          : ""
-                      }
-                    `}
-                  >
-
-                    <div
-                      className=
-                        "career-dot completed"
-                    />
-
-                    <span
-                      className=
-                        "career-node-year"
-                    >
-                      {
-                        company.start
-                      }
-                    </span>
-
-                  </div>
-
-                )
-              )}
-
-            </div>
-
 
             {/* PREVIOUS COMPANY CARDS */}
 
