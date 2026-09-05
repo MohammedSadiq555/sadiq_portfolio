@@ -5,6 +5,9 @@ const TYPE_WORDS = ["Programmer", "Web Developer", "Designer"];
 const PROJECT_GET_API =
   "https://personal-zld4pieb.outsystemscloud.com/SadiqPortfolio/rest/ProjectsAPI/getProject";
 
+const EXPERIENCE_GET_API =
+  "https://personal-zld4pieb.outsystemscloud.com/SadiqPortfolio/rest/ExperienceAPI/getExperience";
+
 const EDUCATION = [
   {
     id: 1,
@@ -64,86 +67,6 @@ function layoutEduNodes(nodes) {
     return { ...node, x, y };
   });
 }
-
-/* =========================================================
-   EXPERIENCE
-   ========================================================= */
-
-const EXPERIENCE = [
-  {
-    id: 1,
-    company: "Fieldwork Studio",
-    position: "Lead Product Engineer",
-    type: "Full-time",
-    start: "2023",
-    end: "Present",
-    current: true,
-    photo:
-      "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=700&q=80",
-    description:
-      "Building the product and design practice from the ground up — from early prototypes through to a production platform now used by thousands of teams. I own the architecture end to end, from the interface down to the database, and work closely with design on everything that ships.",
-    tech: ["React", "Supabase", "Tailwind", "Node.js"],
-    achievements: [
-      "Shipped a 0→1 product now used by 12k teams",
-      "Built the design system the whole product runs on",
-      "Reduced infra costs by 40% through a platform migration",
-    ],
-  },
-
-  {
-    id: 2,
-    company: "Previous Company",
-    position: "Software Developer",
-    type: "Full-time",
-    start: "2021",
-    end: "2023",
-    current: false,
-    description:
-      "Worked on scalable web applications and backend systems, collaborating with designers and engineers to ship reliable products.",
-    tech: ["React", "Node.js", "PostgreSQL"],
-    achievements: [
-      "Developed production web applications",
-      "Improved application performance",
-      "Collaborated with cross-functional teams",
-    ],
-  },
-
-  {
-    id: 3,
-    company: "Earlier Company",
-    position: "Junior Developer",
-    type: "Full-time",
-    start: "2019",
-    end: "2021",
-    current: false,
-    description:
-      "Worked on frontend applications and internal tools while developing strong foundations in modern web development.",
-    tech: ["JavaScript", "React", "Git"],
-    achievements: [
-      "Built internal tools",
-      "Created reusable UI components",
-      "Worked with version control and agile workflows",
-    ],
-  },
-
-  {
-    id: 4,
-    company: "First Company",
-    position: "Software Intern",
-    type: "Internship",
-    start: "2018",
-    end: "2019",
-    current: false,
-    description:
-      "Started my professional development journey by working on frontend interfaces and internal software tools.",
-    tech: ["JavaScript", "HTML", "CSS"],
-    achievements: [
-      "Built frontend components",
-      "Learned professional development practices",
-      "Worked with senior developers",
-    ],
-  },
-];
 
 const NAV_LINKS = [
   "home",
@@ -585,6 +508,114 @@ const [skillsLoading, setSkillsLoading] = useState(true);
     );
   };
 
+  /* =======================================================
+     EXPERIENCE (fetched from the live API)
+     ======================================================= */
+
+  const [experiences, setExperiences] = useState([]);
+  const [experiencesLoading, setExperiencesLoading] = useState(true);
+  const [experiencesError, setExperiencesError] = useState("");
+
+  useEffect(() => {
+    const fetchExperiences = async () => {
+      try {
+        setExperiencesLoading(true);
+        setExperiencesError("");
+
+        const response = await fetch(EXPERIENCE_GET_API, {
+          method: "GET",
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        let experienceList = [];
+
+        if (Array.isArray(data)) {
+          experienceList = data;
+        } else if (Array.isArray(data.Experience)) {
+          experienceList = data.Experience;
+        } else if (Array.isArray(data.Experiences)) {
+          experienceList = data.Experiences;
+        } else if (Array.isArray(data.List)) {
+          experienceList = data.List;
+        } else if (Array.isArray(data.Data)) {
+          experienceList = data.Data;
+        }
+
+        const formattedExperiences = experienceList.map((item) => {
+          const exp =
+            item.Experience || item.Experiences || item;
+
+          const isPresentRaw =
+            exp.IsPresent !== undefined
+              ? exp.IsPresent
+              : exp.isPresent;
+
+          const isPresent =
+            isPresentRaw === true ||
+            isPresentRaw === "true" ||
+            isPresentRaw === 1;
+
+          const startYear =
+            exp.StartYear || exp.startYear || "";
+
+          const endYear =
+            exp.EndYear || exp.endYear || "";
+
+          return {
+            id:
+              exp.Id ||
+              exp.ID ||
+              exp.Experienceid ||
+              exp.experienceid ||
+              exp.ExperienceId,
+
+            company:
+              exp.CompanyName ||
+              exp.Compname ||
+              exp.companyName ||
+              exp.compname ||
+              "",
+
+            position:
+              exp.JobTitle || exp.jobTitle || "",
+
+            type:
+              exp.JobRole || exp.jobRole || "",
+
+            start: startYear,
+            end: isPresent ? "Present" : endYear,
+            current: isPresent,
+          };
+        });
+
+        /* Most recent / current role first. */
+        formattedExperiences.sort((a, b) => {
+          if (a.current && !b.current) return -1;
+          if (!a.current && b.current) return 1;
+
+          return (
+            (parseInt(b.start, 10) || 0) -
+            (parseInt(a.start, 10) || 0)
+          );
+        });
+
+        setExperiences(formattedExperiences);
+      } catch (error) {
+        console.error("Experience GET Error:", error);
+        setExperiencesError("Unable to load experience.");
+      } finally {
+        setExperiencesLoading(false);
+      }
+    };
+
+    fetchExperiences();
+  }, []);
+
   const [menuOpen, setMenuOpen] =
     useState(false);
 
@@ -712,12 +743,12 @@ const [skillsLoading, setSkillsLoading] = useState(true);
     pathFromNodes(eduLayout);
 
   const currentExperience =
-    EXPERIENCE.find(
+    experiences.find(
       (e) => e.current
     );
 
   const previousExperience =
-    EXPERIENCE.filter(
+    experiences.filter(
       (e) => !e.current
     );
 
@@ -2012,6 +2043,41 @@ const [skillsLoading, setSkillsLoading] = useState(true);
             1px solid var(--border);
 
           display: block;
+        }
+
+        .exp-photo-placeholder {
+          display: flex;
+
+          align-items: center;
+          justify-content: center;
+
+          background:
+            linear-gradient(
+              155deg,
+              var(--surface-2),
+              var(--bg)
+            );
+
+          color:
+            var(--text-muted);
+
+          font-size: 48px;
+
+          font-weight: 700;
+
+          text-transform: uppercase;
+        }
+
+        .experience-status {
+          padding: 40px 20px;
+
+          text-align: center;
+
+          color: var(--text-muted);
+
+          border: 1px dashed var(--border);
+
+          border-radius: 16px;
         }
 
         .exp-badge {
@@ -3932,6 +3998,28 @@ const [skillsLoading, setSkillsLoading] = useState(true);
         </div>
 
 
+        {experiencesLoading ? (
+
+          <div className="experience-status">
+            Loading experience...
+          </div>
+
+        ) : experiencesError ? (
+
+          <div className="experience-status">
+            {experiencesError}
+          </div>
+
+        ) : experiences.length === 0 ? (
+
+          <div className="experience-status">
+            No experience yet.
+          </div>
+
+        ) : (
+
+          <>
+
         {/* CURRENT COMPANY */}
 
         {currentExperience && (
@@ -3959,16 +4047,15 @@ const [skillsLoading, setSkillsLoading] = useState(true);
                   "exp-photo-wrap"
               >
 
-                <img
+                <div
                   className=
-                    "exp-photo"
-                  src={
-                    currentExperience.photo
+                    "exp-photo exp-photo-placeholder"
+                >
+                  {
+                    currentExperience.company?.[0] ||
+                    "?"
                   }
-                  alt={
-                    currentExperience.company
-                  }
-                />
+                </div>
 
 
                 <span
@@ -4017,53 +4104,6 @@ const [skillsLoading, setSkillsLoading] = useState(true);
                     currentExperience.end
                   }
                 </div>
-
-
-                <p
-                  className=
-                    "desc"
-                >
-                  {
-                    currentExperience.description
-                  }
-                </p>
-
-
-                <div
-                  className=
-                    "exp-tech"
-                >
-
-                  {
-                    currentExperience.tech.map(
-                      (t) => (
-                        <span
-                          key={t}
-                          className=
-                            "tag"
-                        >
-                          {t}
-                        </span>
-                      )
-                    )
-                  }
-
-                </div>
-
-
-                <ul>
-
-                  {
-                    currentExperience.achievements.map(
-                      (a, i) => (
-                        <li key={i}>
-                          {a}
-                        </li>
-                      )
-                    )
-                  }
-
-                </ul>
 
               </div>
 
@@ -4282,38 +4322,6 @@ const [skillsLoading, setSkillsLoading] = useState(true);
                       }
                     </div>
 
-
-                    <p
-                      className=
-                        "previous-company-description"
-                    >
-                      {
-                        company.description
-                      }
-                    </p>
-
-
-                    <div
-                      className=
-                        "previous-company-tech"
-                    >
-
-                      {
-                        company.tech.map(
-                          (tech) => (
-                            <span
-                              key={tech}
-                              className=
-                                "tag"
-                            >
-                              {tech}
-                            </span>
-                          )
-                        )
-                      }
-
-                    </div>
-
                   </div>
 
                 )
@@ -4324,6 +4332,10 @@ const [skillsLoading, setSkillsLoading] = useState(true);
           </div>
 
         </div>
+
+          </>
+
+        )}
 
       </section>
 
