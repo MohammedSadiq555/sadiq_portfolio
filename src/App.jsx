@@ -4197,31 +4197,7 @@ const [skillsLoading, setSkillsLoading] = useState(true);
 
             {/* TIMELINE NODES */}
 
-            <div
-              className=
-                "career-nodes"
-            >
-
-              {/* CURRENT NODE */}
-
-              <div
-                className=
-                  "career-node"
-              >
-
-                <div
-                  className=
-                    "career-dot current"
-                />
-
-                <span
-                  className=
-                    "career-node-year"
-                >
-                  Present
-                </span>
-
-              </div>
+          
 
 
               {/* PREVIOUS NODES */}
