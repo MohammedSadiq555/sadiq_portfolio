@@ -532,6 +532,8 @@ const [skillsLoading, setSkillsLoading] = useState(true);
 
         const data = await response.json();
 
+        console.log("Experience Response:", data);
+
         let experienceList = [];
 
         if (Array.isArray(data)) {
