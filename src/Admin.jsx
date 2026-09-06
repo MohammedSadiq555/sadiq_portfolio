@@ -884,9 +884,10 @@ export default function Admin() {
     try {
       setAddingExperience(true);
 
+      // FIXED: Changed Compname to CompanyName to match OutSystems exposed API action signature
       const url =
         `${EXPERIENCE_CREATE_API}` +
-        `?Compname=${encodeURIComponent(newCompanyName.trim())}` +
+        `?CompanyName=${encodeURIComponent(newCompanyName.trim())}` +
         `&JobRole=${encodeURIComponent(newJobRole.trim())}` +
         `&JobTitle=${encodeURIComponent(newJobTitle.trim())}` +
         `&StartYear=${encodeURIComponent(newStartYear)}` +
@@ -973,7 +974,7 @@ export default function Admin() {
       const url =
         `${EXPERIENCE_UPDATE_API}` +
         `?Experienceid=${encodeURIComponent(selectedExperience.id)}` +
-        `&Compname=${encodeURIComponent(editCompanyName.trim())}` +
+        `&CompanyName=${encodeURIComponent(editCompanyName.trim())}` +
         `&JobRole=${encodeURIComponent(editJobRole.trim())}` +
         `&JobTitle=${encodeURIComponent(editJobTitle.trim())}` +
         `&StartYear=${encodeURIComponent(editStartYear || "0")}` +
