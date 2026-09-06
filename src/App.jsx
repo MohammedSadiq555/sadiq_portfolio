@@ -291,6 +291,8 @@ function SkillsDock({ skills }) {
           tile.style.transform =
             `translateY(${lift}px) scale(${scale})`;
 
+          tile.style.zIndex = "1000";
+
           tile.classList.add(
             "magnified"
           );
