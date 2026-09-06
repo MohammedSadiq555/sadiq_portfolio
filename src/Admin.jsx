@@ -2116,14 +2116,15 @@ export default function Admin() {
         */
 
 
-        const url =
-          `${EXPERIENCE_UPDATE_API}` +
-  `?Compname=${encodeURIComponent(newCompanyName.trim())}` +
-  `&JobRole=${encodeURIComponent(newJobRole.trim())}` +
-  `&JobTitle=${encodeURIComponent(newJobTitle.trim())}` +
-  `&StartYear=${encodeURIComponent(newStartYear)}` +
-  `&IsPresent=${encodeURIComponent(newIsPresent)}` +
-  `&EndYear=${encodeURIComponent(newIsPresent ? "0" : newEndYear)}`;
+const url =
+  `${EXPERIENCE_UPDATE_API}` +
+  `?experienceid=${encodeURIComponent(editingId)}` +
+  `&CompanyName=${encodeURIComponent(editCompanyName.trim())}` +
+  `&JobRole=${encodeURIComponent(editJobRole.trim())}` +
+  `&JobTitle=${encodeURIComponent(editJobTitle.trim())}` +
+  `&StartYear=${encodeURIComponent(editStartYear || "0")}` +
+  `&IsPresent=${encodeURIComponent(editIsPresent)}` +
+  `&EndYear=${encodeURIComponent(editIsPresent ? "0" : (editEndYear || "0"))}`;
 
         console.log(
           "Update Experience URL:",
