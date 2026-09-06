@@ -2037,30 +2037,30 @@ const [skillsLoading, setSkillsLoading] = useState(true);
         }
 
         .exp-card {
-          display: flex;
+  width: 100%;
+  box-sizing: border-box;
 
-          align-items: center;
+  display: flex;
+  align-items: center;
+  gap: 28px;
 
-          gap: 28px;
+  background: var(--surface);
 
-          background:
-            var(--surface);
+  border:
+    1px solid var(--border);
 
-          border:
-            1px solid var(--border);
+  border-left:
+    4px solid var(--warm);
 
-          border-left:
-            4px solid var(--warm);
+  border-radius: 20px;
 
-          border-radius: 20px;
+  padding: 32px 36px;
 
-          padding: 32px 36px;
-
-          transition:
-            border-color .3s ease,
-            box-shadow .3s ease,
-            transform .3s ease;
-        }
+  transition:
+    border-color .3s ease,
+    box-shadow .3s ease,
+    transform .3s ease;
+}
 
         .exp-card:hover {
           box-shadow:
