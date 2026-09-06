@@ -974,7 +974,7 @@ export default function Admin() {
       const url =
         `${EXPERIENCE_UPDATE_API}` +
         `?Experienceid=${encodeURIComponent(selectedExperience.id)}` +
-        `&CompanyName=${encodeURIComponent(editCompanyName.trim())}` +
+        `&Compname=${encodeURIComponent(editCompanyName.trim())}` +
         `&JobRole=${encodeURIComponent(editJobRole.trim())}` +
         `&JobTitle=${encodeURIComponent(editJobTitle.trim())}` +
         `&StartYear=${encodeURIComponent(editStartYear || "0")}` +
