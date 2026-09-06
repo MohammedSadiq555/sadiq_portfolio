@@ -58,11 +58,12 @@ const EXPERIENCE_DELETE_API =
 export default function Admin() {
 
   /* =======================================================
-     GENERAL
+     GENERAL & UI RESPONSIVE STATES
      ======================================================= */
 
   const [activeTab, setActiveTab] = useState("dashboard");
   const [darkMode, setDarkMode] = useState(true);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
 
   /* =======================================================
@@ -180,6 +181,16 @@ export default function Admin() {
 
   const [updatingExperience, setUpdatingExperience] = useState(false);
   const [deletingExperience, setDeletingExperience] = useState(false);
+
+
+  /* =======================================================
+     NAVIGATION HELPER
+     ======================================================= */
+
+  const handleTabChange = (tabName) => {
+    setActiveTab(tabName);
+    setIsMobileMenuOpen(false);
+  };
 
 
   /* =======================================================
@@ -1042,7 +1053,7 @@ export default function Admin() {
 
         body {
           margin: 0;
-          font-family: Inter, Arial, sans-serif;
+          font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         }
 
         .admin {
@@ -1073,12 +1084,29 @@ export default function Admin() {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 0 25px;
+          padding: 0 20px;
           border-bottom: 1px solid var(--border);
           background: var(--bg);
           position: sticky;
           top: 0;
-          z-index: 20;
+          z-index: 50;
+        }
+
+        .brand-container {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+        }
+
+        .menu-toggle {
+          display: none;
+          background: transparent;
+          border: 1px solid var(--border);
+          border-radius: 6px;
+          color: var(--text);
+          font-size: 18px;
+          padding: 6px 10px;
+          cursor: pointer;
         }
 
         .brand {
@@ -1093,35 +1121,41 @@ export default function Admin() {
         }
 
         .theme-button {
-          width: 40px;
-          height: 40px;
+          width: 38px;
+          height: 38px;
           border: 1px solid var(--border);
           border-radius: 50%;
           background: var(--surface);
           cursor: pointer;
           font-size: 16px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
         }
 
         .logout {
-          padding: 9px 14px;
+          padding: 8px 14px;
           border: 1px solid var(--border);
           border-radius: 8px;
           background: var(--surface);
           color: var(--muted);
           cursor: pointer;
+          font-size: 13px;
         }
 
         .layout {
           display: flex;
           min-height: calc(100vh - 64px);
+          position: relative;
         }
 
         .sidebar {
-          width: 220px;
+          width: 230px;
           flex-shrink: 0;
           padding: 20px 12px;
           border-right: 1px solid var(--border);
           background: var(--bg);
+          transition: transform 0.3s ease;
         }
 
         .nav-item {
@@ -1148,9 +1182,13 @@ export default function Admin() {
           border-left: 3px solid var(--accent);
         }
 
+        .sidebar-backdrop {
+          display: none;
+        }
+
         .content {
           flex: 1;
-          padding: 32px;
+          padding: 28px;
           min-width: 0;
         }
 
@@ -1159,12 +1197,12 @@ export default function Admin() {
           align-items: center;
           justify-content: space-between;
           margin-bottom: 25px;
-          gap: 20px;
+          gap: 15px;
         }
 
         .title {
           margin: 0 0 6px;
-          font-size: 27px;
+          font-size: 26px;
         }
 
         .subtitle {
@@ -1174,13 +1212,15 @@ export default function Admin() {
         }
 
         .primary {
-          padding: 11px 17px;
+          padding: 10px 18px;
           border: none;
           border-radius: 8px;
           background: var(--accent);
           color: white;
           cursor: pointer;
           font-weight: 600;
+          font-size: 14px;
+          white-space: nowrap;
         }
 
         .primary:hover {
@@ -1204,7 +1244,7 @@ export default function Admin() {
         }
 
         .empty {
-          padding: 60px 20px;
+          padding: 50px 20px;
           border: 1px dashed var(--border);
           border-radius: 12px;
           background: var(--surface);
@@ -1219,12 +1259,12 @@ export default function Admin() {
 
         .skill-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+          grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
           gap: 16px;
         }
 
         .skill-card {
-          padding: 20px;
+          padding: 18px;
           border: 1px solid var(--border);
           border-radius: 12px;
           background: var(--surface);
@@ -1239,8 +1279,8 @@ export default function Admin() {
         }
 
         .skill-logo {
-          width: 65px;
-          height: 65px;
+          width: 55px;
+          height: 55px;
           object-fit: contain;
           margin-bottom: 12px;
         }
@@ -1309,6 +1349,7 @@ export default function Admin() {
           display: flex;
           gap: 8px;
           margin-top: 13px;
+          flex-wrap: wrap;
         }
 
         .project-link {
@@ -1423,17 +1464,17 @@ export default function Admin() {
           display: flex;
           align-items: center;
           justify-content: center;
-          padding: 20px;
-          background: rgba(0, 0, 0, .72);
-          backdrop-filter: blur(7px);
+          padding: 16px;
+          background: rgba(0, 0, 0, .75);
+          backdrop-filter: blur(6px);
         }
 
         .modal {
           width: 100%;
-          max-width: 600px;
-          max-height: 92vh;
+          max-width: 580px;
+          max-height: 90vh;
           overflow-y: auto;
-          padding: 27px;
+          padding: 24px;
           border: 1px solid var(--border);
           border-radius: 15px;
           background: var(--surface);
@@ -1443,32 +1484,35 @@ export default function Admin() {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          margin-bottom: 22px;
+          margin-bottom: 20px;
         }
 
         .modal-header h2 {
           margin: 0;
-          font-size: 21px;
+          font-size: 20px;
         }
 
         .close {
-          width: 34px;
-          height: 34px;
+          width: 32px;
+          height: 32px;
           border: 1px solid var(--border);
           border-radius: 50%;
           background: var(--surface2);
           color: var(--text);
           cursor: pointer;
-          font-size: 19px;
+          font-size: 18px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
         }
 
         .field {
-          margin-bottom: 17px;
+          margin-bottom: 16px;
         }
 
         .field label {
           display: block;
-          margin-bottom: 7px;
+          margin-bottom: 6px;
           font-size: 13px;
           font-weight: 600;
         }
@@ -1495,7 +1539,7 @@ export default function Admin() {
         }
 
         .field textarea {
-          min-height: 105px;
+          min-height: 100px;
           resize: vertical;
         }
 
@@ -1506,7 +1550,7 @@ export default function Admin() {
         }
 
         .file-input {
-          padding: 12px !important;
+          padding: 10px !important;
           cursor: pointer;
         }
 
@@ -1530,11 +1574,11 @@ export default function Admin() {
 
         .selector {
           display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+          grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
           gap: 8px;
-          max-height: 220px;
+          max-height: 200px;
           overflow-y: auto;
-          padding: 9px;
+          padding: 8px;
           border: 1px solid var(--border);
           border-radius: 9px;
           background: var(--surface2);
@@ -1562,8 +1606,8 @@ export default function Admin() {
         }
 
         .selector-item img {
-          width: 25px;
-          height: 25px;
+          width: 22px;
+          height: 22px;
           object-fit: contain;
         }
 
@@ -1618,34 +1662,98 @@ export default function Admin() {
           cursor: not-allowed;
         }
 
-        @media (max-width: 700px) {
+        /* =========================================================
+           RESPONSIVE MEDIA QUERIES
+           ========================================================= */
+
+        @media (max-width: 768px) {
+          .menu-toggle {
+            display: block;
+          }
+
+          .brand {
+            font-size: 16px;
+          }
+
           .sidebar {
-            width: 70px;
+            position: fixed;
+            top: 64px;
+            left: 0;
+            bottom: 0;
+            z-index: 40;
+            transform: translateX(-100%);
+            box-shadow: 4px 0 16px rgba(0, 0, 0, 0.4);
           }
+
+          .sidebar.open {
+            transform: translateX(0);
+          }
+
+          .sidebar-backdrop {
+            display: block;
+            position: fixed;
+            inset: 64px 0 0 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 30;
+          }
+
           .content {
-            padding: 20px 15px;
+            padding: 18px 14px;
           }
+
           .page-header {
-            align-items: flex-start;
             flex-direction: column;
+            align-items: stretch;
+            gap: 12px;
           }
+
           .primary {
             width: 100%;
+            text-align: center;
           }
+
+          .project-grid {
+            grid-template-columns: 1fr;
+          }
+
+          .skill-grid {
+            grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+            gap: 10px;
+          }
+
           .experience-card {
             flex-direction: column;
             align-items: flex-start;
+            gap: 12px;
+          }
+
+          .modal {
+            padding: 18px;
+          }
+
+          .edit-buttons {
+            flex-direction: column;
           }
         }
       `}</style>
 
       {/* NAVBAR */}
       <nav className="navbar">
-        <div className="brand">Sadiq Portfolio Admin</div>
+        <div className="brand-container">
+          <button
+            className="menu-toggle"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            aria-label="Toggle navigation menu"
+          >
+            ☰
+          </button>
+          <div className="brand">Sadiq Portfolio Admin</div>
+        </div>
         <div className="nav-actions">
           <button
             className="theme-button"
             onClick={() => setDarkMode(!darkMode)}
+            title="Toggle theme"
           >
             {darkMode ? "🌙" : "☀️"}
           </button>
@@ -1655,29 +1763,37 @@ export default function Admin() {
 
       {/* LAYOUT */}
       <div className="layout">
+        {/* MOBILE BACKDROP */}
+        {isMobileMenuOpen && (
+          <div
+            className="sidebar-backdrop"
+            onClick={() => setIsMobileMenuOpen(false)}
+          />
+        )}
+
         {/* SIDEBAR */}
-        <aside className="sidebar">
+        <aside className={`sidebar ${isMobileMenuOpen ? "open" : ""}`}>
           <button
             className={`nav-item ${activeTab === "dashboard" ? "active" : ""}`}
-            onClick={() => setActiveTab("dashboard")}
+            onClick={() => handleTabChange("dashboard")}
           >
             Dashboard
           </button>
           <button
             className={`nav-item ${activeTab === "skills" ? "active" : ""}`}
-            onClick={() => setActiveTab("skills")}
+            onClick={() => handleTabChange("skills")}
           >
             Skills
           </button>
           <button
             className={`nav-item ${activeTab === "projects" ? "active" : ""}`}
-            onClick={() => setActiveTab("projects")}
+            onClick={() => handleTabChange("projects")}
           >
             Projects
           </button>
           <button
             className={`nav-item ${activeTab === "experience" ? "active" : ""}`}
-            onClick={() => setActiveTab("experience")}
+            onClick={() => handleTabChange("experience")}
           >
             Experience
           </button>
