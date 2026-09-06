@@ -959,15 +959,15 @@ export default function Admin() {
     try {
       setUpdatingExperience(true);
 
-      const url =
-        `${EXPERIENCE_UPDATE_API}` +
-        `?experienceid=${encodeURIComponent(selectedExperience.id)}` +
-        `&CompanyName=${encodeURIComponent(editCompanyName.trim())}` +
-        `&JobRole=${encodeURIComponent(editJobRole.trim())}` +
-        `&JobTitle=${encodeURIComponent(editJobTitle.trim())}` +
-        `&StartYear=${encodeURIComponent(editStartYear || "0")}` +
-        `&IsPresent=${encodeURIComponent(editIsPresent)}` +
-        `&EndYear=${encodeURIComponent(editIsPresent ? "0" : (editEndYear || "0"))}`;
+const url =
+  `${EXPERIENCE_UPDATE_API}` +
+  `?Experienceid=${encodeURIComponent(selectedExperience.id)}` +
+  `&CompanyName=${encodeURIComponent(editCompanyName.trim())}` +
+  `&JobRole=${encodeURIComponent(editJobRole.trim())}` +
+  `&JobTitle=${encodeURIComponent(editJobTitle.trim())}` +
+  `&StartYear=${encodeURIComponent(editStartYear || "0")}` +
+  `&IsPresent=${encodeURIComponent(editIsPresent)}` +
+  `&EndYear=${encodeURIComponent(editIsPresent ? "0" : (editEndYear || "0"))}`;
 
       const response = await fetch(url, { method: "PUT" });
 
