@@ -573,13 +573,6 @@ const [skillsLoading, setSkillsLoading] = useState(true);
           const exp =
             item.Experience || item.Experiences || item;
 
-          /*
-           Case-insensitive field lookup — OutSystems REST
-           output casing can vary from what the entity's
-           input parameters were named, so match on the
-           field name regardless of case.
-          */
-
           const getField = (names) => {
             if (!exp) return "";
 
@@ -2058,30 +2051,30 @@ const [skillsLoading, setSkillsLoading] = useState(true);
         }
 
         .exp-card {
-  width: 100%;
-  box-sizing: border-box;
+          width: 100%;
+          box-sizing: border-box;
 
-  display: flex;
-  align-items: center;
-  gap: 28px;
+          display: flex;
+          align-items: center;
+          gap: 28px;
 
-  background: var(--surface);
+          background: var(--surface);
 
-  border:
-    1px solid var(--border);
+          border:
+            1px solid var(--border);
 
-  border-left:
-    4px solid var(--warm);
+          border-left:
+            4px solid var(--warm);
 
-  border-radius: 20px;
+          border-radius: 20px;
 
-  padding: 32px 36px;
+          padding: 32px 36px;
 
-  transition:
-    border-color .3s ease,
-    box-shadow .3s ease,
-    transform .3s ease;
-}
+          transition:
+            border-color .3s ease,
+            box-shadow .3s ease,
+            transform .3s ease;
+        }
 
         .exp-card:hover {
           box-shadow:
@@ -2277,6 +2270,8 @@ const [skillsLoading, setSkillsLoading] = useState(true);
 
           padding:
             15px 0 15px;
+
+          width: 100%;
         }
 
         .career-timeline-title {
@@ -2297,212 +2292,10 @@ const [skillsLoading, setSkillsLoading] = useState(true);
         .career-timeline-content {
           position: relative;
 
-          display: grid;
-
-          grid-template-columns:
-            90px 1fr;
-
-          column-gap: 35px;
-        }
-
-        /* Vertical line */
-
-        .career-line {
-          position: absolute;
-
-          left: 34px;
-
-          top: 20px;
-
-          bottom: 20px;
-
-          width: 2px;
-
-          background:
-            var(--border);
-
-          overflow: hidden;
-
-          border-radius: 10px;
-        }
-
-        .career-line-progress {
-          position: absolute;
-
-          left: 0;
-
-          top: 0;
+          display: flex;
 
           width: 100%;
-
-          height: 100%;
-
-          background:
-            linear-gradient(
-              to bottom,
-              var(--warm),
-              var(--accent)
-            );
-
-          transform-origin:
-            top center;
-
-          transform:
-            scaleY(0);
-
-          transition:
-            transform
-            1.8s
-            cubic-bezier(
-              .22,
-              1,
-              .36,
-              1
-            );
         }
-
-        .career-line-progress.in-view {
-          transform:
-            scaleY(1);
-        }
-
-        .career-nodes {
-          position: relative;
-
-          display: flex;
-
-          flex-direction: column;
-
-          gap: 36px;
-
-          z-index: 2;
-        }
-
-        .career-node {
-          width: 70px;
-
-          min-height: 110px;
-
-          display: flex;
-
-          align-items: flex-start;
-
-          justify-content: center;
-
-          position: relative;
-        }
-
-        .career-dot {
-          width: 18px;
-          height: 18px;
-
-          border-radius: 50%;
-
-          background:
-            var(--bg);
-
-          border:
-            2px solid
-            var(--border);
-
-          position: relative;
-
-          margin-top: 5px;
-
-          transition:
-            all .3s ease;
-        }
-
-        .career-dot.current {
-          background:
-            var(--warm);
-
-          border-color:
-            var(--warm);
-
-          box-shadow:
-            0 0 0 6px
-            color-mix(
-              in srgb,
-              var(--warm) 12%,
-              transparent
-            );
-        }
-
-        .career-dot.current::after {
-          content: '';
-
-          position: absolute;
-
-          inset: -5px;
-
-          border-radius: 50%;
-
-          border:
-            1px solid
-            var(--warm);
-
-          animation:
-            careerPulse
-            2s
-            ease-out
-            infinite;
-        }
-
-        @keyframes careerPulse {
-          0% {
-            transform: scale(.8);
-
-            opacity: .8;
-          }
-
-          100% {
-            transform: scale(1.9);
-
-            opacity: 0;
-          }
-        }
-
-        .career-dot.completed {
-          border-color:
-            var(--accent);
-
-          background:
-            var(--surface);
-        }
-
-        .career-node.active
-        .career-dot.completed {
-          background:
-            var(--accent);
-
-          box-shadow:
-            0 0 0 6px
-            color-mix(
-              in srgb,
-              var(--accent) 12%,
-              transparent
-            );
-        }
-
-        .career-node-year {
-    position: absolute;
-    top: 31px;
-
-    /* Move year to the LEFT of the timeline */
-    right: calc(50% + 25px);
-
-    /* Prevent it from being centered on the line */
-    left: auto;
-    transform: none;
-
-    font-size: 10px;
-    white-space: nowrap;
-    text-align: right;
-
-    color: var(--text-muted);
-    opacity: .8;
-}
 
         /* Previous cards */
 
@@ -2510,12 +2303,12 @@ const [skillsLoading, setSkillsLoading] = useState(true);
           display: flex;
 
           flex-direction: column;
-          width:120vh;
-          gap: 36px;
+          width: 100%;
+          gap: 24px;
         }
 
         .previous-company-card {
-          min-height: 110px;
+          width: 100%;
 
           background:
             var(--surface);
@@ -2526,7 +2319,7 @@ const [skillsLoading, setSkillsLoading] = useState(true);
           border-radius: 16px;
 
           padding:
-            22px 24px;
+            22px 28px;
 
           position: relative;
 
@@ -2536,25 +2329,26 @@ const [skillsLoading, setSkillsLoading] = useState(true);
             transform .3s ease,
             border-color .3s ease,
             box-shadow .3s ease,
-            background .3s ease;
+            background .3s ease,
+            opacity .3s ease;
 
           opacity: 0;
 
           transform:
-            translateX(30px);
+            translateY(20px);
         }
 
         .previous-company-card.in-view {
           opacity: 1;
 
           transform:
-            translateX(0);
+            translateY(0);
         }
 
         .previous-company-card:hover,
         .previous-company-card.active {
           transform:
-            translateX(6px);
+            translateY(-3px);
 
           border-color:
             var(--accent);
@@ -2562,31 +2356,31 @@ const [skillsLoading, setSkillsLoading] = useState(true);
           background:
             color-mix(
               in srgb,
-              var(--surface) 94%,
+              var(--surface) 96%,
               var(--accent)
             );
 
           box-shadow:
-            0 18px 40px -28px
-            var(--accent);
+            0 14px 30px -15px
+            rgba(59, 95, 224, 0.25);
         }
 
         .previous-company-card.in-view:hover,
         .previous-company-card.in-view.active {
           transform:
-            translateX(6px);
+            translateY(-3px);
         }
 
         .previous-company-top {
           display: flex;
 
-          align-items: flex-start;
+          align-items: center;
 
           justify-content: space-between;
 
           gap: 20px;
 
-          margin-bottom: 5px;
+          margin-bottom: 6px;
         }
 
         .previous-company-name {
@@ -2603,10 +2397,10 @@ const [skillsLoading, setSkillsLoading] = useState(true);
         .previous-company-years {
           flex-shrink: 0;
 
-          font-size: 11px;
+          font-size: 12px;
 
           padding:
-            4px 8px;
+            4px 10px;
 
           border-radius: 999px;
 
@@ -2624,11 +2418,9 @@ const [skillsLoading, setSkillsLoading] = useState(true);
           color:
             var(--accent);
 
-          font-size: 13px;
+          font-size: 14px;
 
           font-weight: 600;
-
-          margin-bottom: 10px;
         }
 
         .previous-company-description {
@@ -2982,21 +2774,6 @@ const [skillsLoading, setSkillsLoading] = useState(true);
 
             gap: 20px;
           }
-
-          .career-timeline-content {
-            grid-template-columns:
-              70px 1fr;
-
-            column-gap: 25px;
-          }
-
-          .career-line {
-            left: 26px;
-          }
-
-          .career-node {
-            width: 55px;
-          }
         }
 
         @media (max-width: 800px) {
@@ -3041,78 +2818,22 @@ const [skillsLoading, setSkillsLoading] = useState(true);
             margin-top: 15px;
           }
 
-          .career-timeline-content {
-            grid-template-columns:
-              42px 1fr;
-
-            column-gap: 18px;
-          }
-
-          .career-line {
-            left: 18px;
-
-            top: 15px;
-
-            bottom: 15px;
-          }
-
-          .career-nodes {
-            gap: 22px;
-          }
-
-          .career-node {
-            width: 38px;
-
-            min-height: 140px;
-          }
-
-          .career-dot {
-            width: 15px;
-            height: 15px;
-
-            margin-top: 7px;
-          }
-
-          .career-node-year {
-            top: 30px;
-
-            font-size: 9px;
-
-            transform:
-              translateX(-50%)
-              rotate(-90deg);
-
-            display: none;
-          }
-
           .career-cards {
-            gap: 22px;
+            gap: 16px;
           }
 
           .previous-company-card {
-            min-height: 140px;
-
             padding:
-              18px 18px;
-          }
-
-          .previous-company-card:hover,
-          .previous-company-card.active {
-            transform:
-              translateX(3px);
-          }
-
-          .previous-company-card.in-view:hover,
-          .previous-company-card.in-view.active {
-            transform:
-              translateX(3px);
+              18px 20px;
           }
 
           .previous-company-top {
             flex-direction:
               column;
 
-            gap: 8px;
+            align-items: flex-start;
+
+            gap: 6px;
           }
 
           .previous-company-years {
@@ -3162,26 +2883,6 @@ const [skillsLoading, setSkillsLoading] = useState(true);
 
           .footer-brand h2 {
             font-size: 26px;
-          }
-
-          .career-timeline-content {
-            grid-template-columns:
-              30px 1fr;
-
-            column-gap: 14px;
-          }
-
-          .career-line {
-            left: 14px;
-          }
-
-          .career-node {
-            width: 30px;
-          }
-
-          .career-dot {
-            width: 13px;
-            height: 13px;
           }
         }
 
@@ -4195,15 +3896,6 @@ const [skillsLoading, setSkillsLoading] = useState(true);
               "career-timeline-content"
           >
 
-            {/* TIMELINE LINE */}
-
-
-
-            {/* TIMELINE NODES */}
-
-            
-
-
             {/* PREVIOUS COMPANY CARDS */}
 
             <div
@@ -4213,13 +3905,6 @@ const [skillsLoading, setSkillsLoading] = useState(true);
 
               {previousExperience.map(
                 (company, index) => (
-
-                  /*
-                    IMPORTANT:
-                    These are deliberately
-                    DIV elements, NOT buttons.
-                    They cannot be opened.
-                  */
 
                   <div
                     key={company.id}
