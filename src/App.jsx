@@ -288,10 +288,10 @@ function SkillsDock({ skills }) {
           const lift =
             strength * maxLift;
 
-          tile.style.transform =
+          .transform =
             `translateY(${lift}px) scale(${scale})`;
 
-          tile.style.zIndex = "1000";
+          .zIndex = "1000";
 
           tile.classList.add(
             "magnified"
@@ -299,6 +299,7 @@ function SkillsDock({ skills }) {
         } else {
           tile.style.transform =
             "translateY(0px) scale(1)";
+          tile.style.zIndex = "1";
 
           tile.classList.remove(
             "magnified"
@@ -315,6 +316,7 @@ function SkillsDock({ skills }) {
 
         tile.style.transform =
           "translateY(0px) scale(1)";
+        tile.style.zIndex = "1";
 
         tile.classList.remove(
           "magnified"
