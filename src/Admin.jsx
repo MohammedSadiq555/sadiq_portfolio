@@ -1909,27 +1909,13 @@ export default function Admin() {
 
 
         const url =
-          `${EXPERIENCE_CREATE_API}` +
-          `?CompanyName=${encodeURIComponent(
-            newCompanyName.trim()
-          )}` +
-          `&JobRole=${encodeURIComponent(
-            newJobRole.trim()
-          )}` +
-          `&JobTitle=${encodeURIComponent(
-            newJobTitle.trim()
-          )}` +
-          `&StartYear=${encodeURIComponent(
-            newStartYear
-          )}` +
-          `&IsPresent=${encodeURIComponent(
-            newIsPresent
-          )}` +
-          `&EndYear=${encodeURIComponent(
-            newIsPresent
-              ? ""
-              : newEndYear
-          )}`;
+  `${EXPERIENCE_CREATE_API}` +
+  `?CompanyName=${encodeURIComponent(newCompanyName.trim())}` +
+  `&JobRole=${encodeURIComponent(newJobRole.trim())}` +
+  `&JobTitle=${encodeURIComponent(newJobTitle.trim())}` +
+  `&StartYear=${encodeURIComponent(newStartYear)}` +
+  `&IsPresent=${encodeURIComponent(newIsPresent)}` +
+  `&EndYear=${encodeURIComponent(newIsPresent ? "0" : newEndYear)}`;
 
 
         const response =
