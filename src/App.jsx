@@ -244,70 +244,87 @@ function SkillsDock({ skills }) {
   const wrapRef = useRef(null);
   const tileRefs = useRef([]);
 
-  const handleMouseMove = (e) => {
-    const wrap = wrapRef.current;
+const handleMouseMove = (e) => {
+  const rect = wrapRef.current.getBoundingClientRect();
 
-    if (!wrap) return;
+  const mouseX = e.clientX;
+  const mouseY = e.clientY;
 
-    const mouseX = e.clientX;
-    const mouseY = e.clientY;
+  let hoveredTile = null;
 
-    tileRefs.current.forEach(
-      (tile) => {
-        if (!tile) return;
+  // First find the card directly under the mouse
+  tileRefs.current.forEach((tile) => {
+    if (!tile) return;
 
-        const rect =
-          tile.getBoundingClientRect();
+    const tileRect = tile.getBoundingClientRect();
 
-        const cx =
-          rect.left +
-          rect.width / 2;
+    if (
+      mouseX >= tileRect.left &&
+      mouseX <= tileRect.right &&
+      mouseY >= tileRect.top &&
+      mouseY <= tileRect.bottom
+    ) {
+      hoveredTile = tile;
+    }
+  });
 
-        const cy =
-          rect.top +
-          rect.height / 2;
+  tileRefs.current.forEach((tile) => {
+    if (!tile) return;
 
-        const dist = Math.hypot(
-          mouseX - cx,
-          mouseY - cy
-        );
+    const tileRect = tile.getBoundingClientRect();
 
-        const radius = 140;
-        const maxScale = 1.6;
-        const maxLift = -14;
+    const cx =
+      tileRect.left +
+      tileRect.width / 2;
 
-        if (dist < radius) {
-          const strength =
-            1 - dist / radius;
+    const cy =
+      tileRect.top +
+      tileRect.height / 2;
 
-          const scale =
-            1 +
-            strength *
-              (maxScale - 1);
-
-          const lift =
-            strength * maxLift;
-
-          .transform =
-            `translateY(${lift}px) scale(${scale})`;
-
-          .zIndex = "1000";
-
-          tile.classList.add(
-            "magnified"
-          );
-        } else {
-          tile.style.transform =
-            "translateY(0px) scale(1)";
-          tile.style.zIndex = "1";
-
-          tile.classList.remove(
-            "magnified"
-          );
-        }
-      }
+    const dist = Math.hypot(
+      mouseX - cx,
+      mouseY - cy
     );
-  };
+
+    const radius = 140;
+    const maxScale = 1.6;
+    const maxLift = -14;
+
+    if (dist < radius) {
+      const strength =
+        1 - dist / radius;
+
+      const scale =
+        1 +
+        strength *
+          (maxScale - 1);
+
+      const lift =
+        strength * maxLift;
+
+      tile.style.transform =
+        `translateY(${lift}px) scale(${scale})`;
+
+      // ONLY the card actually under the mouse
+      // gets the highest Z-index
+      if (tile === hoveredTile) {
+        tile.style.zIndex = "1000";
+      } else {
+        tile.style.zIndex = "1";
+      }
+
+      tile.classList.add("magnified");
+
+    } else {
+      tile.style.transform =
+        "translateY(0px) scale(1)";
+
+      tile.style.zIndex = "1";
+
+      tile.classList.remove("magnified");
+    }
+  });
+};
 
   const handleMouseLeave = () => {
     tileRefs.current.forEach(
