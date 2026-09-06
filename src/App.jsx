@@ -2489,7 +2489,7 @@ const [skillsLoading, setSkillsLoading] = useState(true);
           display: flex;
 
           flex-direction: column;
-
+          width:120vh;
           gap: 36px;
         }
 
